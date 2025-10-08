@@ -38,8 +38,8 @@ Data initial berita olahraga diambil dari dataset kaggle berjudul “BBC Article
 - Writer (bisa baca, comment, post, edit, dan delete berita/comment sendiri, report)
 - Reader (bisa baca, comment, beri bintang, report)
 
-Tautan deployment PWS dan link design
+<h2>Tautan deployment PWS dan link design</h2>
 <br/>
-<a href="https://davin-fauzan-olr-gg.pbp.cs.ui.ac.id/">Link Deployment PWS</a>
-<br/>
-<a href="https://www.figma.com/design/BBLkMs5eVU2K0ENdtY9ldC/OLR.GG?node-id=0-1&t=YQ5mlwgVePM0KDqT-1">Link Figma</a>
+
+- <a href="https://davin-fauzan-olr-gg.pbp.cs.ui.ac.id/">Link Deployment PWS</a>
+- <a href="https://www.figma.com/design/BBLkMs5eVU2K0ENdtY9ldC/OLR.GG?node-id=0-1&t=YQ5mlwgVePM0KDqT-1">Link Figma</a>
