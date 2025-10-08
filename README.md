@@ -32,7 +32,7 @@ Data initial berita olahraga diambil dari dataset kaggle berjudul “BBC Article
 <br/>
 <br/>
 
-Role atau peran pengguna beserta deskripsinya (karena bisa saja lebih dari satu jenis pengguna yang mengakses aplikasi)
+<h2>Role/Peran User</h2>
 
 - Admin/Moderator (bisa delete semua berita dan comment, menambahkan berita, mengangkat writer, mengurus user/writer [kick/ban] berdasarkan report)
 - Writer (bisa baca, comment, post, edit, dan delete berita/comment sendiri, report)
