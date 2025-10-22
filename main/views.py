@@ -18,15 +18,15 @@ import json
 
 @login_required(login_url='/login')
 def show_main(request):
+    filter_type = request.GET.get("filter", "all")  # default 'all'
+    if filter_type == "all":
+        news_list = News.objects.all()
+    else:
+        news_list = News.objects.filter(user=request.user)
     context = {
-        'npm' : '240123456',
-        'name': 'Haru Urara',
-        'class': 'PBP A',
-        'last_login': request.COOKIES.get('last_login', 'Never'),
+        'news_list': news_list,
     }
-
     return render(request, "main.html", context)
-
 
 def register(request):
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json'
