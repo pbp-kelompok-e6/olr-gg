@@ -3,7 +3,8 @@ from main.models import News
 from django.http import HttpResponse, HttpResponseNotFound
 from django.core import serializers
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm
+from users.forms import CustomUserCreationForm as UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 import datetime

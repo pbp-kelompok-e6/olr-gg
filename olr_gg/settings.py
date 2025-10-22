@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users',
     'main',
 ]
 
@@ -143,3 +144,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'users.CustomUser'
+
+MEDIA_URL = '/media/'
+
+# Path absolut di server tempat Django akan MENYIMPAN file
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
