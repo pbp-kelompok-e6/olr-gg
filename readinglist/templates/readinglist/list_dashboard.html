@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Reading Lists</h1>
+
+{% for rl in user_lists %}
+<section>
+    <h2>{{ rl.name }}</h2>
+    <ul>
+        {% for item in rl.items.all %}
+        <li>
+            {{ item.news.title }}
+            {% if item.is_read %}<small>(read)</small>{% endif %}
+        </li>
+        {% empty %}
+        <li>No items in this list.</li>
+        {% endfor %}
+    </ul>
+</section>
+{% empty %}
+<p>You have no reading lists yet.</p>
+{% endfor %}
+
+<hr>
+<h3>Create new list</h3>
+<form id="create-list-form">
+    {% csrf_token %}
+    {{ list_form.as_p }}
+    <button type="submit" id="createListButton">Create</button>
+</form>
+
+<script>
+    // FUNGSI UTILITY AJAX SEDERHANA (Mengganti Toast dengan Alert)
+    function sendAjax(url, method, data = {}, successCallback) {
+        fetch(url, {
+            method: method,
+            headers: {
+                // PENTING: Mengirim token CSRF dan Content-Type sebagai JSON
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: method !== 'GET' ? JSON.stringify(data) : null
+        })
+            .then(response => response.json().then(json => ({
+                ok: response.ok,
+                status: response.status,
+                data: json
+            })))
+            .then(({ ok, data }) => {
+                if (ok) {
+                    // Notifikasi Sukses menggunakan alert
+                    alert(`SUCCESS: ${data.message}`);
+                    successCallback(data);
+                } else {
+                    // Notifikasi Error menggunakan alert
+                    alert(`ERROR: ${data.message || 'Terjadi kesalahan.'}`);
+                    console.error('AJAX Error:', data.errors);
+                }
+            })
+            .catch(error => {
+                alert('ERROR: Gagal terhubung ke server.');
+                console.error('Fetch error:', error);
+            });
+    }
+
+    // --- 1. AJAX: Create List ---
+    document.getElementById('create-list-form').addEventListener('submit', function (e) {
+        e.preventDefault(); // Mencegah form submission standar
+
+        // Mengambil nilai input field 'name'. Asumsi field name="name" ada di form.
+        const listNameInput = this.querySelector('[name="name"]');
+        const listName = listNameInput.value;
+
+        // Memanggil fungsi sendAjax
+        sendAjax(
+            "/readinglist/create_or_rename/", // URL dari urls.py
+            'POST',
+            { name: listName }, // Data dikirim sebagai objek JSON
+            function (data) {
+                // Callback jika sukses: reload halaman untuk melihat list baru
+                listNameInput.value = ''; // Kosongkan input
+                // Memuat ulang halaman untuk memperbarui daftar list yang terlihat
+                location.reload();
+            }
+        );
+    });
+</script>
+{% endblock %}

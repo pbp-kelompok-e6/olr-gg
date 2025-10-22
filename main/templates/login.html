@@ -29,4 +29,100 @@
     <a href="{% url 'main:register' %}">Register Now</a>
 </div>
 
+
+<script>
+    // Pastikan fungsi showToast sudah tersedia dari base.html
+    const loginForm = document.getElementById('loginForm');
+    const loginButton = document.getElementById('loginButton');
+    const generalError = document.getElementById('general-error');
+    const generalErrorMessage = document.getElementById('general-error-message');
+
+    // Utility untuk membersihkan error
+    function clearErrors() {
+        generalError.classList.add('hidden');
+        generalErrorMessage.textContent = '';
+        document.querySelectorAll('#loginForm .text-red-600').forEach(el => {
+            el.textContent = '';
+            el.classList.add('hidden');
+        });
+    }
+
+    // Fungsi untuk menampilkan error per field
+    function displayErrors(errors) {
+        let nonFieldErrors = [];
+        for (const [field, errorList] of Object.entries(errors)) {
+            const errorElement = document.getElementById(`error-${field}`);
+            const errorText = errorList.join(' ');
+            if (field === '__all__') {
+                nonFieldErrors.push(errorText);
+            } else if (errorElement) {
+                errorElement.textContent = errorText;
+                errorElement.classList.remove('hidden');
+            }
+        }
+
+        // Tampilkan error non-field (e.g., kredensial salah)
+        if (nonFieldErrors.length > 0) {
+            generalErrorMessage.textContent = nonFieldErrors.join(' ');
+            generalError.classList.remove('hidden');
+        }
+    }
+
+
+    loginForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        clearErrors(); // Bersihkan error sebelumnya
+
+        const originalButtonText = loginButton.textContent;
+        loginButton.textContent = 'Signing In...';
+        loginButton.disabled = true;
+
+        const data = {
+            username: loginForm.username.value,
+            password: loginForm.password.value,
+        };
+
+        try {
+            const response = await fetch(loginForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': loginForm.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json', // Kirim data sebagai JSON
+                },
+                body: JSON.stringify(data)
+            });
+
+            const responseData = await response.json();
+
+            if (response.ok) {
+                // Sukses (Status 200 dari login_ajax)
+                showToast('Success', responseData.message || 'Login successful!', 'success');
+                // Redirect ke halaman utama setelah toast muncul
+                setTimeout(() => {
+                    window.location.href = "{% url 'main:show_main' %}";
+                }, 1000);
+            } else {
+                // Error (Status 400 dari login_ajax)
+                showToast('Error', responseData.message || 'Login failed.', 'error');
+
+                // Tampilkan error per-field atau non-field error
+                if (responseData.errors) {
+                    displayErrors(responseData.errors);
+                } else if (responseData.message) {
+                    // Jika error bukan per-field, tampilkan di general error
+                    generalErrorMessage.textContent = responseData.message;
+                    generalError.classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('AJAX Error:', error);
+            showToast('Error', 'Failed to connect to server.', 'error');
+        } finally {
+            loginButton.textContent = originalButtonText;
+            loginButton.disabled = false;
+        }
+    });
+</script>
+
 {% endblock content %}

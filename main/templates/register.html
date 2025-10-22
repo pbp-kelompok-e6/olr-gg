@@ -29,4 +29,102 @@
     {% endif %}
 </div>
 
+<script>
+    // Pastikan fungsi showToast sudah tersedia dari base.html
+    const registerForm = document.getElementById('registerForm');
+    const registerButton = document.getElementById('registerButton');
+    const generalError = document.getElementById('general-error');
+    const generalErrorMessage = document.getElementById('general-error-message');
+
+    // Utility untuk membersihkan error
+    function clearErrors() {
+        generalError.classList.add('hidden');
+        generalErrorMessage.textContent = '';
+        document.querySelectorAll('#registerForm .text-red-600').forEach(el => {
+            el.textContent = '';
+            el.classList.add('hidden');
+        });
+    }
+
+    // Fungsi untuk menampilkan error per field
+    function displayErrors(errors) {
+        let nonFieldErrors = [];
+        for (const [field, errorList] of Object.entries(errors)) {
+            const errorElement = document.getElementById(`error-${field}`);
+            const errorText = errorList.join(' ');
+
+            if (field === '__all__') {
+                nonFieldErrors.push(errorText);
+            } else if (errorElement) {
+                errorElement.textContent = errorText;
+                errorElement.classList.remove('hidden');
+            }
+        }
+
+        // Tampilkan error non-field
+        if (nonFieldErrors.length > 0) {
+            generalErrorMessage.textContent = nonFieldErrors.join(' ');
+            generalError.classList.remove('hidden');
+        }
+    }
+
+
+    registerForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        clearErrors(); // Bersihkan error sebelumnya
+
+        const originalButtonText = registerButton.textContent;
+        registerButton.textContent = 'Creating Account...';
+        registerButton.disabled = true;
+
+        // Data dikirim sebagai JSON (sesuai field di UserCreationForm)
+        const data = {
+            username: registerForm.username.value,
+            password1: registerForm.password1.value,
+            password2: registerForm.password2.value,
+        };
+
+        try {
+            const response = await fetch(registerForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': registerForm.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json', // Kirim data sebagai JSON
+                },
+                body: JSON.stringify(data)
+            });
+
+            const responseData = await response.json();
+
+            if (response.ok) {
+                // Sukses (Status 201 dari register_ajax)
+                showToast('Success', responseData.message || 'Account created successfully!', 'success');
+                // Redirect ke halaman login setelah toast muncul
+                setTimeout(() => {
+                    window.location.href = "{% url 'main:login' %}";
+                }, 1000);
+            } else {
+                // Error (Status 400 dari register_ajax)
+                showToast('Error', responseData.message || 'Registration failed.', 'error');
+
+                // Tampilkan error per-field
+                if (responseData.errors) {
+                    displayErrors(responseData.errors);
+                } else if (responseData.message) {
+                    // Jika error bukan per-field, tampilkan di general error
+                    generalErrorMessage.textContent = responseData.message;
+                    generalError.classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('AJAX Error:', error);
+            showToast('Error', 'Failed to connect to server.', 'error');
+        } finally {
+            registerButton.textContent = originalButtonText;
+            registerButton.disabled = false;
+        }
+    });
+</script>
+
 {% endblock content %}
