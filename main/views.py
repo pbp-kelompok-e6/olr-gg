@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from main.models import News
+from berita.models import News
 from django.http import HttpResponse, HttpResponseNotFound
 from django.core import serializers
 from django.contrib import messages
