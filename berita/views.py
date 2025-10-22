@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from berita.forms import beritaForm
-from berita.models import Berita
+from berita.forms import newsForm
+from berita.models import News
 from main.views import login_required
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
@@ -9,45 +9,45 @@ from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
 
 @login_required(login_url='/login')
-def show_berita(request, id):
-    berita = get_object_or_404(Berita, pk=id)
+def show_news(request, id):
+    News = get_object_or_404(News, pk=id)
 
     context = {
-        'berita': berita
+        'news': News
     }
 
-    return render(request, "berita_detail.html", context)
+    return render(request, "news_detail.html", context)
 
 @csrf_exempt
 @require_POST
 @login_required
-def edit_berita(request, id):
-    berita = get_object_or_404(Berita, pk=id, user=request.user)  # pastikan hanya user sendiri
+def edit_news(request, id):
+    news = get_object_or_404(News, pk=id, user=request.user)  # pastikan hanya user sendiri
 
-    berita.title = strip_tags(request.POST.get("title"))
-    berita.content = strip_tags(request.POST.get("content"))
-    berita.category = request.POST.get("category")
-    berita.thumbnail = request.POST.get("thumbnail")
-    berita.is_featured = request.POST.get("is_featured") == 'on'
-    berita.save()
+    news.title = strip_tags(request.POST.get("title"))
+    news.content = strip_tags(request.POST.get("content"))
+    news.category = request.POST.get("category")
+    news.thumbnail = request.POST.get("thumbnail")
+    news.is_featured = request.POST.get("is_featured") == 'on'
+    news.save()
 
     return HttpResponse(b"UPDATED", status=200)
 
 @login_required(login_url='/login')
 @csrf_exempt
-def delete_berita(request, id):
+def delete_news(request, id):
     if request.method == 'DELETE':
         try:
-            berita = Berita.objects.get(id=id, user=request.user)
-            berita.delete()
+            news = News.objects.get(id=id, user=request.user)
+            news.delete()
             return JsonResponse({"success": True})
-        except Berita.DoesNotExist:
-            return JsonResponse({"error": "Berita not found"}, status=404)
+        except News.DoesNotExist:
+            return JsonResponse({"error": "News not found"}, status=404)
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 @csrf_exempt
 @require_POST
-def add_berita(request):
+def add_news(request):
     title = strip_tags(request.POST.get("title")) # strip HTML tags!
     content = strip_tags(request.POST.get("content")) # strip HTML tags!
     category = request.POST.get("category")
@@ -55,7 +55,7 @@ def add_berita(request):
     is_featured = request.POST.get("is_featured") == 'on'  # checkbox handling
     user = request.user
 
-    berita_baru = Berita(
+    news_baru = News(
         title=title, 
         content=content,
         category=category,
@@ -63,6 +63,6 @@ def add_berita(request):
         is_featured=is_featured,
         user=user
     )
-    berita_baru.save()
+    news_baru.save()
 
     return HttpResponse(b"CREATED", status=201)

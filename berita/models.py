@@ -1,9 +1,9 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import User
+from users.models import CustomUser
 
-class Berita(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+class News(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     SPORTS_CHOICES = [
         ('basketball', 'Basketball'),
         ('soccer', 'Soccer'),
