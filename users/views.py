@@ -6,6 +6,7 @@ from .forms import CustomUserChangeForm
 from django.shortcuts import get_object_or_404
 from .models import CustomUser as User
 from django.contrib.auth import get_user_model
+from django.templatetags.static import static 
 
 User = get_user_model()
 
@@ -15,19 +16,32 @@ def edit_profile(request):
         form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
         
         if form.is_valid():
-            form.save()
-            return JsonResponse({'status': 'success', 'message': 'Profile berhasil di update.'})
+            user_instance = form.save() 
+            
+            if user_instance.profile_picture:
+                pic_url = user_instance.profile_picture.url
+            else:
+                pic_url = static('image/default_profile_picture.jpg') 
+
+            return JsonResponse({
+                'status': 'success', 
+                'message': 'Profile berhasil di update.',
+                'new_data': {
+                    'full_name': f"{user_instance.first_name or ''} {user_instance.last_name or ''}".strip(),
+                    'bio': user_instance.bio or "This user has not added a bio yet.",
+                    'profile_picture_url': pic_url
+                }
+            })
     
         else:
             errors = form.errors.as_json()
             return JsonResponse({'status': 'error', 'errors': errors}, status=400)
-    
     form = CustomUserChangeForm(instance=request.user)
     context = {
         'form': form
     }
 
-    return render(request, 'edit_profile.html', context)
+    return render(request, 'edit_profile.html', context) 
 
 def show_profile(request, id):
     target_user = get_object_or_404(User, id=id)
