@@ -10,5 +10,4 @@ urlpatterns = [
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
     path('edit_profile/', user_views.edit_profile, name='edit_profile'),
-    path('readinglist/', include(('readinglist.urls', 'readinglist'))),
-]
+   ]
