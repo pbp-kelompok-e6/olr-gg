@@ -4,8 +4,8 @@ from .models import Rating
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Rating
-        fields = ['rating', 'comment']
+        fields = ['rating', 'review']
         widgets = {
             'rating': forms.NumberInput(attrs={'min': 1, 'max': 5}),
-            'comment': forms.Textarea(attrs={'rows': 4}),
+            'review': forms.Textarea(attrs={'rows': 4}),
         }
