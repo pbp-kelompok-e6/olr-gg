@@ -5,7 +5,10 @@ from .views import (
     add_to_list_ajax, 
     create_or_rename_list_ajax, 
     delete_list_ajax,
-    toggle_read_status_ajax
+    toggle_read_status_ajax,
+    get_user_lists_ajax,
+    get_user_lists_ajax,
+    get_news_list_status_ajax
 )
 
 app_name = 'readinglist'
@@ -20,8 +23,12 @@ urlpatterns = [
     path('delete/<uuid:list_id>/', delete_list_ajax, name='delete_list'), # Delete
 
     # Item Management (API untuk tombol di artikel berita)
-    # Ini menangani Penambahan dan Penghapusan (Toggle) item
     path('add_remove/<uuid:news_id>/', add_to_list_ajax, name='add_remove_news'), 
     # API untuk mengubah status baca
     path('toggle_read/<int:item_id>/', toggle_read_status_ajax, name='toggle_read'), 
+    
+    # New API endpoint to fetch user's lists
+    path('api/lists/', get_user_lists_ajax, name='get_user_lists'), 
+    # New API endpoint to check news status in all lists
+    path('api/status/<uuid:news_id>/', get_news_list_status_ajax, name='get_news_list_status'), # NEW
 ]

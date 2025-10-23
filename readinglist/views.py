@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
 # Import models dan forms dari aplikasi yang bersangkutan
-from main.models import News 
+from berita.models import News 
 from .models import ReadingList, ReadingListItem
 from .forms import ReadingListForm
 
@@ -25,6 +25,50 @@ def get_or_create_default_list(user):
     return list_obj
 
 # --- VIEW FUNGSI ---
+@login_required
+def get_user_lists_ajax(request):
+    """Mengembalikan daftar ReadingList milik user dalam format JSON."""
+    user_lists = ReadingList.objects.filter(user=request.user).values('id', 'name')
+    # Konversi UUID ke string
+    data = [{'id': str(list['id']), 'name': list['name']} for list in user_lists]
+    return JsonResponse(data, safe=False)
+
+
+def get_news_list_status(user, news_id):
+    """Mengembalikan status berita (ada/tidak ada) di setiap list user."""
+    # Ambil semua list user
+    user_lists = ReadingList.objects.filter(user=user).values('id', 'name')
+    
+    # Ambil semua ReadingListItem untuk berita ini dalam list user
+    items_in_list = ReadingListItem.objects.filter(
+        list__user=user, 
+        news__id=news_id
+    ).values_list('list__id', flat=True)
+    
+    data = []
+    # Konversi list['id'] ke string untuk konsistensi
+    items_in_list_str = [str(id) for id in items_in_list]
+    for list_obj in user_lists:
+        is_in_list = str(list_obj['id']) in items_in_list_str
+        data.append({
+            'id': str(list_obj['id']),
+            'name': list_obj['name'],
+            'is_in_list': is_in_list
+        })
+        
+    return data
+
+@login_required
+def get_news_list_status_ajax(request, news_id):
+    """API: Mengembalikan status berita di semua list user dalam format JSON."""
+    try:
+        # Cek apakah news_id valid (UUID)
+        News.objects.get(id=news_id) 
+    except News.DoesNotExist:
+        return JsonResponse({"status": "ERROR", "message": "News not found."}, status=404)
+    
+    data = get_news_list_status(request.user, news_id)
+    return JsonResponse(data, safe=False)
 
 @login_required
 def show_reading_lists(request):
@@ -83,34 +127,43 @@ def delete_list_ajax(request, list_id):
     list_obj.delete()
     return JsonResponse({"status": "SUCCESS", "message": f"List '{list_obj.name}' berhasil dihapus."}, status=200)
 
-@require_POST
 @login_required
-@csrf_exempt
+@require_POST
 def add_to_list_ajax(request, news_id):
-    """CRUD: Menambah/Menghapus Berita dari List (POST ke /add_remove/{news_id}/)"""
-    news = get_object_or_404(News, id=news_id)
-
     try:
+        # 1. Parsing data dari body POST request
         data = json.loads(request.body)
         list_id = data.get('list_id')
-    except json.JSONDecodeError:
-        return JsonResponse({"status": "ERROR", "message": "Format JSON tidak valid."}, status=400)
-    
-    # Tentukan list tujuan (default ke 'Favorites' jika tidak ada list_id)
-    if not list_id:
-        list_obj = get_or_create_default_list(request.user)
-    else:
-        list_obj = get_object_or_404(ReadingList, id=list_id, user=request.user)
+        
+        if not list_id:
+            return JsonResponse({"status": "ERROR", "message": "List ID is required."}, status=400)
 
-    try:
-        # Coba tambahkan item baru (CREATE)
-        ReadingListItem.objects.create(list=list_obj, news=news)
-        return JsonResponse({"status": "SUCCESS", "message": f"Berita berhasil ditambahkan ke '{list_obj.name}'."}, status=201)
+        # 2. Ambil objek News dan List
+        news = get_object_or_404(News, id=news_id)
+        # Penting: Pastikan list tersebut dimiliki oleh user yang sedang login
+        reading_list = get_object_or_404(ReadingList, id=list_id, user=request.user)
+        
+        # 3. Toggle Status
+        item, created = ReadingListItem.objects.get_or_create(
+            list=reading_list,
+            news=news
+        )
+
+        if created:
+            message = f"News berhasil ditambahkan ke list '{reading_list.name}'."
+            status = "ADDED"
+        else:
+            # Jika sudah ada, hapus (Toggle)
+            item.delete()
+            message = f"News berhasil dihapus dari list '{reading_list.name}'."
+            status = "REMOVED"
+        
+        return JsonResponse({"status": status, "message": message, "list_name": reading_list.name})
+
+    except json.JSONDecodeError:
+        return JsonResponse({"status": "ERROR", "message": "Invalid JSON format."}, status=400)
     except IntegrityError:
-        # Jika sudah ada, hapus (Toggle/DELETE)
-        item = ReadingListItem.objects.get(list=list_obj, news=news)
-        item.delete()
-        return JsonResponse({"status": "SUCCESS", "message": f"Berita dihapus dari '{list_obj.name}'."}, status=200)
+        return JsonResponse({"status": "ERROR", "message": "A database integrity error occurred."}, status=500)
     except Exception as e:
         return JsonResponse({"status": "ERROR", "message": str(e)}, status=500)
 

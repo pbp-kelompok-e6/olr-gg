@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('added_at', models.DateTimeField(auto_now_add=True)),
                 ('is_read', models.BooleanField(default=False)),
                 ('list', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='readinglist.readinglist')),
-                ('news', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main.news')),
+                ('news', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='berita.news')),
             ],
             options={
                 'ordering': ['is_read', '-added_at'],

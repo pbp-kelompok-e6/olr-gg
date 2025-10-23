@@ -2,7 +2,7 @@
 import uuid
 from django.db import models
 from django.conf import settings
-from main.models import News # Mengimport model News dari app 'main'
+from berita.models import News # Mengimport model News dari app 'main'
 
 # Model untuk List Bacaan (Folder)
 class ReadingList(models.Model):

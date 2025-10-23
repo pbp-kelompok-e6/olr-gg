@@ -11,9 +11,6 @@ urlpatterns = [
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
     path('edit_profile/', user_views.edit_profile, name='edit_profile'),
-<<<<<<< HEAD
-   ]
-=======
     path('news/<str:id>/', show_news, name='show_news'),
     path('news/<uuid:id>/edit/', edit_news, name='edit_news'),
     path('news/<uuid:id>/delete/', delete_news, name='delete_news'),
@@ -21,4 +18,3 @@ urlpatterns = [
     path('json/', show_json, name='show_json'),
     path('json/<str:news_id>/', show_json_by_id, name='show_json_by_id'),
 ]
->>>>>>> 9ea3b7cda7011206d29da9fba57294f9e09871f3
