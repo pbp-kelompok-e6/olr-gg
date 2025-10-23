@@ -4,12 +4,24 @@
 <div class="max-w-4xl mx-auto my-8" id="profile_container">
     <div class="flex items-center gap-x-4" id="nama_dan_role">
         <div>
-            {% if usertarget.profile_picture %}
-                <img id="profile_image_display" src="{{ usertarget.profile_picture.url }}" alt="Profile Picture" width="150" height="150" class="rounded-full h-48 w-48 object-cover">
-            {% else %}
-                <img id="profile_image_display" src="{% static 'image/default_profile_picture.jpg' %}" alt="Default Profile Picture" class="rounded-full h-48 w-48 object-cover">
-            {% endif %}
-        </div>
+        {% if usertarget.profile_picture %}
+            <img id="profile_image_display" src="{{ usertarget.profile_picture.url }}" alt="Profile Picture" 
+                {% if is_owner %}
+                class="rounded-full h-48 w-48 object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                data-url="{% url 'users:change_pic' %}"
+                {% else %}
+                class="rounded-full h-48 w-48 object-cover"
+                {% endif %}>
+        {% else %}
+            <img id="profile_image_display" src="{% static 'image/default_profile_picture.jpg' %}" alt="Default Profile Picture" 
+                {% if is_owner %}
+                class="rounded-full h-48 w-48 object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                data-url="{% url 'users:change_pic' %}"
+                {% else %}
+                class="rounded-full h-48 w-48 object-cover"
+                {% endif %}>
+        {% endif %}
+</div>
         <div class="">
             <div>
                 <span id="profile_fullname_display" class="text-2xl font-bold">
@@ -33,8 +45,8 @@
             {% endif %}
         </div>
     </div>
-    <div class="border-t-2 mt-4 py-4" id="about"> 
-        <h3>About</h3>
+    <div class="border-t-2 mt-8 py-4" id="about"> 
+        <h3 class="text-xl font-semibold mb-4">About</h3>
         <p id="profile_bio_display">
             {% if usertarget.bio %}
                 {{ usertarget.bio }}
@@ -43,8 +55,14 @@
             {% endif %}
         </p>
     </div>
-    <div id="posts" class="hidden">
-        <h3>Posts</h3>
+    <div id="posts" class="mt-2">
+        <h3 class="text-xl font-semibold border-t-2 pt-4 mb-4">
+            Posts by @{{ usertarget.username }}
+        </h3>
+        
+        <div id="posts_content_target" data-url="{% url 'users:load_news' usertarget.id %}">
+            <p id="posts_loading_spinner" class="text-gray-500">Loading posts...</p>
+        </div>
     </div>
 </div>
 
@@ -56,6 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const modalButton = document.getElementById('openEditModal');
     const modalContainer = document.getElementById('profileModalContainer');
+
 
     // buka modalnya 
     if (modalButton) {
@@ -151,6 +170,44 @@ document.addEventListener('DOMContentLoaded', function() {
             div.innerHTML = '';
         });
         document.getElementById('form-messages').innerHTML = '';
+    }
+
+    const postsContentTarget = document.getElementById('posts_content_target');
+    
+    if (postsContentTarget) {
+        const postsUrl = postsContentTarget.dataset.url;
+        
+        fetch(postsUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                postsContentTarget.innerHTML = html; 
+            })
+            .catch(error => {
+                console.error('Error fetching posts:', error);
+                postsContentTarget.innerHTML = '<p class="text-red-500">Could not load posts. Please try refreshing the page.</p>';
+            });
+    }
+
+    const picTrigger = document.getElementById('profile_image_display');
+    if (picTrigger && picTrigger.dataset.url) { 
+        picTrigger.addEventListener('click', function() {
+            const url = this.dataset.url;
+            
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    // Masukkan HTML form ke dalam container
+                    modalContainer.innerHTML = html;
+                    // Tampilkan modal
+                    document.getElementById('modalBackdrop').classList.remove('hidden');
+                })
+                .catch(error => console.error('Error fetching pic modal:', error));
+        });
     }
 
 });

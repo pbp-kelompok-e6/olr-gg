@@ -9,32 +9,14 @@
 
         <div id="form-messages" class="mb-4"></div>
 
-        <form id="editProfileForm" method="POST" action="{% url 'users:edit_profile' %}" enctype="multipart/form-data">
+        <form id="editProfileForm" method="POST" action="{% url 'users:change_pic' %}" enctype="multipart/form-data">
             {% csrf_token %}
-            
-            <div class="mb-4">
-                <label for="id_first_name" class="block text-sm font-medium text-gray-700">First Name</label>
-                {{ form.first_name }}
-                <div id="error-first_name" class="text-red-500 text-sm mt-1"></div>
-            </div>
 
             <div class="mb-4">
-                <label for="id_last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
-                {{ form.last_name }}
-                <div id="error-last_name" class="text-red-500 text-sm mt-1"></div>
-            </div>
-
-            <div class="mb-4">
-                <label for="id_bio" class="block text-sm font-medium text-gray-700">Bio</label>
-                {{ form.bio }}
-                <div id="error-bio" class="text-red-500 text-sm mt-1"></div>
-            </div>
-
-            <!-- <div class="mb-4">
                 <label for="id_profile_picture" class="block text-sm font-medium text-gray-700 ">Profile Picture</label>
                 {{ form.profile_picture }}
                 <div id="error-profile_picture" class="text-red-500 text-sm mt-1"></div>
-            </div> -->
+            </div>
             
             <div class="flex justify-end gap-x-3">
                 <button type="button" id="cancelEdit" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">

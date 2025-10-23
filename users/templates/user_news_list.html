@@ -1,0 +1,18 @@
+{% if news_list %}
+    <div class="space-y-4">
+        {% for news_item in news_list %}
+            <div class="p-4 border rounded-lg shadow-sm bg-white">
+                <a href="{% url 'main:show_news' news_item.id %}" class="text-lg font-bold text-indigo-600 hover:underline">
+                    {{ news_item.title }}
+                </a>
+                
+                <p class="text-sm text-gray-500 mb-2">
+                    Posted on {{ news_item.created_at|date:"F j, Y" }}
+                </p>
+                
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-gray-600">This user has not posted any news yet.</p>
+{% endif %}
