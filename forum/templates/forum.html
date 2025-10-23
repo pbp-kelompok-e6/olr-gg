@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="max-width: 900px; margin: 40px auto;">
+
+  <h1 style="text-align: center; margin-bottom: 30px;">Sports Discussion Forum</h1>
+
+  <div class="mb-4">
+    <button id="show-form-btn" class="btn btn-primary">Create a New Discussion</button>
+  </div>
+
+  <div class="card mb-4 shadow-sm" id="create-post-card" style="display: none;">
+    <div class="card-body">
+      <h5 class="card-title">Create a New Discussion</h5>
+      <form id="create-post-form">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="post-title" class="form-label">Title</label>
+          <input type="text" class="form-control" id="post-title" required>
+        </div>
+        <div class="mb-3">
+          <label for="post-content" class="form-label">Description</label>
+          <textarea class="form-control" id="post-content" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Post to Forum</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="list-group" id="post-list-container">
+    {% for post in posts %}
+      <div class="list-group-item">
+        <h5 class="mb-1">{{ post.title }}</h5>
+        <p class="mb-2">Started by {{ post.author.username }}</p>
+        <a href="{% url 'forum:post_detail_view' post.id %}" class="btn btn-sm btn-outline-primary">View More</a>
+      </div>
+    {% empty %}
+      <p id="no-posts-message">No discussions have been started yet.</p>
+    {% endfor %}
+  </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  
+  // --- New JavaScript to show/hide the form ---
+  const showFormBtn = document.getElementById('show-form-btn');
+  const createPostCard = document.getElementById('create-post-card');
+
+  showFormBtn.addEventListener('click', function() {
+    // This toggles the form's visibility
+    if (createPostCard.style.display === 'none') {
+      createPostCard.style.display = 'block';
+      this.textContent = 'Cancel'; // Change button text
+    } else {
+      createPostCard.style.display = 'none';
+      this.textContent = 'Create a New Discussion'; // Change it back
+    }
+  });
+
+
+  // --- Your existing JavaScript for submitting the form ---
+  document.getElementById('create-post-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const postTitle = document.getElementById('post-title').value;
+    const postContent = document.getElementById('post-content').value;
+
+    fetch("{% url 'forum:create_post_ajax' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+      body: JSON.stringify({ title: postTitle, content: postContent }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        const postContainer = document.getElementById('post-list-container');
+        
+        const newPostDiv = document.createElement('div');
+        newPostDiv.className = 'list-group-item';
+        newPostDiv.innerHTML = `
+          <h5 class="mb-1">${data.post.title}</h5>
+          <p class="mb-2">Started by ${data.post.author}</p>
+          <a href="${data.post.url}" class="btn btn-sm btn-outline-primary">View More</a>
+        `;
+
+        postContainer.prepend(newPostDiv);
+        document.getElementById('no-posts-message')?.remove();
+        this.reset();
+        
+        // Hide the form again after successful post
+        showFormBtn.click(); 
+      } else {
+        alert(data.message || 'An error occurred.');
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
