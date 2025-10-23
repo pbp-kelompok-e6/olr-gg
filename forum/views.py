@@ -26,20 +26,28 @@ def create_post_ajax(request):
         data = json.loads(request.body)
         title = data.get('title')
         content = data.get('content')
+        category = data.get('category') # <-- AMBIL KATEGORI
 
-        if not title or not content:
-            return JsonResponse({'status': 'error', 'message': 'Title and content cannot be empty.'}, status=400)
+        if not title or not content or not category: # <-- VALIDASI KATEGORI
+            return JsonResponse({'status': 'error', 'message': 'All fields are required.'}, status=400)
 
-        post = ForumPost.objects.create(author=request.user, title=title, content=content)
-        
-        # The fix is here: we now generate the URL and add it to the response
+        post = ForumPost.objects.create(
+            author=request.user, 
+            title=title, 
+            content=content,
+            category=category # <-- SIMPAN KATEGORI
+        )
+
         return JsonResponse({
             'status': 'success',
             'post': {
                 'id': post.id,
                 'title': post.title,
+                'content': post.content, # <-- Tambahkan content untuk data-attribute
                 'author': post.author.username,
-                'url': reverse('forum:post_detail_view', kwargs={'post_id': post.id}) # <-- THIS IS THE NEW LINE
+                'url': reverse('forum:post_detail_view', kwargs={'post_id': post.id}),
+                'category_code': post.category, # <-- Kirim kode kategori
+                'category_display': post.get_category_display() # <-- Kirim nama display kategori
             }
         })
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
@@ -51,12 +59,14 @@ def edit_post_ajax(request, post_id):
         data = json.loads(request.body)
         post.title = data.get('title', post.title)
         post.content = data.get('content', post.content)
+        post.category = data.get('category', post.category) # <-- TAMBAHKAN INI
         post.save()
         return JsonResponse({
             'status': 'success',
             'post': {
                 'title': post.title,
                 'content': post.content,
+                'category_display': post.get_category_display() # <-- Kirim nama display
             }
         })
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)

@@ -1,6 +1,15 @@
 from django.db import models
 from django.conf import settings 
 
+CATEGORY_CHOICES = (
+    ('soccer', 'Soccer'),
+    ('basketball', 'Basketball'),
+    ('football', 'Football'),
+    ('hockey', 'Hockey'),
+    ('volleyball', 'Volleyball'), # Perbaiki typo dari 'voleyball'
+    ('baseball', 'Baseball'),
+)
+
 # Model untuk setiap post di forum
 class ForumPost(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -8,6 +17,7 @@ class ForumPost(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='soccer')
 
     def __str__(self):
         return self.title
