@@ -1,0 +1,11 @@
+{% if user.is_authenticated %}
+<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+    <h3 class="text-xl font-semibold text-gray-900 mb-4">Reading List</h3>
+    <button id="add-to-reading-list-btn" data-news-id="{{ news.id }}"
+        class="inline-flex items-center px-4 py-2 border border-green-600 text-green-600 hover:bg-green-600 hover:text-white text-sm font-medium rounded-md transition-colors">
+        <span id="reading-list-status-text">+ Reading List</span>
+    </button>
+    <p class="text-sm text-gray-500 mt-2">Pilih list yang ingin Anda tambahkan/hapus berita ini (klik tombol di atas).
+    </p>
+</div>
+{% endif %}

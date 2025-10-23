@@ -16,31 +16,7 @@
             </a>
         </div>
 
-        <div class="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 mb-6">
-            <h3 class="text-xl font-semibold text-gray-900 mb-4">Reading List</h3>
-            {% if user.is_authenticated %}
-            <button id="add-to-reading-list-btn" data-news-id="{{ news.id }}"
-                class="inline-flex items-center px-4 py-2 border text-sm font-medium rounded-md transition-colors">
-                <span id="reading-list-status-text">+ Reading List</span>
-            </button>
-            <p class="text-sm text-gray-500 mt-2">Pilih list yang ingin Anda tambahkan/hapus berita ini (klik tombol di
-                atas).</p>
-            {% endif %}
-        </div>
-
-        <div class="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 mb-6">
-            <h3 class="text-xl font-semibold text-gray-900 mb-4">Comments & Discussion</h3>
-            {% if user.is_authenticated %}
-            <p class="text-gray-600 mb-4">Forum/Comment section goes here. User can reply, post comments, etc.</p>
-            <button
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors">
-                Post Comment
-            </button>
-            {% else %}
-            <p class="text-gray-600">Silakan login untuk berpartisipasi dalam diskusi.</p>
-            {% endif %}
-        </div>
-
+        {% include 'readinglist/reading_list_button.html' %}
         <div id="loading-state" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
             <svg class="animate-spin h-8 w-8 text-green-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 24 24">
@@ -99,27 +75,7 @@
     </div>
 </div>
 
-<div id="readingListModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
-            <h3 class="text-xl font-semibold text-gray-900">Tambahkan ke Reading List</h3>
-            <button onclick="closeReadingListModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                    </path>
-                </svg>
-            </button>
-        </div>
-        <div class="mt-4">
-            <p class="text-sm text-gray-600 mb-4">Pilih list untuk menambahkan atau menghapus berita ini.</p>
-            <div id="list-options-container" class="space-y-2">
-            </div>
-            <p id="list-loading-status" class="text-sm text-gray-500 mt-4">Memuat list...</p>
-        </div>
-    </div>
-</div>
-
+{% include 'readinglist/reading_list_modal.html' %}
 <script>
     // Configuration
     const NEWS_ID = "{{ news.id }}";

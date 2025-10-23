@@ -30,5 +30,5 @@ urlpatterns = [
     # New API endpoint to fetch user's lists
     path('api/lists/', get_user_lists_ajax, name='get_user_lists'), 
     # New API endpoint to check news status in all lists
-    path('api/status/<uuid:news_id>/', get_news_list_status_ajax, name='get_news_list_status'), # NEW
+    path('api/status/<uuid:news_id>/', get_news_list_status_ajax, name='get_news_list_status'), 
 ]
