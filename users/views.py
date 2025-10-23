@@ -1,27 +1,45 @@
-
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import CustomUserChangeForm # Impor form baru
+from .forms import CustomUserChangeForm 
+from django.shortcuts import get_object_or_404
+from .models import CustomUser as User
+from django.contrib.auth import get_user_model
 
-@login_required(login_url='/login') # Pastikan user sudah login
+User = get_user_model()
+
+@login_required(login_url='/login')
 def edit_profile(request):
     if request.method == 'POST':
-        # 1. Saat user submit, isi form dengan data POST
-        # 2. WAJIB: sertakan request.FILES untuk file (gambar)
-        # 3. WAJIB: sertakan 'instance=request.user' agar Django tahu
-        #    user mana yang sedang di-UPDATE, bukan membuat baru.
         form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
         
         if form.is_valid():
             form.save()
-            messages.success(request, 'Profil kamu berhasil diperbarui!')
-            return redirect('nama_url_edit_profil') 
+            return JsonResponse({'status': 'success', 'message': 'Profile berhasil di update.'})
     
-    else:
-        form = CustomUserChangeForm(instance=request.user)
-
+        else:
+            errors = form.errors.as_json()
+            return JsonResponse({'status': 'error', 'errors': errors}, status=400)
+    
+    form = CustomUserChangeForm(instance=request.user)
     context = {
         'form': form
     }
+
     return render(request, 'edit_profile.html', context)
+
+def show_profile(request, id):
+    target_user = get_object_or_404(User, id=id)
+
+    if request.user.is_authenticated and target_user == request.user:
+        is_owner = True
+    else:
+        is_owner = False
+
+    context = {
+        'usertarget': target_user,
+        'is_owner': is_owner
+    }
+
+    return render(request, 'show_profile.html', context)

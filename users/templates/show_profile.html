@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="max-w-4xl mx-auto my-8" id="profile_container">
+    <div class="flex items-center gap-x-4" id="nama_dan_role">
+        <div>
+            {% if usertarget.profile_picture %}
+                <img src="{{ usertarget.profile_picture.url }}" alt="Profile Picture" width="150" height="150" class="rounded-full h-48 w-48 object-cover">
+            {% else %}
+                <img src="{% static 'image/default_profile_picture.jpg' %}" alt="Default Profile Picture" class="rounded-full h-48 w-48 object-cover">
+            {% endif %}
+        </div>
+        <div class="">
+            <div>
+                {% if usertarget.first_name %} {{ usertarget.first_name }} {% endif %} {% if usertarget.last_name %} {{ usertarget.last_name }} {% endif %}
+            </div>
+            <div>
+                @{{ usertarget.username }}
+            </div>
+            <div>
+                {{ usertarget.role }}
+            </div>
+        </div>
+        <div id="button_edit" class="ml-auto">
+            {% if is_owner %}
+                <button id="openEditModal" 
+                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out"
+                        data-url="{% url 'users:edit_profile' %}">
+                    ⚙️ Edit Profile
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="border-t-2 mt-4 py-4" id="about"> 
+        <h3>About</h3>
+        <p>
+            {% if usertarget.bio %}
+                {{ usertarget.bio }}
+            {% else %}
+                This user has not added a bio yet.
+            {% endif %}
+        </p>
+    </div>
+    <div id="posts" class="hidden">
+        <h3>Posts</h3>
+    </div>
+</div>
+
+
+
+
+{% endblock content %}
