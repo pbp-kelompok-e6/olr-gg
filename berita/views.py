@@ -10,10 +10,10 @@ from django.utils.html import strip_tags
 
 @login_required(login_url='/login')
 def show_news(request, id):
-    News = get_object_or_404(News, pk=id)
+    news = get_object_or_404(News, pk=id)
 
     context = {
-        'news': News
+        'news': news
     }
 
     return render(request, "news_detail.html", context)
@@ -36,7 +36,7 @@ def edit_news(request, id):
 @login_required(login_url='/login')
 @csrf_exempt
 def delete_news(request, id):
-    if request.method == 'DELETE':
+    if request.method == 'POST':
         try:
             news = News.objects.get(id=id, user=request.user)
             news.delete()
@@ -47,7 +47,7 @@ def delete_news(request, id):
 
 @csrf_exempt
 @require_POST
-def add_news(request):
+def create_news(request):
     title = strip_tags(request.POST.get("title")) # strip HTML tags!
     content = strip_tags(request.POST.get("content")) # strip HTML tags!
     category = request.POST.get("category")
@@ -66,3 +66,39 @@ def add_news(request):
     news_baru.save()
 
     return HttpResponse(b"CREATED", status=201)
+
+def show_json(request):
+    news_list = News.objects.all()
+    data = [
+        {
+            'id': str(news.id),
+            'title': news.title,
+            'content': news.content,
+            'category': news.category,
+            'thumbnail': news.thumbnail,
+            'created_at': news.created_at.isoformat() if news.created_at else None,
+            'is_featured': news.is_featured,
+            'user_id': news.user_id,
+        }
+        for news in news_list
+    ]
+
+    return JsonResponse(data, safe=False)
+
+def show_json_by_id(request, news_id):
+    try:
+        news = News.objects.select_related('user').get(pk=news_id)
+        data = {
+            'id': str(news.id),
+            'title': news.title,
+            'content': news.content,
+            'category': news.category,
+            'thumbnail': news.thumbnail,
+            'created_at': news.created_at.isoformat() if news.created_at else None,
+            'is_featured': news.is_featured,
+            'user_id': news.user_id,
+            'user_username': news.user.username if news.user_id else None,
+        }
+        return JsonResponse(data)
+    except News.DoesNotExist:
+        return JsonResponse({'detail': 'Not found'}, status=404)
