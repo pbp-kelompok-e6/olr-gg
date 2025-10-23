@@ -6,7 +6,11 @@
 
   <h1 style="text-align: center; margin-bottom: 30px;">Sports Discussion Forum</h1>
 
-  <div class="mb-4">
+  <div class="mb-4 d-flex" style="gap: 10px;">
+    <a href="{% url 'main:show_main' %}" class="btn btn-secondary">← Back to Main</a>
+  </div>
+
+  <div class="mb-4 d-flex" style="gap: 10px;">
     <button id="show-form-btn" class="btn btn-primary">Create a New Discussion</button>
   </div>
 
@@ -43,6 +47,7 @@
 </div>
 
 <script>
+// Your existing JavaScript code remains the same
 document.addEventListener('DOMContentLoaded', function() {
   const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   
