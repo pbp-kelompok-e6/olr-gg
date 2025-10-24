@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="bg-gray-200 min-h-screen min-w-full p-4">
+<div class="bg-gray-50 w-full pt-16 min-h-screen">
     <div class="max-w-4xl mx-auto my-8" id="profile_container">
-        <div class="flex items-center gap-x-4 bg-white px-3 py-3 rounded-2xl" id="nama_dan_role">
+        <div class="flex items-center gap-x-4 bg-white px-3 py-3 rounded-2xl drop-shadow-md" id="nama_dan_role">
             <div>
             {% if usertarget.profile_picture %}
                 <img id="profile_image_display" src="{{ usertarget.profile_picture.url }}" alt="Profile Picture" 
@@ -44,14 +44,14 @@
                 <div id="profileOptionsMenu" class="profile-options-menu hidden absolute top-full right-0 mt-2 w-48 bg-white border rounded-2xl shadow-lg z-10">
                     {% if is_owner %}
                     <button id="triggerEditModal"
-                            class="profile-modal-trigger w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            class="profile-modal-trigger w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-2xl"
                             data-url="{% url 'users:edit_profile' %}">
                         Edit Details
                     </button>
                     {% endif %}
                     {% if not is_owner %}
                     <button id="triggerReportModal"
-                            class="profile-modal-trigger w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            class="profile-modal-trigger w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-2xl"
                             data-url="{% url 'users:report_user' usertarget.id %}"> Report User
                     </button>
                     {% endif %}
@@ -59,9 +59,9 @@
 
             </div>
         </div>
-        <div class="border-t-2 mt-4 py-2" id="about"> 
+        <div class="mt-4 py-2" id="about"> 
             <h3 class="text-xl font-bold mb-4 border-b-2 pb-2 border-green-600">About</h3>
-            <p id="profile_bio_display" class="bg-white rounded-lg px-4 py-4">
+            <p id="profile_bio_display" class="bg-white rounded-lg px-4 py-4 drop-shadow-md">
                 {% if usertarget.bio %}
                     {{ usertarget.bio }}
                 {% else %}
