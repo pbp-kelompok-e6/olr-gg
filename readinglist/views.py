@@ -1,4 +1,3 @@
-# readinglist/views.py
 import json
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -6,15 +5,12 @@ from django.http import JsonResponse
 from django.db import IntegrityError
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-
-# Import models dan forms dari aplikasi yang bersangkutan
 from berita.models import News 
 from .models import ReadingList, ReadingListItem
 from .forms import ReadingListForm
 from users.models import CustomUser as User
 from django.contrib.auth import get_user_model
 
-# --- UTILITY FUNCTION ---
 User = get_user_model();
 
 def get_or_create_default_list(user):
@@ -28,12 +24,10 @@ def get_or_create_default_list(user):
     )
     return list_obj
 
-# --- VIEW FUNGSI ---
 @login_required
 def get_user_lists_ajax(request):
     """Mengembalikan daftar ReadingList milik user dalam format JSON."""
     user_lists = ReadingList.objects.filter(user=request.user).values('id', 'name')
-    # Konversi UUID ke string
     data = [{'id': str(list['id']), 'name': list['name']} for list in user_lists]
     return JsonResponse(data, safe=False)
 
@@ -49,7 +43,7 @@ def get_news_list_status(user, news_id):
     ).values_list('list__id', flat=True)
     
     data = []
-    # Konversi list['id'] ke string untuk konsistensi
+    # Konversi list['id'] ke string 
     items_in_list_str = [str(id) for id in items_in_list]
     for list_obj in user_lists:
         is_in_list = str(list_obj['id']) in items_in_list_str
@@ -101,7 +95,7 @@ def create_or_rename_list_ajax(request, list_id=None):
         form = ReadingListForm(data)
 
         if list_id:
-            # Operasi RENAME
+            # buat RENAME
             list_obj = get_object_or_404(ReadingList, id=list_id, user=request.user)
             form = ReadingListForm(data, instance=list_obj) # Gunakan instance untuk update
 
@@ -137,21 +131,17 @@ def add_to_list_ajax(request, news_id):
         # 1. Parsing data dari body POST request
         data = json.loads(request.body)
         list_id = data.get('list_id')
-        
         if not list_id:
             return JsonResponse({"status": "ERROR", "message": "List ID is required."}, status=400)
-
         # 2. Ambil objek News dan List
         news = get_object_or_404(News, id=news_id)
         # Penting: Pastikan list tersebut dimiliki oleh user yang sedang login
         reading_list = get_object_or_404(ReadingList, id=list_id, user=request.user)
-        
         # 3. Toggle Status
         item, created = ReadingListItem.objects.get_or_create(
             list=reading_list,
             news=news
         )
-
         if created:
             message = f"News berhasil ditambahkan ke list '{reading_list.name}'."
             status = "ADDED"

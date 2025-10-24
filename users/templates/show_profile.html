@@ -82,16 +82,13 @@
 
 <style>
     .profile-options-menu {
-        /* Pengaturan default untuk animasi (tersembunyi) */
         opacity: 0;
         transform: scale(0.95);
         transition: opacity 150ms ease-out, transform 150ms ease-out;
         transform-origin: top right;
-        /* Animasi muncul dari pojok kanan atas */
     }
 
     .profile-options-menu.active {
-        /* Status saat aktif (terlihat) */
         opacity: 1;
         transform: scale(1);
     }
@@ -116,24 +113,20 @@
                 .catch(error => console.error('Error fetching modal:', error));
         }
 
-        // Listener utama di container tombol edit
         if (profileEditContainer) {
             profileEditContainer.addEventListener('click', function (e) {
-                const trigger = e.target.closest('button'); // Dapatkan tombol yang diklik
+                const trigger = e.target.closest('button');
 
-                if (!trigger) return; // Jika klik di area kosong, abaikan
+                if (!trigger) return;
 
-                // KASUS 1: Klik tombol trigger utama (⚙️ Edit Profile)
                 if (trigger.id === 'openProfileMenuTrigger') {
                     profileMenu.classList.toggle('hidden');
                     setTimeout(() => profileMenu.classList.toggle('active'), 10);
                 }
 
-                // KASUS 2: Klik tombol di dalam pop-up (Edit Details / Change Pic)
                 if (trigger.classList.contains('profile-modal-trigger')) {
                     const url = trigger.dataset.url;
                     openProfileModal(url);
-                    // Sembunyikan menu setelah diklik
                     profileMenu.classList.add('hidden');
                     profileMenu.classList.remove('active');
                 }
@@ -172,7 +165,6 @@
             });
         }
 
-        // close modalnya ama submit formnya
         modalContainer.addEventListener('click', function (e) {
 
             if (e.target.id === 'closeEditModal' || e.target.id === 'cancelEdit' || e.target.id === 'modalBackdrop') {
@@ -182,7 +174,6 @@
         });
 
         modalContainer.addEventListener('submit', function (e) {
-            // tombol submit 
             if (e.target.id === 'editProfileForm') {
                 e.preventDefault();
 
@@ -230,7 +221,7 @@
                         const msgDiv = document.getElementById('form-messages');
                         msgDiv.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">Terjadi kesalahan. Coba lagi.</div>`;
                         saveButton.disabled = false;
-                        saveButton.textContent = 'Save Changes';
+                        saveButton.textContent = 'redanges';
                     });
             }
         });

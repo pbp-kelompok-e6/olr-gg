@@ -9,9 +9,6 @@ from django.utils.html import strip_tags
 from .forms import ForumPostForm
 
 def forum_view(request):
-    """
-    Merender halaman forum utama dengan daftar semua post.
-    """
     all_posts = ForumPost.objects.all().order_by('-created_at')
     context = {
         'posts': all_posts,
@@ -21,9 +18,6 @@ def forum_view(request):
 
 @login_required
 def create_post_ajax(request):
-    """
-    Membuat post baru menggunakan AJAX dengan validasi dari Django Forms.
-    """
     if request.method == 'POST':
         data = json.loads(request.body)
         # Django Forms akan menangani sanitasi dasar untuk keamanan
@@ -56,9 +50,6 @@ def create_post_ajax(request):
 
 @login_required
 def edit_post_ajax(request, post_id):
-    """
-    Mengedit post yang ada menggunakan AJAX dan membersihkan input dengan strip_tags.
-    """
     post = get_object_or_404(ForumPost, id=post_id, author=request.user)
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -80,9 +71,6 @@ def edit_post_ajax(request, post_id):
 
 @login_required
 def delete_post_ajax(request, post_id):
-    """
-    Menghapus post menggunakan AJAX.
-    """
     post = get_object_or_404(ForumPost, id=post_id, author=request.user)
     if request.method == 'POST':
         post.delete()
@@ -90,9 +78,6 @@ def delete_post_ajax(request, post_id):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 def post_detail_view(request, post_id):
-    """
-    Menampilkan halaman detail untuk satu post beserta komentarnya.
-    """
     post = get_object_or_404(ForumPost, id=post_id)
     comments = post.comments.all().order_by('created_at')
     context = {
@@ -104,9 +89,6 @@ def post_detail_view(request, post_id):
 
 @login_required
 def create_comment_ajax(request, post_id):
-    """
-    Membuat komentar baru pada sebuah post menggunakan AJAX.
-    """
     post = get_object_or_404(ForumPost, id=post_id)
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -122,17 +104,16 @@ def create_comment_ajax(request, post_id):
             'comment': {
                 'id': comment.id,
                 'content': comment.content,
-                'author': comment.author.username,
+                'author_username': comment.author.username,
+                'author_role': comment.author.role,
+                'created_at': comment.created_at.isoformat(), 
+                'updated_at': comment.updated_at.isoformat(),
             }
         })
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
-
 @login_required
 def delete_comment_ajax(request, comment_id):
-    """
-    Menghapus komentar menggunakan AJAX.
-    """
     comment = get_object_or_404(ForumComment, id=comment_id, author=request.user)
     if request.method == 'POST':
         comment.delete()
@@ -142,9 +123,6 @@ def delete_comment_ajax(request, comment_id):
 
 @login_required
 def edit_comment_ajax(request, comment_id):
-    """
-    Mengedit komentar yang ada menggunakan AJAX.
-    """
     comment = get_object_or_404(ForumComment, id=comment_id, author=request.user)
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -161,6 +139,22 @@ def edit_comment_ajax(request, comment_id):
             'comment': {
                 'id': comment.id,
                 'content': comment.content,
+                'updated_at': comment.updated_at.isoformat(),
+            }
+        })
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+@login_required
+def get_post_data_ajax(request, post_id):
+    post = get_object_or_404(ForumPost, id=post_id, author=request.user)
+    if request.method == 'GET':
+        return JsonResponse({
+            'status': 'success',
+            'post': {
+                'id': post.id,
+                'title': post.title,
+                'content': post.content,
+                'category': post.category,
             }
         })
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)

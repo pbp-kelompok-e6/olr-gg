@@ -8,11 +8,9 @@
 {% block content %}
 {% include 'navbar.html' %}
 
-<!-- Hero Section -->
 <div class="landing-content pt-16">
     <div class="bg-[linear-gradient(to_bottom_right,_#1e3a8a,_#1d4ed8,_#b91c1c,_#7f1d1d)] w-full min-h-screen flex items-center justify-center">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <!-- Hero Text -->
             <div class="text-center mb-12" data-aos="fade-up">
                 <h1 class="text-5xl sm:text-6xl font-bold mb-4">
                     <span class="text-white">Welcome to </span><span class="text-blue-400">OLR.</span><span class="text-red-500">GG</span>
@@ -25,13 +23,13 @@
                 </p>
             </div>
 
-            <!-- Sports Categories Grid -->
+            <!-- kategori olahraga -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-aos="fade-up" data-aos-delay="200">
                 <!-- Basketball -->
                 <a href="{% url 'main:show_main' %}?category=basketball" 
                    class="group bg-[#1a1d29] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-red-500/50">
                     <div class="relative h-48 overflow-hidden">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgz49310II770AGnAMO-7LIz0uBtT3wKp_Nw&s" 
+                        <img src="https://img.olympics.com/images/image/private/t_s_pog_staticContent_hero_xl_2x/f_auto/primary/ywjjv6pml5diu5cwid21" 
                         alt="Basketball"
                         class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-300">
                         <div class="absolute inset-0 bg-black/40"></div>
@@ -46,7 +44,7 @@
                 <a href="{% url 'main:show_main' %}?category=soccer" 
                    class="group bg-[#1a1d29] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-blue-500/50">
                     <div class="relative h-48 overflow-hidden">
-                        <img src="https://i.pinimg.com/736x/03/66/43/03664370809f73fb1b773f810528acfd.jpg" 
+                        <img src="https://thumbs.dreamstime.com/b/cristiano-ronaldo-shooting-28136493.jpg"
                         alt="Soccer" 
                         class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-300">
                         <div class="absolute inset-0 bg-black/40"></div>
