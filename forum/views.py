@@ -20,14 +20,12 @@ def forum_view(request):
 def create_post_ajax(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        # Django Forms akan menangani sanitasi dasar untuk keamanan
         form = ForumPostForm(data)
 
         if form.is_valid():
-            # jika form valid, buat objek post tanpa menyimpannya dulu ke DB
             post = form.save(commit=False)
-            post.author = request.user  # Tetapkan author post
-            post.save()                 # Simpan post ke database
+            post.author = request.user  
+            post.save()               
 
             return JsonResponse({
                 'status': 'success',
@@ -42,7 +40,6 @@ def create_post_ajax(request):
                 }
             })
         else:
-            # kirim pesan error yang dihasilkan oleh form jika tidak valid
             return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)

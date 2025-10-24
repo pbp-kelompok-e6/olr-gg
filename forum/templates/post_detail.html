@@ -117,10 +117,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value; // Menambahkan '?' untuk keamanan
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value; 
   const commentList = document.getElementById('comment-list');
   
-  // Fungsi bantuan untuk memformat tanggal agar sesuai dengan format Django
   function formatISODate(isoString) {
       const date = new Date(isoString);
       const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -135,13 +134,11 @@ document.addEventListener('DOMContentLoaded', function() {
       return `${month} ${day}, ${year} at ${hour}:${minute} ${ampm}`;
   }
 
-  // Fungsi bantuan untuk update jumlah komentar
   function updateCommentCount(change) {
       const countEl = document.getElementById('commentCount');
       if (countEl) countEl.textContent = parseInt(countEl.textContent) + change;
   }
   
-  // Fungsi untuk menambahkan komentar baru ke halaman
   function addCommentToDOM(comment) {
       document.getElementById('no-comments-message')?.remove();
 
@@ -212,19 +209,19 @@ document.addEventListener('DOMContentLoaded', function() {
       const contentP = document.getElementById(`content-${commentId}`);
       const editFormDiv = document.getElementById(`edit-form-${commentId}`);
 
-      // Handle Tombol Edit
+      // Tombol Edit
       if (button.classList.contains('edit-comment-btn')) {
           contentP.parentElement.classList.add('hidden');
           editFormDiv.classList.remove('hidden');
       }
 
-      // Handle Tombol Cancel
+      // Tombol Cancel
       if (button.classList.contains('cancel-edit-btn')) {
           contentP.parentElement.classList.remove('hidden');
           editFormDiv.classList.add('hidden');
       }
 
-      // Handle Tombol Save
+      // Tombol Save
       if (button.classList.contains('save-edit-btn')) {
           const newContent = document.getElementById(`edit-content-${commentId}`).value;
           const url = `{% url 'forum:edit_comment_ajax' 0 %}`.replace('0', commentId);
@@ -240,13 +237,11 @@ document.addEventListener('DOMContentLoaded', function() {
                   const timestampP = document.getElementById(`timestamp-${commentId}`);
                   const editedTag = timestampP.querySelector('.edited-tag');
                   
-                  // Perbarui timestamp 
                   timestampP.querySelector('.time-display').textContent = formatISODate(data.comment.updated_at);
                   if (editedTag) {
                       editedTag.style.display = 'inline';
                   }
                   
-                  // Sembunyikan form edit
                   contentP.parentElement.classList.remove('hidden');
                   editFormDiv.classList.add('hidden');
               } else {
@@ -255,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
           });
       }
 
-      // Handle Tombol Delete
+      // Tombol Delete
       if (button.classList.contains('delete-comment-btn')) {
           Swal.fire({ title: 'Delete this reply?', text: 'This action cannot be undone.', showCancelButton: true, confirmButtonText: 'Delete' })
           .then((result) => {
@@ -276,7 +271,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
   });
 
-  // Script untuk Edit/Delete Post Utama (tidak diubah)
   const editPostBtn = document.getElementById('edit-post-btn');
   const deletePostBtn = document.getElementById('delete-post-btn');
   const editPostForm = document.getElementById('edit-post-form');

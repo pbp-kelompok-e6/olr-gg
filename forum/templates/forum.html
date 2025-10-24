@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const postListContainer = document.getElementById('post-list-container');
   const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-  // Fungsi untuk Tampilkan/Sembunyikan Form Pembuatan Post 
+  // Tampilkan/Sembunyikan Form Pembuatan Post 
   const toggleCreateForm = () => {
     if (createPostCard) {
       const isHidden = createPostCard.style.display === 'none';
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (showFormBtn) showFormBtn.addEventListener('click', toggleCreateForm);
   if (emptyStateBtn) emptyStateBtn.addEventListener('click', toggleCreateForm);
 
-  // Fungsi untuk Membuat Post Baru
+  // Post Baru
   if(createPostForm) {
     createPostForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Fungsi untuk Filter Kategori 
+  // Filter Kategori 
   filterButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter;
@@ -204,23 +204,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Event Listener Utama untuk Tombol Edit dan Delete
+  // Edit dan Delete
   postListContainer.addEventListener('click', function(e) {
     const editButton = e.target.closest('.edit-post-btn');
     const deleteButton = e.target.closest('.delete-post-btn');
 
     if (editButton) {
-      e.preventDefault(); // Mencegah navigasi dari link di sekitarnya
+      e.preventDefault(); 
       handleEditPost(editButton.dataset.postId);
     }
 
     if (deleteButton) {
-      e.preventDefault(); // Mencegah navigasi
+      e.preventDefault(); 
       handleDeletePost(deleteButton.dataset.postId);
     }
   });
 
-  // Fungsi untuk Menangani Edit Post
+  // Edit Post
   async function handleEditPost(postId) {
     const getDataUrl = `{% url 'forum:get_post_data_ajax' 0 %}`.replace('0', postId);
     try {
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Fungsi untuk Menangani Delete Post
+  // Delete Post
   function handleDeletePost(postId) {
     Swal.fire({
       title: 'Are you sure?',
