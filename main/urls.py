@@ -22,5 +22,6 @@ urlpatterns = [
     path('news/<uuid:news_id>/comments/<uuid:id>/edit/', edit_comment, name='edit_comment'),
     path('news/<uuid:news_id>/comments/<uuid:id>/delete/', delete_comment, name='delete_comment'),
     path('json/<str:news_id>/', show_json_by_id, name='show_json_by_id'),
+    path('rating/', include('rating.urls', namespace='rating')),
 ]
     

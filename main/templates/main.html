@@ -156,7 +156,7 @@
     const article = document.createElement('article');
     article.className = 'bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full';
     const linkDetail = "{% url 'main:show_news' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', item.id);
-   const title = DOMPurify.sanitize(item.title);
+    const title = DOMPurify.sanitize(item.title);
     const content = DOMPurify.sanitize(item.content);
     const category = DOMPurify.sanitize(item.category);
     const thumbnail = DOMPurify.sanitize(item.thumbnail);
@@ -168,6 +168,19 @@
     const newsViews = DOMPurify.sanitize(item.news_views);
     const isFeatured = item.is_featured;
     const isHot = newsViews > 20;
+
+    // Rating display
+    const hasRating = item.average_rating !== null && item.average_rating !== undefined;
+    const ratingDisplay = hasRating 
+        ? `<div class="flex items-center">
+             <span class="text-yellow-500 mr-1">★</span>
+             <span class="text-sm font-medium text-gray-700">${item.average_rating}</span>
+             <span class="text-xs text-gray-500 ml-1">(${item.rating_count})</span>
+           </div>`
+        : `<div class="flex items-center">
+             <span class="text-gray-400 mr-1">★</span>
+             <span class="text-sm text-gray-500">No ratings</span>
+           </div>`;
 
     const thumbnailHtml = DOMPurify.sanitize(
         item.thumbnail ? `<img src='${thumbnail}' alt='${title}' class='w-full h-full object-cover'>` : `<div class='w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center'></div>`
@@ -182,7 +195,8 @@
     const readingListToggleHtml = IS_AUTHENTICATED
       ? `<button class="text-sm text-green-600 hover:text-green-700 font-medium ml-4 transition-colors" onclick="event.stopPropagation(); event.preventDefault(); openReadingListModalForNews('${item.id}')">+ Reading List</button>`
       : `<span title="You must login to access this feature" class="text-sm text-gray-400 font-medium ml-4 cursor-not-allowed">+ Reading List</span>`;
-    article.innerHTML = `<div class="aspect-[16/9] relative overflow-hidden">${thumbnailHtml}<div class="absolute top-3 left-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-600 text-white">${categoryLabel}</span></div><div class="absolute top-3 right-3 flex space-x-2">${featuredLabel}${hotLabel}</div></div><div class="p-5 flex flex-col flex-1"><div class="flex items-center text-sm text-gray-500 mb-3"><time>${createdAt}</time><span class="mx-2">•</span><span>${newsViews} views</span></div><h3 class="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 leading-tight"><a href="${linkDetail}" class="hover:text-green-600 transition-colors">${title}</a></h3><p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">${content}</p><div class="pt-4 border-t border-gray-100 flex items-center justify-between"><div class="flex items-center"><a href="${linkDetail}" class="text-green-600 hover:text-green-700 font-medium text-sm transition-colors">Read more</a>${readingListToggleHtml}</div>${editDeleteHtml}</div></div>`;
+    
+    article.innerHTML = `<div class="aspect-[16/9] relative overflow-hidden">${thumbnailHtml}<div class="absolute top-3 left-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-600 text-white">${categoryLabel}</span></div><div class="absolute top-3 right-3 flex space-x-2">${featuredLabel}${hotLabel}</div></div><div class="p-5 flex flex-col flex-1"><div class="flex items-center justify-between text-sm text-gray-500 mb-3"><div><time>${createdAt}</time><span class="mx-2">•</span><span>${newsViews} views</span></div>${ratingDisplay}</div><h3 class="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 leading-tight"><a href="${linkDetail}" class="hover:text-green-600 transition-colors">${title}</a></h3><p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">${content}</p><div class="pt-4 border-t border-gray-100 flex items-center justify-between"><div class="flex items-center"><a href="${linkDetail}" class="text-green-600 hover:text-green-700 font-medium text-sm transition-colors">Read more</a>${readingListToggleHtml}</div>${editDeleteHtml}</div></div>`;
     return article;
   }
 

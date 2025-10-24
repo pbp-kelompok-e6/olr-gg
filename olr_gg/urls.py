@@ -25,6 +25,7 @@ urlpatterns = [
     path('readinglist/', include('readinglist.urls', namespace='readinglist')),
     path('forum/', include('forum.urls')),
     path('users/', include('users.urls')),
+    path('rating/', include('rating.urls', namespace='rating')),
 ]
 
 if settings.DEBUG:

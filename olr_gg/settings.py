@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'comments',
     'readinglist',
     'forum',
+    'rating',
 ]
 
 MIDDLEWARE = [
