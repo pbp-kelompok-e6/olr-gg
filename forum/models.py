@@ -6,7 +6,7 @@ CATEGORY_CHOICES = (
     ('basketball', 'Basketball'),
     ('football', 'Football'),
     ('hockey', 'Hockey'),
-    ('volleyball', 'Volleyball'), # Perbaiki typo dari 'voleyball'
+    ('volleyball', 'Volleyball'),
     ('baseball', 'Baseball'),
 )
 

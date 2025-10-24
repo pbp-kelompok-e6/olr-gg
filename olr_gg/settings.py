@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'users',
     'main',
     'berita',
+    'readinglist',
     'forum',
 ]
 

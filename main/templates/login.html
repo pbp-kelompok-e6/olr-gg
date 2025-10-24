@@ -2,6 +2,112 @@
 
 {% block meta %}
 <title>Login</title>
+<style>
+    /* Sports Theme CSS */
+    body {
+        background-color: #f3f4f6;
+        /* Light gray background */
+    }
+
+    .login {
+        max-width: 400px;
+        margin: 4rem auto;
+        padding: 2rem;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        border-top: 5px solid #10b981;
+        /* Green accent color */
+    }
+
+    .login h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #10b981;
+        padding-bottom: 0.5rem;
+    }
+
+    /* Style form table */
+    .login table {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .login table td {
+        padding: 0.5rem 0;
+    }
+
+    .login table input[type="text"],
+    .login table input[type="password"] {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        transition: border-color 0.2s;
+    }
+
+    .login table input[type="text"]:focus,
+    .login table input[type="password"]:focus {
+        border-color: #10b981;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Style submit button */
+    .login_btn {
+        width: 100%;
+        background-color: #10b981 !important;
+        /* Tailwind Green-600 */
+        color: #ffffff;
+        font-weight: 600;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .login_btn:hover {
+        background-color: #059669 !important;
+        /* Tailwind Green-700 */
+    }
+
+    .login_btn:active {
+        transform: translateY(1px);
+    }
+
+    .login ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .login ul li {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        padding: 0.75rem;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+    }
+
+    .login a {
+        color: #10b981;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .login a:hover {
+        color: #059669;
+        text-decoration: underline;
+    }
+</style>
 {% endblock meta %}
 
 {% block content %}
