@@ -46,6 +46,7 @@ def delete_news(request, id):
 
 @csrf_exempt
 @require_POST
+@login_required
 def create_news(request):
     title = strip_tags(request.POST.get("title")) # strip HTML tags!
     content = strip_tags(request.POST.get("content")) # strip HTML tags!

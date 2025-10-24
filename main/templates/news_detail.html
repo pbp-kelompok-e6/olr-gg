@@ -16,7 +16,9 @@
             </a>
         </div>
 
+        {% if user.is_authenticated %}
         {% include 'readinglist/reading_list_button.html' %}
+        {% endif %}
         <div id="loading-state" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
             <svg class="animate-spin h-8 w-8 text-green-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 24 24">

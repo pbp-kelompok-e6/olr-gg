@@ -3,10 +3,11 @@ import uuid
 from django.db import models
 from django.conf import settings
 from berita.models import News # Mengimport model News dari app 'main'
+from users.models import CustomUser
 
 # Model untuk List Bacaan (Folder)
 class ReadingList(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
