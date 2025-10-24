@@ -6,31 +6,26 @@
         <div class="flex items-center gap-x-4 bg-white px-3 py-3 rounded-2xl drop-shadow-md" id="nama_dan_role">
             <div>
                 {% if usertarget.profile_picture %}
-                <img id="profile_image_display" src="{{ usertarget.profile_picture.url }}" alt="Profile Picture" {% if
-                    is_owner %}
-                    class="rounded-full h-36 w-36 object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                    data-url="{% url 'users:change_pic' %}" {% else %} class="rounded-full h-36 w-36 object-cover" {%
-                    endif %}>
+                <img id="profile_image_display" src="{{ usertarget.profile_picture.url }}" alt="Profile Picture"
+                    class="rounded-full h-36 w-36 object-cover {% if is_owner %}cursor-pointer hover:opacity-80 transition-opacity{% endif %}"
+                    {% if is_owner %}data-url="{% url 'users:change_pic' %}" {% endif %}>
                 {% else %}
                 <img id="profile_image_display" src="{% static 'image/default_profile_picture.jpg' %}"
-                    alt="Default Profile Picture" {% if is_owner %}
-                    class="rounded-full h-36 w-36 object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                    data-url="{% url 'users:change_pic' %}" {% else %} class="rounded-full h-36 w-36 object-cover" {%
-                    endif %}>
+                    alt="Default Profile Picture"
+                    class="rounded-full h-36 w-36 object-cover {% if is_owner %}cursor-pointer hover:opacity-80 transition-opacity{% endif %}"
+                    {% if is_owner %}data-url="{% url 'users:change_pic' %}" {% endif %}>
                 {% endif %}
             </div>
             <div class="">
                 <div>
                     <span id="profile_fullname_display" class="text-3xl font-bold">
-                        {% if usertarget.first_name %} {{ usertarget.first_name }} {% endif %} {% if
-                        usertarget.last_name %} {{ usertarget.last_name }} {% endif %}
+                        {% if usertarget.first_name %} {{ usertarget.first_name }} {% endif %}
+                        {% if usertarget.last_name %} {{ usertarget.last_name }} {% endif %}
                     </span>
                 </div>
                 <div class="my-2">
                     <span class="text-lg text-gray-600">
-                        @{{ usertarget.username }} <span
-                            class="ml-1 uppercase bg-green-600 rounded-2xl px-2 py-[1px] text-white font-semibold text-sm">{{
-                            usertarget.role }}</span>
+                        @{{ usertarget.username }} <span class="ml-1 uppercase bg-green-600 rounded-2xl px-2 py-[1px] text-white font-semibold text-sm">{{ usertarget.role }}</span>
                     </span>
                 </div>
             </div>
