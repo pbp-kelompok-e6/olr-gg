@@ -256,8 +256,8 @@ function addCommentToDOM(comment) {
             </div>
         `;
     }
-    // Format created_at timestamp (if available from backend)
-    const createdAt = comment.created_at || new Date().toLocaleString('en-US', { 
+    // Format created_at timestamp 
+    const createdAt = new Date().toLocaleString('en-US', { 
         year: 'numeric', 
         month: 'long', 
         day: 'numeric', 
@@ -452,98 +452,3 @@ async function deleteComment() {
     }
 }
 </script>
-<!-- <script>
-// Add Comment
-document.getElementById('commentForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const newsId = document.querySelector('input[name="news_id"]').value;
-    try {
-        const response = await fetch(`/news/${newsId}/comments/add/`, {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (data.status === 'SUCCESS') {
-            location.reload(); // Reload to show new comment
-        } else {
-            alert(data.message || 'Failed to post comment');
-        }
-    } catch (error) {
-        alert('Error posting comment');
-        console.error(error);
-    }
-});
-
-// Edit Comment - Show form
-function editComment(commentId, content) {
-    document.getElementById(`content-${commentId}`).classList.add('hidden');
-    document.getElementById(`edit-form-${commentId}`).classList.remove('hidden');
-}
-
-// Cancel Edit
-function cancelEdit(commentId) {
-    document.getElementById(`content-${commentId}`).classList.remove('hidden');
-    document.getElementById(`edit-form-${commentId}`).classList.add('hidden');
-}
-
-async function saveEdit(commentId) {
-    const content = document.getElementById(`edit-content-${commentId}`).value;
-    
-    if (!content.trim()) {
-        alert('Comment cannot be empty');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('content', content);
-    const newsId = document.querySelector('input[name="news_id"]').value;
-    
-    try {
-        const response = await fetch(`/news/${newsId}/comments/${commentId}/edit/`, {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (data.status === 'SUCCESS') {
-            location.reload();
-        } else {
-            alert(data.message || 'Failed to update comment');
-        }
-    } catch (error) {
-        alert('Error updating comment');
-        console.error(error);
-    }
-}
-
-// Delete Comment
-async function deleteComment(commentId) {
-    if (!confirm('Are you sure you want to delete this comment?')) {
-        return;
-    }
-    
-    const newsId = document.querySelector('input[name="news_id"]').value;
-    
-    try {
-        const response = await fetch(`/news/${newsId}/comments/${commentId}/delete/`, {
-            method: 'POST'
-        });
-        
-        const data = await response.json();
-        
-        if (data.status === 'SUCCESS') {
-            location.reload();
-        } else {
-            alert(data.message || 'Failed to delete comment');
-        }
-    } catch (error) {
-        alert('Error deleting comment');
-        console.error(error);
-    }
-}
-</script> -->

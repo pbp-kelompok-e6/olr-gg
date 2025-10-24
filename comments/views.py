@@ -67,11 +67,7 @@ def add_comment(request, news_id):
             return JsonResponse({
                 "status": "SUCCESS", 
                 "message": "Comment created successfully.",
-                "comment": {
-                    "id": str(comment_baru.id),
-                    "content": comment_baru.content,
-                    "user": comment_baru.user.username
-                }
+                "comment": get_comment_data(comment_baru)
             }, status=201)
         else:
             return JsonResponse({

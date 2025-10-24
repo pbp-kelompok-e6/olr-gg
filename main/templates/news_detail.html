@@ -6,26 +6,28 @@
 {% endblock meta %}
 
 {% block content %}
-<div class="bg-gray-50 w-full min-h-screen">
+<div class="bg-gray-50 w-full min-h-screen pt-16">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <!-- Back Navigation -->
+
         <div class="mb-6">
-            <a href="{% url 'main:show_main' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+            <a href="{% url 'main:show_main' %}"
+                class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
                 ← Back to News
             </a>
         </div>
-        
-        <!-- Loading State -->
+
+        {% if user.is_authenticated %}
+        {% include 'readinglist/reading_list_button.html' %}
+        {% endif %}
         <div id="loading-state" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <svg class="animate-spin h-8 w-8 text-green-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="animate-spin h-8 w-8 text-green-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
             </svg>
             <p class="text-gray-600 mt-3">Loading news detail...</p>
         </div>
 
-        <!-- Error State -->
         <div id="error-state" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
             <div class="w-16 h-16 mx-auto mb-4">
                 <div class="text-red-500 text-5xl">⚠️</div>
@@ -33,45 +35,34 @@
             <h3 class="text-lg font-medium text-gray-900 mb-2">Failed to load news</h3>
             <p class="text-gray-500">Please try again later.</p>
         </div>
-        
-        <!-- Article Content -->
+
         <article id="article-content" class="bg-white rounded-lg border border-gray-200 overflow-hidden hidden">
-            
-            <!-- Header -->
+
             <div class="p-6 sm:p-8">
                 <div id="badges-container" class="flex flex-wrap items-center gap-2 mb-4">
-                    <!-- Dynamic badges will be inserted here -->
                 </div>
-                
+
                 <h1 id="article-title" class="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-4">
-                    <!-- Title will be inserted here -->
                 </h1>
-                
+
                 <div class="flex flex-wrap items-center text-sm text-gray-500 gap-4">
                     <time id="article-date">
-                        <!-- Date will be inserted here -->
                     </time>
                 </div>
             </div>
 
-            <!-- Featured Image -->
             <div id="featured-image-container" class="px-6 sm:px-8 hidden">
-                <img id="featured-image" 
-                     src="" 
-                     alt="" 
-                     class="w-full h-64 sm:h-80 lg:h-96 object-cover rounded-lg">
+                <img id="featured-image" src="" alt="" class="w-full h-64 sm:h-80 lg:h-96 object-cover rounded-lg">
             </div>
 
-            <!-- Content -->
             <div class="p-6 sm:p-8">
                 <div class="prose prose-lg max-w-none">
-                    <div id="article-content-text" class="text-gray-700 leading-relaxed whitespace-pre-line text-base sm:text-lg">
-                        <!-- Content will be inserted here -->
+                    <div id="article-content-text"
+                        class="text-gray-700 leading-relaxed whitespace-pre-line text-base sm:text-lg">
                     </div>
                 </div>
             </div>
 
-            <!-- Author Info -->
             <div class="border-t border-gray-200 p-6 sm:p-8 bg-gray-50">
                 <div class="flex items-center justify-between">
                     <div>
@@ -84,119 +75,340 @@
             </div>
         </article>
     </div>
-    {% include 'comments.html' %}
 </div>
-
+{% include 'comments.html' %}
+{% include 'readinglist/reading_list_modal.html' %}
 <script>
-// Configuration
-const NEWS_ID = "{{ news.id }}";
-const NEWS_DETAIL_ENDPOINT = `{% url 'main:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', NEWS_ID);
+    // Configuration
+    const NEWS_ID = "{{ news.id }}";
+    const NEWS_DETAIL_ENDPOINT = `{% url 'main:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', NEWS_ID);
+    const READING_LIST_TOGGLE_ENDPOINT = `{% url 'readinglist:add_remove_news' news.id %}`;
+    const NEWS_STATUS_ENDPOINT = `{% url 'readinglist:get_news_list_status' news.id %}`;
+    const IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === 'true';
 
-// DOM Elements
-const loadingState = document.getElementById('loading-state');
-const errorState = document.getElementById('error-state');
-const articleContent = document.getElementById('article-content');
-const badgesContainer = document.getElementById('badges-container');
-const articleTitle = document.getElementById('article-title');
-const articleDate = document.getElementById('article-date');
-const featuredImageContainer = document.getElementById('featured-image-container');
-const featuredImage = document.getElementById('featured-image');
-const articleContentText = document.getElementById('article-content-text');
-const articleAuthor = document.getElementById('article-author');
+    // DOM Elements
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const articleContent = document.getElementById('article-content');
+    const badgesContainer = document.getElementById('badges-container');
+    const articleTitle = document.getElementById('article-title');
+    const articleDate = document.getElementById('article-date');
+    const featuredImageContainer = document.getElementById('featured-image-container');
+    const featuredImage = document.getElementById('featured-image');
+    const articleContentText = document.getElementById('article-content-text');
+    const articleAuthor = document.getElementById('article-author');
+    const addToReadingListBtn = document.getElementById('add-to-reading-list-btn');
+    const readingListStatusText = document.getElementById('reading-list-status-text');
+    const readingListModal = document.getElementById('readingListModal');
+    const listOptionsContainer = document.getElementById('list-options-container');
+    const listLoadingStatus = document.getElementById('list-loading-status');
 
-// Show/hide page sections
-function showState(state) {
-    loadingState.classList.toggle('hidden', state !== 'loading');
-    errorState.classList.toggle('hidden', state !== 'error');
-    articleContent.classList.toggle('hidden', state !== 'ready');
-}
-
-// Get readable category name
-function getCategoryLabel(categoryCode) {
-    const categoryMapping = {
-        basketball: 'Basketball',
-        soccer: 'Soccer',
-        football: 'Football',
-        hockey: 'Hockey',
-        voleyball: 'Voleyball',
-        baseball: 'Baseball',
-    };
-    return categoryMapping[categoryCode] || categoryCode;
-}
-
-// Render article content
-function renderArticle(news) {
-    // Set title
-    articleTitle.textContent = news.title;
-    document.title = `${news.title} - Football News`;
-    
-    // Set badges
-    badgesContainer.innerHTML = '';
-    
-    // Category badge
-    const categoryBadge = document.createElement('span');
-    categoryBadge.className = 'inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-green-600 text-white';
-    categoryBadge.textContent = getCategoryLabel(news.category);
-    badgesContainer.appendChild(categoryBadge);
-    
-    // Featured badge
-    if (news.is_featured) {
-        const featuredBadge = document.createElement('span');
-        featuredBadge.className = 'inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800';
-        featuredBadge.textContent = 'Featured';
-        badgesContainer.appendChild(featuredBadge);
+    // Show/hide page sections
+    function showState(state) {
+        loadingState.classList.toggle('hidden', state !== 'loading');
+        errorState.classList.toggle('hidden', state !== 'error');
+        articleContent.classList.toggle('hidden', state !== 'ready');
     }
-    
-    // Set date and views
-    const formattedDate = new Date(news.created_at).toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    articleDate.textContent = formattedDate;
-    
-    // Set featured image
-    if (news.thumbnail) {
-        featuredImage.src = news.thumbnail;
-        featuredImage.alt = news.title;
-        featuredImageContainer.classList.remove('hidden');
-    } else {
-        featuredImageContainer.classList.add('hidden');
+
+    // Get readable category name
+    function getCategoryLabel(categoryCode) {
+        const categoryMapping = {
+            basketball: 'Basketball',
+            soccer: 'Soccer',
+            football: 'Football',
+            hockey: 'Hockey',
+            voleyball: 'Voleyball',
+            baseball: 'Baseball',
+        };
+        return categoryMapping[categoryCode] || categoryCode;
     }
-    
-    // Set content
-    articleContentText.textContent = news.content;
-    
-    // Set author
-    const authorName = news.user_username || 'Anonymous';
-    articleAuthor.textContent = `Author: ${authorName}`;
-}
 
-// Fetch news detail
-async function loadNewsDetail() {
-    try {
-        showState('loading');
-        
-        const response = await fetch(NEWS_DETAIL_ENDPOINT, {
-            headers: { 'Accept': 'application/json' },
-        });
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch news detail');
+    function updateMainButtonAppearance(isInAnyList) {
+        if (!addToReadingListBtn) return;
+
+        if (isInAnyList) {
+            readingListStatusText.textContent = "Remove from List";
+            addToReadingListBtn.classList.remove('border-green-600', 'text-green-600', 'hover:bg-green-600', 'hover:text-white');
+            addToReadingListBtn.classList.add('border-red-600', 'text-red-600', 'hover:bg-red-600', 'hover:text-white');
+        } else {
+            readingListStatusText.textContent = "+ Reading List";
+            addToReadingListBtn.classList.remove('border-red-600', 'text-red-600', 'hover:bg-red-600', 'hover:text-white');
+            addToReadingListBtn.classList.add('border-green-600', 'text-green-600', 'hover:bg-green-600', 'hover:text-white');
+        }
+    }
+
+    function openReadingListModal() {
+        if (!IS_AUTHENTICATED) {
+            // Karena user sudah diarahkan ke halaman login, kita hanya perlu mencegah aksi jika JS tetap mencoba memanggilnya
+            return;
+        }
+        readingListModal.classList.remove('hidden');
+        fetchReadingListStatus();
+    }
+
+    function closeReadingListModal() {
+        readingListModal.classList.add('hidden');
+    }
+
+    async function handleListToggleFromModal(listId, listName, wasInList, button) {
+        button.disabled = true;
+
+        try {
+            const response = await fetch(READING_LIST_TOGGLE_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ list_id: listId, news_id: NEWS_ID })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                const isNowInList = !wasInList;
+                const statusText = isNowInList ? 'Hapus' : 'Tambahkan';
+
+                // Update button UI secara optimistic (langsung tanpa re-fetch)
+                button.className = `w-full text-left p-3 rounded-md transition-colors flex justify-between items-center ${isNowInList
+                    ? 'bg-red-50 hover:bg-red-100 text-red-700 border border-red-200'
+                    : 'bg-green-50 hover:bg-green-100 text-green-700 border border-green-200'
+                    }`;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'font-medium';
+                nameSpan.textContent = listName;
+
+                const statusSpan = document.createElement('span');
+                statusSpan.className = `text-xs font-semibold uppercase px-2 py-1 rounded-full ${isNowInList ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
+                    }`;
+                statusSpan.textContent = statusText;
+
+                button.innerHTML = '';
+                button.appendChild(nameSpan);
+                button.appendChild(statusSpan);
+                button.onclick = () => handleListToggleFromModal(listId, listName, isNowInList, button);
+
+                // Update main button HANYA jika perlu (cek apakah status berubah)
+                // Dapatkan semua button di modal dan cek apakah ada yang is_in_list
+                const allButtons = listOptionsContainer.querySelectorAll('button');
+                let isInAnyList = false;
+
+                allButtons.forEach(btn => {
+                    // Button dengan class bg-red-50 = is in list
+                    if (btn.classList.contains('bg-red-50')) {
+                        isInAnyList = true;
+                    }
+                });
+
+                updateMainButtonAppearance(isInAnyList);
+
+                // Show success message (optional)
+                const msg = isNowInList ? `Ditambahkan ke "${listName}"` : `Dihapus dari "${listName}"`;
+                showTemporaryMessage(msg);
+
+            } else {
+                alert(`Error: ${result.message}`);
+            }
+        } catch (error) {
+            console.error('Error toggling list item:', error);
+            alert('An unexpected error occurred.');
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    // Optional: Toast notification untuk feedback tanpa alert
+    function showTemporaryMessage(text) {
+        const existing = document.getElementById('toast-notification');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'toast-notification';
+        toast.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg z-50 transition-opacity';
+        toast.textContent = text;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    }
+
+    async function fetchReadingListStatus() {
+        if (!IS_AUTHENTICATED) return;
+
+        // ONLY show loading di modal jika modal visible
+        const isModalVisible = !readingListModal.classList.contains('hidden');
+
+        if (isModalVisible) {
+            listOptionsContainer.innerHTML = '';
+            listLoadingStatus.classList.remove('hidden');
+            listLoadingStatus.textContent = 'Memuat list...';
         }
 
-        const newsData = await response.json();
-        renderArticle(newsData);
-        showState('ready');
-    } catch (error) {
-        console.error('Error loading news detail:', error);
-        showState('error');
-    }
-}
+        try {
+            const response = await fetch(NEWS_STATUS_ENDPOINT, {
+                headers: { 'Accept': 'application/json' },
+            });
 
-// Initialize page
-loadNewsDetail();
+            const lists = await response.json();
+
+            if (!response.ok) {
+                if (isModalVisible) {
+                    listLoadingStatus.textContent = `Gagal memuat list: ${lists.message || 'Error'}`;
+                }
+                return;
+            }
+
+            if (isModalVisible) {
+                renderListOptions(lists);
+            }
+
+            // Update main button status
+            const isInAnyList = lists.some(list => list.is_in_list);
+            updateMainButtonAppearance(isInAnyList);
+
+        } catch (error) {
+            if (isModalVisible) {
+                listLoadingStatus.textContent = 'Gagal terhubung ke server.';
+            }
+            console.error('Error fetching list status:', error);
+        }
+    }
+
+    function renderListOptions(lists) {
+        listOptionsContainer.innerHTML = '';
+        listLoadingStatus.classList.add('hidden');
+
+        if (lists.length === 0) {
+            listOptionsContainer.innerHTML = '<p class="text-gray-500 italic">Anda belum memiliki reading list.</p>';
+            return;
+        }
+
+        lists.forEach(list => {
+            const button = document.createElement('button');
+            const isInList = list.is_in_list;
+            const statusText = isInList ? 'Hapus' : 'Tambahkan';
+
+            button.className = `w-full text-left p-3 rounded-md transition-colors flex justify-between items-center ${isInList
+                ? 'bg-red-50 hover:bg-red-100 text-red-700 border border-red-200'
+                : 'bg-green-50 hover:bg-green-100 text-green-700 border border-green-200'
+                }`;
+
+            // FIXED: Hapus DOMPurify (tidak tersedia) dan gunakan textContent yang aman
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'font-medium';
+            nameSpan.textContent = list.name;
+
+            const statusSpan = document.createElement('span');
+            statusSpan.className = `text-xs font-semibold uppercase px-2 py-1 rounded-full ${isInList ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
+                }`;
+            statusSpan.textContent = statusText;
+
+            button.appendChild(nameSpan);
+            button.appendChild(statusSpan);
+            button.onclick = () => handleListToggleFromModal(list.id, list.name, isInList, button);
+
+            listOptionsContainer.appendChild(button);
+        });
+    }
+
+    // FIXED: Only ONE event listener for opening modal
+    if (addToReadingListBtn) {
+        addToReadingListBtn.addEventListener('click', openReadingListModal);
+    }
+
+    // Render article content
+    function renderArticle(news) {
+        articleTitle.textContent = news.title;
+        document.title = `${news.title} - Football News`;
+
+        badgesContainer.innerHTML = '';
+
+        const categoryBadge = document.createElement('span');
+        categoryBadge.className = 'inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-green-600 text-white';
+        categoryBadge.textContent = getCategoryLabel(news.category);
+        badgesContainer.appendChild(categoryBadge);
+
+        if (news.is_featured) {
+            const featuredBadge = document.createElement('span');
+            featuredBadge.className = 'inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800';
+            featuredBadge.textContent = 'Featured';
+            badgesContainer.appendChild(featuredBadge);
+        }
+
+        const formattedDate = new Date(news.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        articleDate.textContent = formattedDate;
+
+        if (news.thumbnail) {
+            featuredImage.src = news.thumbnail;
+            featuredImage.alt = news.title;
+            featuredImageContainer.classList.remove('hidden');
+        } else {
+            featuredImageContainer.classList.add('hidden');
+        }
+
+        articleContentText.textContent = news.content;
+
+        const authorName = news.user_username || 'Anonymous';
+        articleAuthor.textContent = `Author: ${authorName}`;
+    }
+
+    // Fetch news detail
+    async function loadNewsDetail() {
+        try {
+            showState('loading');
+
+            const response = await fetch(NEWS_DETAIL_ENDPOINT, {
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('News not found (404)');
+                }
+                throw new Error('Failed to fetch news detail');
+            }
+
+            const newsData = await response.json();
+            renderArticle(newsData);
+
+            if (IS_AUTHENTICATED) {
+                // Fetch status on load untuk set status tombol awal (FIXES STATUS BUG)
+                await fetchReadingListStatus();
+            }
+
+            showState('ready');
+        } catch (error) {
+            console.error('Error loading news detail:', error);
+            showState('error');
+        }
+    }
+
+    // Initialize page
+    loadNewsDetail();
 </script>
 {% endblock content %}

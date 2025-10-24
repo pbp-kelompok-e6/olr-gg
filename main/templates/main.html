@@ -6,127 +6,157 @@
 {% endblock meta %}
 
 {% block content %}
+
 <div class="bg-gray-50 w-full pt-16 min-h-screen">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header Section -->
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">Latest Football News</h1>
-      <p class="text-gray-600">Stay updated with the latest football stories and analysis</p>
-    </div>
-  <!-- Button to open modal -->
-    <button onclick="showModal()" class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors mb-4">
-      Create News by AJAX
-    </button>
-
-    <!-- Filter Section -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 bg-white rounded-lg border border-gray-200 p-4">
-      <div class="flex space-x-3 mb-4 sm:mb-0">
-        <a id="filter-all" class="bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700">
-          All News
-        </a>
-        <a id="filter-my" class="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white">
-          My News
-        </a>
-      </div>
+      <h1 class="text-4xl font-extrabold text-gray-900 mb-2 border-b-4 border-green-600 inline-block pr-8 pb-1">Latest
+        Sports News</h1>
+      <p class="text-gray-600 text-lg">Stay updated with the latest football stories and analysis from around the globe
+      </p>
       {% if user.is_authenticated %}
-        <div class="text-sm text-gray-500">Last login: {{ last_login }}</div>
+      <div class="text-sm text-gray-500 mt-2">Last login: {{ last_login }}</div>
       {% endif %}
     </div>
 
-    <!-- Loading State -->
+    {% if user.role != "Reader" and user.is_authenticated %}
+    <button onclick="showModal()"
+      class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors mb-4">
+      Create News by AJAX
+    </button>
+    {% endif %}
+
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 bg-white rounded-lg border border-gray-200 p-4">
+      <div class="flex space-x-3 mb-4 sm:mb-0">
+        <a id="filter-all"
+          class="bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700 cursor-pointer">
+          All News
+        </a>
+        {% if user.role != "Reader" and user.is_authenticated %}
+        <a id="filter-my"
+          class="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white cursor-pointer">
+          My News
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
     <div id="loading" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
-      <svg class="animate-spin h-8 w-8 text-green-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <svg class="animate-spin h-8 w-8 text-green-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
       </svg>
       <p class="text-gray-600 mt-3">Loading news...</p>
     </div>
 
-    <!-- Error State -->
     <div id="error" class="hidden"></div>
 
-    <!-- News Grid -->
     <div id="grid" class="hidden"></div>
 
-    <!-- Empty State -->
     <div id="empty" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
-      <div class="w-32 h-32 mx-auto mb-4">
-        <img src="{% static 'image/no-news.png' %}" alt="No news available" class="w-full h-full object-contain">
-      </div>
+      <div class="w-32 h-32 mx-auto mb-4 text-6xl">📰</div>
       <h3 class="text-lg font-medium text-gray-900 mb-2">No news found</h3>
       <p class="text-gray-500 mb-6">Be the first to share football news with the community.</p>
-      <button onclick="showModal()" class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors mb-4">
-      Create News by AJAX
-    </button>
+      {% if user.role != "Reader" and user.is_authenticated %}
+      <button onclick="showModal()"
+        class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors mb-4">
+        Create News by AJAX
+      </button>
+      {% endif %}
     </div>
   </div>
 </div>
+
+
+
+{% if user.is_authenticated %}
+{% include 'readinglist/reading_list_modal.html' %}
+{% endif %}
+
+{% include 'readinglist/reading_list_scripts.html' %}
+
 <script>
-// Configuration
-const NEWS_API_ENDPOINT = "{% url 'main:show_json' %}";
-const CURRENT_USER_ID = "{{ user.id|default_if_none:'' }}";
+  // =======================================================================
+  // NEWS LIST FUNCTIONS
+  // =======================================================================
 
-// DOM Elements
-const loadingSpinner = document.getElementById('loading');
-const errorMessage = document.getElementById('error');
-const emptyStateDisplay = document.getElementById('empty');
-const newsGridContainer = document.getElementById('grid');
-const showAllNewsButton = document.getElementById('filter-all');
-const showMyNewsButton = document.getElementById('filter-my');
+  window.READING_LIST_TOGGLE_ENDPOINT_BASE = "{% url 'readinglist:add_remove_news' '00000000-0000-0000-0000-000000000000' %}";
+  window.NEWS_STATUS_ENDPOINT_BASE = "{% url 'readinglist:get_news_list_status' '00000000-0000-0000-0000-000000000000' %}";
+  window.IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === 'true';
 
-// State Variables
-let activeFilter = 'all';
-let allNewsData = [];
+  const NEWS_API_ENDPOINT = "{% url 'main:show_json' %}";
+  const CURRENT_USER_ID = "{{ user.id|default_if_none:'null' }}";
+  const IS_AUTHENTICATED = window.IS_AUTHENTICATED;
 
-// Update filter button appearance
-function updateFilterButtonsAppearance() {
-  if (!showAllNewsButton || !showMyNewsButton) return;
-  
-  if (activeFilter === 'all') {
-    showAllNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700';
-    showMyNewsButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white';
-  } else {
-    showMyNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700';
-    showAllNewsButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white';
+  const loadingSpinner = document.getElementById('loading');
+  const errorMessage = document.getElementById('error');
+  const emptyStateDisplay = document.getElementById('empty');
+  const newsGridContainer = document.getElementById('grid');
+  const showAllNewsButton = document.getElementById('filter-all');
+  const showMyNewsButton = document.getElementById('filter-my');
+
+  let activeFilter = 'all';
+  let allNewsData = [];
+
+  function updateFilterButtonsAppearance() {
+    if (!showAllNewsButton) return;
+    if (!showMyNewsButton) {
+      showAllNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700 cursor-pointer';
+      return;
+    }
+    if (activeFilter === 'all') {
+      showAllNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700 cursor-pointer';
+      showMyNewsButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white cursor-pointer';
+    } else {
+      showMyNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700 cursor-pointer';
+      showAllNewsButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white cursor-pointer';
+    }
   }
-}
 
-// Show/hide page sections
-function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
-  loadingSpinner.classList.toggle('hidden', !showLoading);
-  errorMessage.classList.toggle('hidden', !showError);
-  emptyStateDisplay.classList.toggle('hidden', !showEmpty);
-  newsGridContainer.classList.toggle('hidden', !showGrid);
-  
-  // Add grid classes when showing grid
-  if (showGrid) {
-    newsGridContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+  function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+    if (loadingSpinner) loadingSpinner.classList.toggle('hidden', !showLoading);
+    if (errorMessage) errorMessage.classList.toggle('hidden', !showError);
+    if (emptyStateDisplay) emptyStateDisplay.classList.toggle('hidden', !showEmpty);
+    if (newsGridContainer) {
+      newsGridContainer.classList.toggle('hidden', !showGrid);
+      if (showGrid) {
+        newsGridContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+      }
+    }
   }
-}
 
-// Get readable category name
-function getReadableCategoryName(categoryCode) {
-  const categoryMapping = {
-    basketball: 'Basketball',
-    soccer: 'Soccer',
-    football: 'Football',
-    hockey: 'Hockey',
-    voleyball: 'Voleyball',
-    baseball: 'Baseball',
-  };
-  return categoryMapping[categoryCode] || categoryCode;
-}
+  function getReadableCategoryName(categoryCode) {
+    const categoryMapping = {
+      basketball: 'Basketball',
+      soccer: 'Soccer',
+      football: 'Football',
+      hockey: 'Hockey',
+      volleyball: 'Volleyball',
+      baseball: 'Baseball',
+    };
+    return categoryMapping[categoryCode] || categoryCode;
+  }
 
-// Create news card element
-function buildNewsCardElement(item) {
+  function openReadingListModalForNews(newsId) {
+    if (!IS_AUTHENTICATED) {
+      alert("You must login to access this feature.");
+      return;
+    }
+    window.CURRENT_NEWS_ID = newsId;
+    window.NEWS_STATUS_ENDPOINT = window.NEWS_STATUS_ENDPOINT_BASE.replace('00000000-0000-0000-0000-000000000000', newsId);
+    window.READING_LIST_TOGGLE_ENDPOINT = window.READING_LIST_TOGGLE_ENDPOINT_BASE.replace('00000000-0000-0000-0000-000000000000', newsId);
+    openReadingListModal();
+  }
+
+  window.openReadingListModalForNews = openReadingListModalForNews;
+
+  function buildNewsCardElement(item) {
     const article = document.createElement('article');
     article.className = 'bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full';
-
-    const linkDetail = `{% url 'main:show_news' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', item.id);
-    const linkEdit = `{% url 'main:edit_news' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', item.id);
-    const linkDelete = `{% url 'main:delete_news' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', item.id);
-
-    const title = DOMPurify.sanitize(item.title);
+    const linkDetail = "{% url 'main:show_news' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', item.id);
+   const title = DOMPurify.sanitize(item.title);
     const content = DOMPurify.sanitize(item.content);
     const category = DOMPurify.sanitize(item.category);
     const thumbnail = DOMPurify.sanitize(item.thumbnail);
@@ -145,125 +175,103 @@ function buildNewsCardElement(item) {
     const categoryLabel = DOMPurify.sanitize(getReadableCategoryName(category));
     const featuredLabel = isFeatured ? DOMPurify.sanitize(`<span class='inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800'>Featured</span>`) : '';
     const hotLabel = isHot ? DOMPurify.sanitize(`<span class='inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800'>Hot</span>`) : '';
-
-    const canEdit = typeof CURRENT_USER_ID !== 'undefined' && Number(CURRENT_USER_ID) === Number(item.user_id);
+    const canEdit = IS_AUTHENTICATED && String(CURRENT_USER_ID) === String(item.user_id);
     const editDeleteHtml = canEdit
-    ? `<div class="flex space-x-2">
-         <a href="#" class="text-gray-600 hover:text-gray-700 text-sm transition-colors"
-            onclick="event.preventDefault(); showEditModal('${item.id}')">Edit</a>
-         <a href="#" class="text-red-600 hover:text-red-700 text-sm transition-colors"
-            onclick='showDeleteModal("${item.id}")'>Delete</a>
-       </div>`
-    : '';
-
-    const cardHtml = `
-        <div class="aspect-[16/9] relative overflow-hidden">
-          ${thumbnailHtml}
-          <div class="absolute top-3 left-3">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-600 text-white">${categoryLabel}</span>
-          </div>
-          <div class="absolute top-3 right-3 flex space-x-2">
-            ${featuredLabel}
-            ${hotLabel}
-          </div>
-        </div>
-        <div class="p-5 flex flex-col flex-1">
-          <div class="flex items-center text-sm text-gray-500 mb-3">
-            <time>${createdAt}</time>
-            <span class="mx-2">•</span>
-            <span>${newsViews} views</span>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 leading-tight">
-            <a href="${linkDetail}" class="hover:text-green-600 transition-colors">${title}</a>
-          </h3>
-          <p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">${content}</p>
-          <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
-            <a href="${linkDetail}" class="text-green-600 hover:text-green-700 font-medium text-sm transition-colors">Read more</a>
-            ${editDeleteHtml}
-          </div>
-        </div>
-    `;
-    
-    article.innerHTML = cardHtml;
+      ? `<div class="flex space-x-2"><a href="#" class="text-gray-600 hover:text-gray-700 text-sm transition-colors" onclick="event.preventDefault(); showEditModal('${item.id}')">Edit</a><a href="#" class="text-red-600 hover:text-red-700 text-sm transition-colors" onclick='event.preventDefault(); showDeleteModal("${item.id}")'>Delete</a></div>`
+      : '';
+    const readingListToggleHtml = IS_AUTHENTICATED
+      ? `<button class="text-sm text-green-600 hover:text-green-700 font-medium ml-4 transition-colors" onclick="event.stopPropagation(); event.preventDefault(); openReadingListModalForNews('${item.id}')">+ Reading List</button>`
+      : `<span title="You must login to access this feature" class="text-sm text-gray-400 font-medium ml-4 cursor-not-allowed">+ Reading List</span>`;
+    article.innerHTML = `<div class="aspect-[16/9] relative overflow-hidden">${thumbnailHtml}<div class="absolute top-3 left-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-600 text-white">${categoryLabel}</span></div><div class="absolute top-3 right-3 flex space-x-2">${featuredLabel}${hotLabel}</div></div><div class="p-5 flex flex-col flex-1"><div class="flex items-center text-sm text-gray-500 mb-3"><time>${createdAt}</time><span class="mx-2">•</span><span>${newsViews} views</span></div><h3 class="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 leading-tight"><a href="${linkDetail}" class="hover:text-green-600 transition-colors">${title}</a></h3><p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">${content}</p><div class="pt-4 border-t border-gray-100 flex items-center justify-between"><div class="flex items-center"><a href="${linkDetail}" class="text-green-600 hover:text-green-700 font-medium text-sm transition-colors">Read more</a>${readingListToggleHtml}</div>${editDeleteHtml}</div></div>`;
     return article;
-}
-
-// Render all news cards
-function renderAllNewsCards(newsItems) {
-  newsGridContainer.innerHTML = '';
-  newsItems.forEach(newsItem => {
-    const cardElement = buildNewsCardElement(newsItem);
-    newsGridContainer.appendChild(cardElement);
-  });
-}
-
-// Filter and display news
-function filterAndDisplayNews() {
-  updateFilterButtonsAppearance();
-  
-  const filteredNews = activeFilter === 'all' 
-    ? allNewsData 
-    : allNewsData.filter(news => Number(news.user_id) === Number(CURRENT_USER_ID));
-  
-  if (filteredNews.length === 0) {
-    displayPageSection({ showEmpty: true });
-  } else {
-    renderAllNewsCards(filteredNews);
-    displayPageSection({ showGrid: true });
   }
-}
 
-// Fetch news data from server
-async function fetchNewsFromServer() {
-  try {
-    displayPageSection({ showLoading: true });
-    
-    const response = await fetch(NEWS_API_ENDPOINT, {
-      headers: { 'Accept': 'application/json' },
+  function renderAllNewsCards(newsItems) {
+    newsGridContainer.innerHTML = '';
+    newsItems.forEach(newsItem => {
+      const cardElement = buildNewsCardElement(newsItem);
+      newsGridContainer.appendChild(cardElement);
     });
+  }
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch news data from server');
+  function filterAndDisplayNews() {
+    updateFilterButtonsAppearance();
+    let filteredNews = [];
+    if (activeFilter === 'my' && IS_AUTHENTICATED) {
+      filteredNews = allNewsData.filter(news => String(news.user_id) === String(CURRENT_USER_ID));
+    } else {
+      filteredNews = allNewsData;
+      if (activeFilter === 'my' && !IS_AUTHENTICATED) {
+        activeFilter = 'all';
+        updateFilterButtonsAppearance();
+      }
+    }
+    if (filteredNews.length === 0) {
+      displayPageSection({ showEmpty: true });
+    } else {
+      renderAllNewsCards(filteredNews);
+      displayPageSection({ showGrid: true });
+    }
+  }
+
+  async function fetchNewsFromServer() {
+    try {
+      displayPageSection({ showLoading: true });
+      const response = await fetch(NEWS_API_ENDPOINT, {
+        headers: { 'Accept': 'application/json' },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch news data from server');
+      }
+      const newsData = await response.json();
+      allNewsData = newsData || [];
+      filterAndDisplayNews();
+    } catch (error) {
+      console.error('Error loading news:', error);
+      if (errorMessage) {
+        errorMessage.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 p-4 rounded" role="alert"><strong class="font-bold">Error!</strong><span class="block sm:inline">Failed to load news: ${error.message}</span></div>`;
+      }
+      displayPageSection({ showError: true });
+    }
+  }
+
+  function handleShowAllNewsClick() {
+    activeFilter = 'all';
+    filterAndDisplayNews();
+  }
+
+  function handleShowMyNewsClick() {
+    if (IS_AUTHENTICATED) {
+      activeFilter = 'my';
+      filterAndDisplayNews();
+    } else {
+      alert("You must login to access this feature.");
+    }
+  }
+
+  function initializeNewsPage() {
+    if (showAllNewsButton) {
+      showAllNewsButton.addEventListener('click', handleShowAllNewsClick);
+    }
+    if (showMyNewsButton) {
+      showMyNewsButton.addEventListener('click', handleShowMyNewsClick);
     }
 
-    const newsData = await response.json();
-    allNewsData = newsData || [];
-    console.log("Anjing");
-    
-    filterAndDisplayNews();
-  } catch (error) {
-    console.error('Error loading news:', error);
-    displayPageSection({ showError: true });
-  }
-}
-
-// Event handlers
-function handleShowAllNewsClick() {
-  activeFilter = 'all';
-  filterAndDisplayNews();
-}
-
-function handleShowMyNewsClick() {
-  activeFilter = 'my';
-  filterAndDisplayNews();
-}
-
-// Initialize page
-function initializeNewsPage() {
-  showAllNewsButton.addEventListener('click', handleShowAllNewsClick);
-  showMyNewsButton.addEventListener('click', handleShowMyNewsClick);
-  
-  fetchNewsFromServer();
-}
-
-// Start application
-initializeNewsPage();
-
-// Add event listener to detect new news
-document.addEventListener('newsAdded', function() {
-    // Refresh data without page reload
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlFilter = urlParams.get('filter');
+    const isAuthenticated = "{{ user.is_authenticated|yesno:'true,false' }}" === 'true';
+    if (urlFilter === 'my' && isAuthenticated) {
+      activeFilter = 'my';
+    } else {
+      activeFilter = 'all';
+    }
     fetchNewsFromServer();
-    
-});
+  }
+
+  document.addEventListener('DOMContentLoaded', initializeNewsPage);
+  document.addEventListener('newsAdded', function () {
+    fetchNewsFromServer();
+  });
 </script>
+
 {% endblock content %}

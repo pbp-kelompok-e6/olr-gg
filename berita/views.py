@@ -1,15 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from berita.forms import newsForm
 from berita.models import News
-from comments.models import Comments
 from main.views import login_required
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
+from comments.models import Comments
 
-@login_required(login_url='/login')
 def show_news(request, id):
     news = get_object_or_404(News, pk=id)
     comments = Comments.objects.filter(news=news).select_related('user').order_by('-created_at')
@@ -17,7 +16,6 @@ def show_news(request, id):
         'news': news,
         'comments': comments
     }
-
     return render(request, "news_detail.html", context)
 
 @csrf_exempt
@@ -49,6 +47,7 @@ def delete_news(request, id):
 
 @csrf_exempt
 @require_POST
+@login_required
 def create_news(request):
     title = strip_tags(request.POST.get("title")) # strip HTML tags!
     content = strip_tags(request.POST.get("content")) # strip HTML tags!
