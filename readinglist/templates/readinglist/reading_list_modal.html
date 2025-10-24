@@ -1,0 +1,18 @@
+<div id="readingListModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 hidden">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-900">Tambahkan ke Reading List</h3>
+            <button onclick="closeReadingListModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        <div class="mt-4">
+            <p class="text-sm text-gray-600 mb-4">Pilih list untuk menambahkan atau menghapus berita ini.</p>
+            <div id="list-options-container" class="space-y-2"></div>
+            <p id="list-loading-status" class="text-sm text-gray-500 mt-4">Memuat list...</p>
+        </div>
+    </div>
+</div>

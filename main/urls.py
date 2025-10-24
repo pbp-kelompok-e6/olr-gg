@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from main.views import show_main, register, login_user, logout_user
 from berita.views import show_news, create_news, edit_news, delete_news, show_json, show_json_by_id
 from users import views as user_views
@@ -17,4 +17,5 @@ urlpatterns = [
     path('create-news/', create_news, name='create_news'),
     path('json/', show_json, name='show_json'),
     path('json/<str:news_id>/', show_json_by_id, name='show_json_by_id'),
+    
 ]

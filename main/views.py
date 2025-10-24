@@ -16,7 +16,6 @@ from django.utils.html import strip_tags
 import json
 # Create your views here.
 
-@login_required(login_url='/login')
 def show_main(request):
     filter_type = request.GET.get("filter", "all")  # default 'all'
     if filter_type == "all":

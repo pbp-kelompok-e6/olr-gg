@@ -8,7 +8,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
 
-@login_required(login_url='/login')
 def show_news(request, id):
     news = get_object_or_404(News, pk=id)
 
@@ -47,6 +46,7 @@ def delete_news(request, id):
 
 @csrf_exempt
 @require_POST
+@login_required
 def create_news(request):
     title = strip_tags(request.POST.get("title")) # strip HTML tags!
     content = strip_tags(request.POST.get("content")) # strip HTML tags!

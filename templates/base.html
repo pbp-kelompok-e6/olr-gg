@@ -1,21 +1,90 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    {% block meta %}
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    {% endblock meta %}
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
-    <link rel="stylesheet" href="{% static 'css/global.css' %}" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+  {% block meta %}{% endblock meta %}
 </head>
 
-<body>
-    {% block content %}
-    {% endblock content %}
-    {% include 'modal.html' %}
+<body class="bg-gray-50">
+
+  <nav class="bg-gray-900 shadow-md fixed w-full top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex">
+          <a href="{% url 'main:show_main' %}"
+            class="flex-shrink-0 flex items-center text-white text-xl font-bold tracking-wider">
+            OLR.<span class="text-green-500">GG</span>
+          </a>
+          <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <a href="{% url 'main:show_main' %}" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors
+                 {% if request.resolver_match.app_name == 'main' %}
+                   border-green-500 text-white
+                 {% else %}
+                   border-transparent text-gray-300 hover:border-gray-300 hover:text-white
+                 {% endif %}">
+              Home
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'readinglist:show_lists' %}" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors
+                 {% if request.resolver_match.app_name == 'readinglist' %}
+                   border-green-500 text-white
+                 {% else %}
+                   border-transparent text-gray-300 hover:border-gray-300 hover:text-white
+                 {% endif %}">
+              Reading List
+            </a>
+            <a href="{% url 'forum:forum_view' %}" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors
+                 {% if request.resolver_match.app_name == 'forum' %}
+                   border-green-500 text-white
+                 {% else %}
+                   border-transparent text-gray-300 hover:border-gray-300 hover:text-white
+                 {% endif %}">
+              Forum
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          {% if user.is_authenticated %}
+          <div class="text-sm font-medium text-gray-300 mr-4 hidden sm:block">
+            Welcome, {{ user.username }}
+          </div>
+          <a href="{% url 'main:logout' %}"
+            class="ml-3 inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm">
+            Logout
+          </a>
+          {% else %}
+          <a href="{% url 'main:login' %}"
+            class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-gray-100 hover:bg-white transition-colors shadow-sm">
+            Login
+          </a>
+          <a href="{% url 'main:register' %}"
+            class="ml-3 inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors shadow-sm">
+            Register
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    {% block content %}{% endblock content %}
+  </main>
+  {% include 'modal.html' %}
 </body>
 
 </html>

@@ -9,7 +9,7 @@ class News(models.Model):
         ('soccer', 'Soccer'),
         ('football', 'Football'),
         ('hockey', 'Hockey'),
-        ('voleyball', 'Voleyball'),
+        ('volleyball', 'Volleyball'),
         ('baseball', 'Baseball'),
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
