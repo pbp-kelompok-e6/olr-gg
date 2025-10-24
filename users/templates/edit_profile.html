@@ -40,7 +40,7 @@
                 <button type="button" id="cancelEdit" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">
                     Cancel
                 </button>
-                <button type="submit" id="saveProfileButton" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-indigo-700">
+                <button type="submit" id="saveProfileButton" class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-green-700">
                     Save Changes
                 </button>
             </div>
@@ -51,7 +51,7 @@
 <script>
     document.querySelectorAll('#editProfileForm input, #editProfileForm textarea').forEach(el => {
         if (el.type !== 'file') {
-             el.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring-indigo-500', 'sm:text-sm');
+             el.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-green-500', 'focus:ring-green-500', 'sm:text-sm');
         } else {
              el.classList.add('mt-1', 'block', 'w-full', 'text-sm', 'text-gray-900', 'border', 'border-gray-300', 'rounded-lg', 'cursor-pointer', 'bg-gray-50', 'focus:outline-none');
         }
