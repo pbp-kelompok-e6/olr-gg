@@ -170,7 +170,7 @@ function renderArticle(news) {
     
     // Set author
     const authorName = news.user_username || 'Anonymous';
-    const linkAuthorProfile = `{% url 'user:show_profile' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', news.user_id);
+    const linkAuthorProfile = `{% url 'user:show_profile' '0' %}`.replace('0', news.user_id);
     articleAuthor.innerHTML = `Author: <a href="${linkAuthorProfile}"class="text-green-600 hover:text-green-800 font-medium transition-colors">${authorName}</a>`;
 }
 
