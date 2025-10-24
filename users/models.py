@@ -23,3 +23,9 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def save(self, *args, **kwargs):
+        if self.strikes >= 3 and not self.is_superuser:
+            self.is_active = False
+
+        super().save(*args, **kwargs)
