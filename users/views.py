@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import CustomUserChangeForm, ProfilePictureForm
+from .forms import CustomUserChangeForm, ProfilePictureForm, ReportUserForm
 from django.shortcuts import get_object_or_404
 from .models import CustomUser as User
 from django.contrib.auth import get_user_model
@@ -110,3 +110,47 @@ def change_profile_pic(request):
     }
     # Kita akan buat template modal baru
     return render(request, 'change_pic.html', context)
+
+
+@login_required(login_url='/login')
+def report_user(request, id):
+    # 'id' adalah ID user yang DILAPORKAN
+    try:
+        usertarget = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'User not found.'}, status=404)
+
+    # Mencegah user melaporkan diri sendiri
+    if usertarget == request.user:
+        return JsonResponse({'status': 'error', 'message': 'You cannot report yourself.'}, status=403)
+
+    if request.method == 'POST':
+        form = ReportUserForm(request.POST)
+        if form.is_valid():
+            # Buat objek laporan
+            report = form.save(commit=False)
+            report.reporter = request.user
+            report.reported_user = usertarget
+            report.save()
+            
+            # Tambahkan strike ke user yang dilaporkan
+            usertarget.strikes += 1
+            usertarget.save() # Ini akan memicu logic ban otomatis Anda
+            
+            # Kirim JSON success (tanpa 'new_data')
+            return JsonResponse({
+                'status': 'success',
+                'message': f'User {usertarget.username} berhasil dilaporkan. Strike ditambahkan.'
+            })
+        else:
+            # Kirim error validasi form
+            errors = form.errors.as_json()
+            return JsonResponse({'status': 'error', 'errors': errors}, status=400)
+    
+    # GET request: Tampilkan form modal
+    form = ReportUserForm()
+    context = {
+        'form': form,
+        'usertarget': usertarget
+    }
+    return render(request, 'report_user.html', context)

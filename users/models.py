@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 class CustomUser(AbstractUser):
     bio = models.TextField(blank=True, null=True)
@@ -18,7 +19,7 @@ class CustomUser(AbstractUser):
 
         if self.groups.filter(name='Writers').exists():
             return "Writer"
-
+        
         return "Reader"
 
     def __str__(self):
@@ -29,3 +30,27 @@ class CustomUser(AbstractUser):
             self.is_active = False
 
         super().save(*args, **kwargs)
+
+class Report(models.Model):
+    """
+    Model untuk mencatat laporan user.
+    """
+    # User yang membuat laporan
+    reporter = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name="reports_made"
+    )
+    
+    # User yang dilaporkan
+    reported_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name="reports_received"
+    )
+    
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Report by {self.reporter.username} against {self.reported_user.username}"
