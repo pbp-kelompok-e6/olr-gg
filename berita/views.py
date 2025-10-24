@@ -7,14 +7,15 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
+from comments.models import Comments
 
 def show_news(request, id):
     news = get_object_or_404(News, pk=id)
-
+    comments = Comments.objects.filter(news=news).select_related('user').order_by('-created_at')
     context = {
-        'news': news
+        'news': news,
+        'comments': comments
     }
-
     return render(request, "news_detail.html", context)
 
 @csrf_exempt

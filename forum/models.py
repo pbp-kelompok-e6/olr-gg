@@ -1,5 +1,6 @@
+# forum/models.py
+
 from django.db import models
-from django.conf import settings 
 from users.models import CustomUser
 
 CATEGORY_CHOICES = (
@@ -23,10 +24,10 @@ class ForumPost(models.Model):
     def __str__(self):
         return self.title
 
-# Model untuk setiap komentar pada sebuah post
+# Model untuk setiap komentar pada sebuah post (HANYA SATU DEFINISI)
 class ForumComment(models.Model):
     post = models.ForeignKey(ForumPost, on_delete=models.CASCADE, related_name='comments')
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
