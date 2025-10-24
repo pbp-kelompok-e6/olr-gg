@@ -168,7 +168,6 @@
 </div>
 
 <script>
-// Your JavaScript remains unchanged
 document.addEventListener('DOMContentLoaded', function() {
   const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   const postListContainer = document.getElementById('post-list-container');
@@ -243,16 +242,30 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => response.json())
       .then(data => {
         if (data.status === 'success') {
+          // =================================================================
+          // START OF THE FIX: Build the new post card safely
+          // =================================================================
+          
+          // 1. Create the main container element (the <a> tag)
           const newPostElement = document.createElement('a');
           newPostElement.href = data.post.url;
           newPostElement.id = `post-${data.post.id}`;
           newPostElement.className = 'post-card block bg-white p-5 rounded-xl border border-gray-200 transition-shadow duration-200 hover:shadow-md';
           newPostElement.setAttribute('data-category', data.post.category_code);
+
+          // 2. Create the title element (<h5>) separately
+          const titleElement = document.createElement('h5');
+          titleElement.className = 'text-lg font-semibold text-gray-900 break-words';
+          
+          // 3. THIS IS THE KEY: Use .textContent to safely insert the title text.
+          // This ensures the browser treats it as plain text, not HTML.
+          titleElement.textContent = data.post.title;
+
+          // 4. Build the rest of the card's structure using innerHTML
           newPostElement.innerHTML = `
             <div class="flex justify-between items-start gap-4">
               <div class="flex-grow">
                   <div class="flex items-center gap-3 mb-1">
-                      <h5 class="text-lg font-semibold text-gray-900 break-words">${data.post.title}</h5>
                       <span class="category-badge inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500 text-white">
                           ${data.post.category_display}
                       </span>
@@ -271,13 +284,23 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
             </div>
           `;
+
+          // 5. Insert the safe title element into its correct place in the new card's structure
+          newPostElement.querySelector('.flex.items-center.gap-3.mb-1').prepend(titleElement);
+          
+          // =================================================================
+          // END OF THE FIX
+          // =================================================================
+          
           postListContainer.prepend(newPostElement);
           const noPostsMessage = document.getElementById('no-posts-message');
           if(noPostsMessage) noPostsMessage.remove();
           this.reset();
-          showFormBtn.click(); 
+          showFormBtn.click();
         } else {
-          alert(data.message || 'An error occurred.');
+          // Display a more helpful error message from the Django Form
+          const errorMessage = data.errors ? Object.values(data.errors).map(e => e[0]).join("\n") : (data.message || 'An error occurred.');
+          alert(errorMessage);
         }
       });
     });

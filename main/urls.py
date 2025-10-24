@@ -17,4 +17,5 @@ urlpatterns = [
     path('create-news/', create_news, name='create_news'),
     path('json/', show_json, name='show_json'),
     path('json/<str:news_id>/', show_json_by_id, name='show_json_by_id'),
+    
 ]

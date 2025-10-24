@@ -11,8 +11,12 @@ from django.views.decorators.csrf import csrf_exempt
 from berita.models import News 
 from .models import ReadingList, ReadingListItem
 from .forms import ReadingListForm
+from users.models import CustomUser as User
+from django.contrib.auth import get_user_model
 
 # --- UTILITY FUNCTION ---
+User = get_user_model();
+
 def get_or_create_default_list(user):
     """Mencari atau membuat list 'Favorites' default untuk pengguna."""
     list_name = "Favorites"
@@ -32,7 +36,6 @@ def get_user_lists_ajax(request):
     # Konversi UUID ke string
     data = [{'id': str(list['id']), 'name': list['name']} for list in user_lists]
     return JsonResponse(data, safe=False)
-
 
 def get_news_list_status(user, news_id):
     """Mengembalikan status berita (ada/tidak ada) di setiap list user."""
