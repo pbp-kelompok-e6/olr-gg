@@ -28,7 +28,6 @@ def get_comment_data(comment):
     }
 
 
-@login_required(login_url='/login')
 def show_comments(request, id):
     comment= get_object_or_404(Comments, pk=id)
 
@@ -41,48 +40,53 @@ def show_comments(request, id):
     return render(request, "comments_detail.html", context)
 
 
-@login_required(login_url='/login')
-@csrf_exempt
+@login_required()
+
 @require_POST
 def add_comment(request, news_id):
     try:
         content = strip_tags(request.POST.get("content"))
         user = request.user
-        
-        if not content:
+        if user.is_authenticated:
+            if not content:
+                return JsonResponse({
+                    "status": "ERROR", 
+                    "message": "Content is required."
+                }, status=400)
+            
+            # Use news_id from URL parameter instead of POST
+            news = get_object_or_404(News, pk=news_id)
+            
+            comment_baru = Comments(
+                content=content,
+                user=user,
+                news=news
+            )
+            comment_baru.save()
+
+            return JsonResponse({
+                "status": "SUCCESS", 
+                "message": "Comment created successfully.",
+                "comment": {
+                    "id": str(comment_baru.id),
+                    "content": comment_baru.content,
+                    "user": comment_baru.user.username
+                }
+            }, status=201)
+        else:
             return JsonResponse({
                 "status": "ERROR", 
-                "message": "Content is required."
-            }, status=400)
-        
-        # Use news_id from URL parameter instead of POST
-        news = get_object_or_404(News, pk=news_id)
-        
-        comment_baru = Comments(
-            content=content,
-            user=user,
-            news=news
-        )
-        comment_baru.save()
-
-        return JsonResponse({
-            "status": "SUCCESS", 
-            "message": "Comment created successfully.",
-            "comment": {
-                "id": str(comment_baru.id),
-                "content": comment_baru.content,
-                "user": comment_baru.user.username
-            }
-        }, status=201)
+                "message": "Login required."
+            }, status=401)
     except Exception as e:
         return JsonResponse({
             "status": "ERROR", 
             "message": str(e)
         }, status=500)
 
-@csrf_exempt
+
 @require_POST
-@login_required(login_url='/login')
+@login_required()
 def edit_comment(request, id, news_id):
     try:
         comment = get_object_or_404(Comments, pk=id)
@@ -122,8 +126,8 @@ def edit_comment(request, id, news_id):
             "message": str(e)
         }, status=500)
 
-@login_required(login_url='/login')
-@csrf_exempt
+@login_required()
+
 @require_POST
 def delete_comment(request, id, news_id):
     try:
