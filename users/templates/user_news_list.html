@@ -1,5 +1,5 @@
 {% if news_list %}
-    <div class="space-y-4 bg-gray-100 p-4 rounded-lg">
+    <div class="space-y-4 bg-white p-4 rounded-lg">
         {% for news_item in news_list %}
             <div class="p-4 border rounded-lg shadow-sm bg-white">
                 <a href="{% url 'main:show_news' news_item.id %}" class="text-lg font-bold text-green-600 hover:underline">
