@@ -14,9 +14,11 @@
       <p class="text-gray-600">Stay updated with the latest football stories and analysis</p>
     </div>
   <!-- Button to open modal -->
+    {% if user.role != "Reader" %}
     <button onclick="showModal()" class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors mb-4">
       Create News by AJAX
     </button>
+    {% endif %}
 
     <!-- Filter Section -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 bg-white rounded-lg border border-gray-200 p-4">
@@ -24,13 +26,12 @@
         <a id="filter-all" class="bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700">
           All News
         </a>
+        {% if user.role != "Reader" %}
         <a id="filter-my" class="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white">
           My News
         </a>
+        {% endif %}
       </div>
-      {% if user.is_authenticated %}
-        <div class="text-sm text-gray-500">Last login: {{ last_login }}</div>
-      {% endif %}
     </div>
 
     <!-- Loading State -->
@@ -55,8 +56,10 @@
       </div>
       <h3 class="text-lg font-medium text-gray-900 mb-2">No news found</h3>
       <p class="text-gray-500 mb-6">Be the first to share football news with the community.</p>
+      {% if user.role != "Reader" %}
       <button onclick="showModal()" class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors mb-4">
       Create News by AJAX
+      {% endif %}
     </button>
     </div>
   </div>
@@ -80,16 +83,21 @@ let allNewsData = [];
 
 // Update filter button appearance
 function updateFilterButtonsAppearance() {
-  if (!showAllNewsButton || !showMyNewsButton) return;
-  
+  if (!showAllNewsButton) return;
+
   if (activeFilter === 'all') {
     showAllNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700';
-    showMyNewsButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white';
+    if (showMyNewsButton) {
+      showMyNewsButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white';
+    }
   } else {
-    showMyNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700';
+    if (showMyNewsButton) {
+      showMyNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700';
+    }
     showAllNewsButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white';
   }
 }
+
 
 // Show/hide page sections
 function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
@@ -228,7 +236,6 @@ async function fetchNewsFromServer() {
 
     const newsData = await response.json();
     allNewsData = newsData || [];
-    console.log("Anjing");
     
     filterAndDisplayNews();
   } catch (error) {
@@ -250,9 +257,15 @@ function handleShowMyNewsClick() {
 
 // Initialize page
 function initializeNewsPage() {
-  showAllNewsButton.addEventListener('click', handleShowAllNewsClick);
-  showMyNewsButton.addEventListener('click', handleShowMyNewsClick);
-  
+  if (showAllNewsButton) {
+    showAllNewsButton.addEventListener('click', handleShowAllNewsClick);
+  }
+
+  if (showMyNewsButton) {
+    showMyNewsButton.addEventListener('click', handleShowMyNewsClick);
+  }
+
+  // Selalu jalankan fetch setelah listener aman ditambahkan
   fetchNewsFromServer();
 }
 
