@@ -18,14 +18,20 @@ import json
 
 User = get_user_model()
 
+def landing_page(request):
+    return render(request, 'landing_page.html')
+
 def show_main(request):
     filter_type = request.GET.get("filter", "all")  # default 'all'
+    selected_category = request.GET.get("category", "")  # pass category from landing page
+
     if filter_type == "all":
         news_list = News.objects.all()
     else:
         news_list = News.objects.filter(user=request.user)
     context = {
         'news_list': news_list,
+        'selected_category': selected_category,
     }
     return render(request, "main.html", context)
 
@@ -100,7 +106,7 @@ def login_user(request):
             response.set_cookie('last_login', str(datetime.datetime.now()))
             return response
 
-         response = HttpResponseRedirect(reverse("main:show_main"))
+         response = HttpResponseRedirect(reverse("main:landing_page"))
          response.set_cookie('last_login', str(datetime.datetime.now()))
          return response
 
@@ -119,7 +125,7 @@ def login_user(request):
 
 def logout_user(request):
     logout(request)
-    response = HttpResponseRedirect(reverse('main:login'))
+    response = HttpResponseRedirect(reverse('main:landing_page'))
     response.delete_cookie('last_login')
     return response
 

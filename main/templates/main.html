@@ -2,74 +2,92 @@
 {% load static %}
 
 {% block meta %}
-<title>Football News</title>
+<title>Sports News - OLR.GG</title>
 {% endblock meta %}
 
 {% block content %}
 
-<div class="bg-gray-50 w-full pt-16 min-h-screen">
+<div class="bg-white w-full pt-16 min-h-screen">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section -->
     <div class="mb-8">
-      <h1 class="text-4xl font-extrabold text-gray-900 mb-2 border-b-4 border-green-600 inline-block pr-8 pb-1">Latest
-        Sports News</h1>
-      <p class="text-gray-600 text-lg">Stay updated with the latest football stories and analysis from around the globe
-      </p>
-      {% if user.is_authenticated %}
-      <div class="text-sm text-gray-500 mt-2">Last login: {{ last_login }}</div>
-      {% endif %}
-    </div>
-
-    {% if user.role != "Reader" and user.is_authenticated %}
-    <button onclick="showModal()"
-      class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors mb-4">
-      Create News by AJAX
-    </button>
-    {% endif %}
-
-    <div
-      class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 bg-white rounded-lg border border-gray-200 p-4">
-      <div class="flex space-x-3 mb-4 sm:mb-0">
-        <a id="filter-all"
-          class="bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700 cursor-pointer">
-          All News
-        </a>
-        {% if user.role != "Reader" and user.is_authenticated %}
-        <a id="filter-my"
-          class="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white cursor-pointer">
-          My News
-        </a>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h1 class="text-4xl font-extrabold text-gray-900 mb-2">
+            Latest Sports News
+          </h1>
+          <p class="text-gray-600 text-lg">Stay updated with the latest stories and analysis from around the globe
+          </p>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="hidden md:block text-sm text-gray-500 bg-gray-100 px-4 py-2 rounded-lg border border-gray-200">
+          Last login: {{ last_login }}
+        </div>
         {% endif %}
       </div>
     </div>
 
-    <div id="loading" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
-      <svg class="animate-spin h-8 w-8 text-green-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none"
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+      <!-- Create News Button -->
+      {% if user.role != "Reader" and user.is_authenticated %}
+      <button onclick="showModal()"
+        class="inline-flex items-center px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Create News
+      </button>
+      {% endif %}
+
+      <!-- Filter Buttons -->
+      <div class="flex items-center space-x-3 bg-gray-100 rounded-lg p-2 border border-gray-200">
+        <button id="filter-all"
+          class="px-4 py-2 rounded-md font-medium transition-all duration-300 text-white bg-red-600">
+          All News
+        </button>
+        {% if user.role != "Reader" and user.is_authenticated %}
+        <button id="filter-my"
+          class="px-4 py-2 rounded-md font-medium transition-all duration-300 text-gray-700 hover:text-gray-900">
+          My News
+        </button>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="bg-white rounded-lg border border-gray-200 shadow-sm p-12 text-center hidden">
+      <svg class="animate-spin h-12 w-12 text-red-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none"
         viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
       </svg>
-      <p class="text-gray-600 mt-3">Loading news...</p>
+      <p class="text-gray-600 mt-4 text-lg">Loading news...</p>
     </div>
 
+    <!-- Error State -->
     <div id="error" class="hidden"></div>
 
+    <!-- News Grid -->
     <div id="grid" class="hidden"></div>
 
-    <div id="empty" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
-      <div class="w-32 h-32 mx-auto mb-4 text-6xl">📰</div>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">No news found</h3>
-      <p class="text-gray-500 mb-6">Be the first to share football news with the community.</p>
+    <!-- Empty State -->
+    <div id="empty" class="bg-white rounded-lg border border-gray-200 shadow-sm p-12 text-center hidden">
+      <div class="w-32 h-32 mx-auto mb-6 text-8xl opacity-50">📰</div>
+      <h3 class="text-2xl font-bold text-gray-900 mb-3">No news found</h3>
+      <p class="text-gray-600 mb-8 text-lg">Be the first to share sports news with the community.</p>
       {% if user.role != "Reader" and user.is_authenticated %}
       <button onclick="showModal()"
-        class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors mb-4">
-        Create News by AJAX
+        class="inline-flex items-center px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all duration-300 shadow-lg">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Create News
       </button>
       {% endif %}
     </div>
   </div>
 </div>
-
-
 
 {% if user.is_authenticated %}
 {% include 'readinglist/reading_list_modal.html' %}
@@ -89,6 +107,7 @@
   const NEWS_API_ENDPOINT = "{% url 'main:show_json' %}";
   const CURRENT_USER_ID = "{{ user.id|default_if_none:'null' }}";
   const IS_AUTHENTICATED = window.IS_AUTHENTICATED;
+  const SELECTED_CATEGORY = "{{ selected_category|default:'' }}";
 
   const loadingSpinner = document.getElementById('loading');
   const errorMessage = document.getElementById('error');
@@ -100,18 +119,56 @@
   let activeFilter = 'all';
   let allNewsData = [];
 
+  function filterNewsByCategory(newsArray) {
+    if (!SELECTED_CATEGORY) {
+      return newsArray;
+    }
+    return newsArray.filter(news => news.category === SELECTED_CATEGORY);
+  }
+
+  async function refreshNews() {
+    showLoadingState();
+    
+    try {
+      const response = await fetch(NEWS_API_ENDPOINT, {
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      let newsData = await response.json();
+      newsData = filterNewsByCategory(newsData);
+
+      if (activeFilter === 'my') {
+        newsData = newsData.filter(item => String(item.user_id) === String(CURRENT_USER_ID));
+      }
+
+      if (newsData.length === 0) {
+        showEmptyState();
+      } else {
+        renderNews(newsData);
+        showNewsGrid();
+      }
+    } catch (error) {
+      console.error('Failed to load news:', error);
+      showErrorState('Failed to fetch news data from server');
+    }
+  }
+
   function updateFilterButtonsAppearance() {
     if (!showAllNewsButton) return;
     if (!showMyNewsButton) {
-      showAllNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700 cursor-pointer';
+      showAllNewsButton.className = 'px-4 py-2 rounded-md font-medium transition-all duration-300 text-white bg-red-600';
       return;
     }
     if (activeFilter === 'all') {
-      showAllNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700 cursor-pointer';
-      showMyNewsButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white cursor-pointer';
+      showAllNewsButton.className = 'px-4 py-2 rounded-md font-medium transition-all duration-300 text-white bg-red-600';
+      showMyNewsButton.className = 'px-4 py-2 rounded-md font-medium transition-all duration-300 text-gray-700 hover:text-gray-900';
     } else {
-      showMyNewsButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700 cursor-pointer';
-      showAllNewsButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white cursor-pointer';
+      showMyNewsButton.className = 'px-4 py-2 rounded-md font-medium transition-all duration-300 text-white bg-red-600';
+      showAllNewsButton.className = 'px-4 py-2 rounded-md font-medium transition-all duration-300 text-gray-700 hover:text-gray-900';
     }
   }
 
@@ -139,6 +196,18 @@
     return categoryMapping[categoryCode] || categoryCode;
   }
 
+  function getCategoryColor(categoryCode) {
+    const categoryColors = {
+      basketball: 'bg-orange-600',
+      soccer: 'bg-green-600',
+      football: 'bg-blue-600',
+      hockey: 'bg-cyan-600',
+      volleyball: 'bg-yellow-600',
+      baseball: 'bg-red-600',
+    };
+    return categoryColors[categoryCode] || 'bg-gray-600';
+  }
+
   function openReadingListModalForNews(newsId) {
     if (!IS_AUTHENTICATED) {
       alert("You must login to access this feature.");
@@ -152,9 +221,11 @@
 
   window.openReadingListModalForNews = openReadingListModalForNews;
 
-  function buildNewsCardElement(item) {
+  function buildNewsCardElement(item, isFeatured = false) {
     const article = document.createElement('article');
-    article.className = 'bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full';
+    const gridSpan = isFeatured ? 'lg:col-span-3 md:col-span-2' : '';
+    article.className = `bg-white rounded-lg border border-gray-200 hover:border-red-500 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full group ${gridSpan}`;
+    
     const linkDetail = "{% url 'main:show_news' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', item.id);
     const title = DOMPurify.sanitize(item.title);
     const content = DOMPurify.sanitize(item.content);
@@ -166,60 +237,157 @@
         day: 'numeric' 
     }));
     const newsViews = DOMPurify.sanitize(item.news_views);
-    const isFeatured = item.is_featured;
     const isHot = newsViews > 20;
 
-    // Rating display
     const hasRating = item.average_rating !== null && item.average_rating !== undefined;
     const ratingDisplay = hasRating 
         ? `<div class="flex items-center">
              <span class="text-yellow-500 mr-1">★</span>
-             <span class="text-sm font-medium text-gray-700">${item.average_rating}</span>
+             <span class="text-sm font-medium text-gray-900">${item.average_rating}</span>
              <span class="text-xs text-gray-500 ml-1">(${item.rating_count})</span>
            </div>`
         : `<div class="flex items-center">
-             <span class="text-gray-400 mr-1">★</span>
+             <span class="text-gray-300 mr-1">★</span>
              <span class="text-sm text-gray-500">No ratings</span>
            </div>`;
 
-    const thumbnailHtml = DOMPurify.sanitize(
-        item.thumbnail ? `<img src='${thumbnail}' alt='${title}' class='w-full h-full object-cover'>` : `<div class='w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center'></div>`
-    );
+    const aspectRatio = isFeatured ? 'aspect-[21/9]' : 'aspect-[16/9]';
+    const thumbnailHtml = item.thumbnail 
+        ? `<img src='${thumbnail}' alt='${title}' class='w-full h-full object-cover group-hover:scale-110 transition-transform duration-300'>` 
+        : `<div class='w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center'>
+             <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+             </svg>
+           </div>`;
+    
     const categoryLabel = DOMPurify.sanitize(getReadableCategoryName(category));
-    const featuredLabel = isFeatured ? DOMPurify.sanitize(`<span class='inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800'>Featured</span>`) : '';
-    const hotLabel = isHot ? DOMPurify.sanitize(`<span class='inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800'>Hot</span>`) : '';
+    const categoryColor = getCategoryColor(category);
+    const featuredLabel = isFeatured ? `<span class='inline-flex items-center px-3 py-1 rounded-md text-sm font-bold bg-yellow-500 text-white shadow-lg'>★ FEATURED</span>` : '';
+    const hotLabel = isHot ? `<span class='inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-700 border border-red-200'>🔥 Hot</span>` : '';
+    
     const canEdit = IS_AUTHENTICATED && String(CURRENT_USER_ID) === String(item.user_id);
     const editDeleteHtml = canEdit
-      ? `<div class="flex space-x-2"><a href="#" class="text-gray-600 hover:text-gray-700 text-sm transition-colors" onclick="event.preventDefault(); showEditModal('${item.id}')">Edit</a><a href="#" class="text-red-600 hover:text-red-700 text-sm transition-colors" onclick='event.preventDefault(); showDeleteModal("${item.id}")'>Delete</a></div>`
+      ? `<div class="flex space-x-3">
+           <a href="#" class="text-blue-600 hover:text-blue-700 text-sm transition-colors font-medium" onclick="event.preventDefault(); showEditModal('${item.id}')">
+             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+             </svg>
+             Edit
+           </a>
+           <a href="#" class="text-red-600 hover:text-red-700 text-sm transition-colors font-medium" onclick='event.preventDefault(); showDeleteModal("${item.id}")'>
+             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+             </svg>
+             Delete
+           </a>
+         </div>`
       : '';
-    const readingListToggleHtml = IS_AUTHENTICATED
-      ? `<button class="text-sm text-green-600 hover:text-green-700 font-medium ml-4 transition-colors" onclick="event.stopPropagation(); event.preventDefault(); openReadingListModalForNews('${item.id}')">+ Reading List</button>`
-      : `<span title="You must login to access this feature" class="text-sm text-gray-400 font-medium ml-4 cursor-not-allowed">+ Reading List</span>`;
     
-    article.innerHTML = `<div class="aspect-[16/9] relative overflow-hidden">${thumbnailHtml}<div class="absolute top-3 left-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-600 text-white">${categoryLabel}</span></div><div class="absolute top-3 right-3 flex space-x-2">${featuredLabel}${hotLabel}</div></div><div class="p-5 flex flex-col flex-1"><div class="flex items-center justify-between text-sm text-gray-500 mb-3"><div><time>${createdAt}</time><span class="mx-2">•</span><span>${newsViews} views</span></div>${ratingDisplay}</div><h3 class="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 leading-tight"><a href="${linkDetail}" class="hover:text-green-600 transition-colors">${title}</a></h3><p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">${content}</p><div class="pt-4 border-t border-gray-100 flex items-center justify-between"><div class="flex items-center"><a href="${linkDetail}" class="text-green-600 hover:text-green-700 font-medium text-sm transition-colors">Read more</a>${readingListToggleHtml}</div>${editDeleteHtml}</div></div>`;
+    const readingListToggleHtml = IS_AUTHENTICATED
+      ? `<button class="text-sm text-red-600 hover:text-red-700 font-medium transition-colors" onclick="event.stopPropagation(); event.preventDefault(); openReadingListModalForNews('${item.id}')">
+           <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+           </svg>
+           Add to List
+         </button>`
+      : `<span title="You must login to access this feature" class="text-sm text-gray-400 font-medium cursor-not-allowed">
+           <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+           </svg>
+           Login Required
+         </span>`;
+
+    const titleSize = isFeatured ? 'text-3xl' : 'text-xl';
+    const contentLines = isFeatured ? 'line-clamp-4' : 'line-clamp-3';
+    
+    article.innerHTML = `
+      <div class="${aspectRatio} relative overflow-hidden">
+        ${thumbnailHtml}
+        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+        <div class="absolute top-3 left-3">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold ${categoryColor} text-white shadow-lg">
+            ${categoryLabel}
+          </span>
+        </div>
+        <div class="absolute top-3 right-3 flex flex-col space-y-2">
+          ${featuredLabel}
+          ${hotLabel}
+        </div>
+      </div>
+      <div class="p-5 flex flex-col flex-1">
+        <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+          <div class="flex items-center space-x-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <time>${createdAt}</time>
+            <span>•</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            <span>${newsViews}</span>
+          </div>
+          ${ratingDisplay}
+        </div>
+        <h3 class="${titleSize} font-bold text-gray-900 mb-3 line-clamp-2 leading-tight">
+          <a href="${linkDetail}" class="hover:text-red-600 transition-colors">${title}</a>
+        </h3>
+        <p class="text-gray-600 text-sm leading-relaxed ${contentLines} mb-4 flex-1">${content}</p>
+        <div class="pt-4 border-t border-gray-200 flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <a href="${linkDetail}" class="inline-flex items-center text-red-600 hover:text-red-700 font-semibold text-sm transition-colors">
+              Read more
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+            ${readingListToggleHtml}
+          </div>
+          ${editDeleteHtml}
+        </div>
+      </div>`;
     return article;
   }
 
   function renderAllNewsCards(newsItems) {
     newsGridContainer.innerHTML = '';
-    newsItems.forEach(newsItem => {
-      const cardElement = buildNewsCardElement(newsItem);
+    
+    // Pisahkan featured dan non-featured news
+    const featuredNews = newsItems.filter(item => item.is_featured);
+    const regularNews = newsItems.filter(item => !item.is_featured);
+    
+    // Sort featured news by created_at (newest first)
+    featuredNews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
+    // Sort regular news by created_at (newest first)
+    regularNews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
+    // Render featured news first (each takes full width - 3 columns)
+    featuredNews.forEach(newsItem => {
+      const cardElement = buildNewsCardElement(newsItem, true);
+      newsGridContainer.appendChild(cardElement);
+    });
+    
+    // Render regular news (3 cards per row max)
+    regularNews.forEach(newsItem => {
+      const cardElement = buildNewsCardElement(newsItem, false);
       newsGridContainer.appendChild(cardElement);
     });
   }
 
   function filterAndDisplayNews() {
     updateFilterButtonsAppearance();
-    let filteredNews = [];
+    
+    let filteredNews = filterNewsByCategory(allNewsData);
+    
     if (activeFilter === 'my' && IS_AUTHENTICATED) {
-      filteredNews = allNewsData.filter(news => String(news.user_id) === String(CURRENT_USER_ID));
-    } else {
-      filteredNews = allNewsData;
-      if (activeFilter === 'my' && !IS_AUTHENTICATED) {
-        activeFilter = 'all';
-        updateFilterButtonsAppearance();
-      }
+      filteredNews = filteredNews.filter(news => String(news.user_id) === String(CURRENT_USER_ID));
+    } else if (activeFilter === 'my' && !IS_AUTHENTICATED) {
+      activeFilter = 'all';
+      updateFilterButtonsAppearance();
     }
+    
     if (filteredNews.length === 0) {
       displayPageSection({ showEmpty: true });
     } else {

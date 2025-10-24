@@ -6,121 +6,121 @@
 {% endblock meta %}
 
 {% block content %}
-<div class="bg-gray-100 min-h-screen pt-16">
+<div class="bg-white min-h-screen pt-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
     <div class="mb-6">
-      <a href="{% url 'forum:forum_view' %}" class="inline-block bg-white text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+      <a href="{% url 'forum:forum_view' %}" class="inline-block bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg border-2 border-gray-200 hover:bg-gray-200 hover:border-gray-300 transition-colors">
         ← Back to Forum
       </a>
     </div>
     
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-8">
+    <div class="bg-white rounded-xl border-2 border-gray-200 overflow-hidden shadow-lg mb-8">
       <div class="p-6 sm:p-8">
         <div id="post-display-area">
             <div class="flex items-center gap-4 mb-2">
                 <h2 id="post-title-display" class="text-3xl font-bold text-gray-900">{{ post.title }}</h2>
-                <span id="category-badge-display" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                <span id="category-badge-display" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-600 text-white">
                     {{ post.get_category_display }}
                 </span>
             </div>
-            <p class="text-sm text-gray-500 mb-4">By {{ post.author.username }} on {{ post.created_at|date:"F d, Y" }}</p>
+            <p class="text-sm text-gray-600 mb-4">By <span class="font-semibold">{{ post.author.username }}</span> on {{ post.created_at|date:"F d, Y" }}</p>
             <hr class="border-gray-200">
-            <div id="post-content-display" class="prose max-w-none mt-4 text-gray-800 leading-relaxed">{{ post.content|linebreaksbr }}</div>
+            <div id="post-content-display" class="prose max-w-none mt-4 text-gray-700 leading-relaxed">{{ post.content|linebreaksbr }}</div>
+            
+            {% if user == post.author %}
+            <div class="flex gap-3 mt-6 pt-6 border-t border-gray-200">
+              <button id="edit-post-btn" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Edit
+              </button>
+              <button id="delete-post-btn" class="inline-flex items-center px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Delete
+              </button>
+            </div>
+            {% endif %}
         </div>
 
         <form id="edit-post-form" style="display: none;">
           <div class="mb-4">
             <label for="edit-post-title" class="block text-sm font-medium text-gray-700 mb-1">Edit Title</label>
-            <input type="text" id="edit-post-title" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="{{ post.title }}">
+            <input type="text" id="edit-post-title" class="w-full px-3 py-2 bg-white border-2 border-gray-300 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="{{ post.title }}">
           </div>
+
           <div class="mb-4">
             <label for="edit-post-category" class="block text-sm font-medium text-gray-700 mb-1">Edit Category</label>
-            <select id="edit-post-category" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-                <option value="soccer">Soccer</option>
-                <option value="basketball">Basketball</option>
-                <option value="football">Football</option>
-                <option value="hockey">Hockey</option>
-                <option value="volleyball">Volleyball</option>
-                <option value="baseball">Baseball</option>
+            <select id="edit-post-category" class="w-full px-3 py-2 bg-white border-2 border-gray-300 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                <option value="soccer" {% if post.category == 'soccer' %}selected{% endif %}>Soccer</option>
+                <option value="basketball" {% if post.category == 'basketball' %}selected{% endif %}>Basketball</option>
+                <option value="football" {% if post.category == 'football' %}selected{% endif %}>Football</option>
+                <option value="hockey" {% if post.category == 'hockey' %}selected{% endif %}>Hockey</option>
+                <option value="volleyball" {% if post.category == 'volleyball' %}selected{% endif %}>Volleyball</option>
+                <option value="baseball" {% if post.category == 'baseball' %}selected{% endif %}>Baseball</option>
             </select>
           </div>
+
           <div class="mb-4">
             <label for="edit-post-content" class="block text-sm font-medium text-gray-700 mb-1">Edit Description</label>
-            <textarea id="edit-post-content" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5">{{ post.content }}</textarea>
+            <textarea id="edit-post-content" rows="5" class="w-full px-3 py-2 bg-white border-2 border-gray-300 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ post.content }}</textarea>
           </div>
           <div class="flex gap-3">
-            <button type="submit" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">Save Changes</button>
-            <button type="button" id="cancel-edit-post-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Save Changes</button>
+            <button type="button" id="cancel-edit-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">Cancel</button>
           </div>
         </form>
-        
-        {% if post.author == user %}
-          <div id="author-buttons" class="mt-6 border-t border-gray-200 pt-4 flex gap-3">
-            <button id="edit-post-btn" class="text-sm font-medium bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Edit Post</button>
-            <button id="delete-post-btn" class="text-sm font-medium bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors">Delete Post</button>
-          </div>
-        {% endif %}
       </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+    <div class="bg-white rounded-xl border-2 border-gray-200 overflow-hidden shadow-lg">
       <div class="p-6 sm:p-8">
-        <h4 class="text-xl font-semibold text-gray-800">Replies</h4>
-        <hr class="my-4 border-gray-200">
-
-        <form id="create-comment-form" class="mb-6">
+        <h3 class="text-2xl font-bold text-gray-900 mb-6">Comments</h3>
+        
+        <form id="create-comment-form" class="mb-8">
           {% csrf_token %}
-          <div class="flex items-center gap-3">
-            <input type="text" id="comment-content-input" class="flex-grow w-full px-4 py-2 bg-gray-100 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="Write a comment..." required>
-            <button class="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors" type="submit">Post</button>
+          <textarea id="comment-content-input" rows="3" class="w-full p-3 bg-white border-2 border-gray-300 text-gray-900 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Share your thoughts..." required></textarea>
+          <div class="flex justify-end">
+            <button class="bg-red-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-red-700 transition-colors shadow-md" type="submit">Post Comment</button>
           </div>
         </form>
 
         <div id="comment-list" class="space-y-4">
           {% for comment in comments %}
-            <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg" id="comment-{{ comment.id }}">
-              <div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                <span class="text-lg font-bold text-gray-600">{{ comment.author.username|first|upper }}</span>
-              </div>
-              
-              <div class="flex-grow">
-                <div id="comment-display-{{ comment.id }}">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <strong class="text-sm font-semibold text-gray-900">{{ comment.author.username }}</strong>
-                            {% if comment.author.role == "Admin" %}
-                            <span class="bg-red-500 text-white text-xs px-2 py-1 rounded">Admin</span>
-                            {% elif comment.author.role == "Writer" %}
-                            <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded">Writer</span>
-                            {% endif %}
-                            <span class="ml-2 text-xs text-gray-500">
-                                {{ comment.updated_at|date:"F d, Y \a\t P" }}
-                                {% if comment.updated_at|timesince:comment.created_at != "0 minutes" %}
-                                    (edited)
-                                {% endif %}
-                            </span>
-                        </div>
-                        {% if comment.author == user %}
-                          <div class="author-comment-actions flex items-center gap-3">
-                            <button class="text-xs font-medium text-gray-500 hover:text-blue-600 edit-comment-btn" data-comment-id="{{ comment.id }}">Edit</button>
-                            <button class="text-xs font-medium text-gray-500 hover:text-red-600 delete-comment-btn" data-comment-id="{{ comment.id }}">Delete</button>
-                          </div>
-                        {% endif %}
-                    </div>
-                    <p class="mt-1 text-gray-800">{{ comment.content }}</p>
+            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200" id="comment-{{ comment.id }}">
+              <div id="comment-display-{{ comment.id }}">
+                <p class="text-gray-800">{{ comment.content }}</p>
+                <small class="block text-xs text-gray-500 mt-2">— <span class="font-semibold">{{ comment.author.username }}</span> • {{ comment.created_at|date:"M d, Y" }}</small>
+                
+                {% if user == comment.author %}
+                <div class="flex gap-3 mt-3">
+                  <button onclick="editComment({{ comment.id }})" class="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit
+                  </button>
+                  <button onclick="deleteComment({{ comment.id }})" class="text-red-600 hover:text-red-700 text-sm font-medium transition-colors">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Delete
+                  </button>
                 </div>
-                <form class="edit-comment-form" data-comment-id="{{ comment.id }}" style="display: none;">
-                  <textarea class="w-full p-2 border border-gray-300 rounded-md mb-2">{{ comment.content }}</textarea>
-                  <div class="flex gap-2">
-                    <button type="submit" class="text-xs bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded">Save</button>
-                    <button type="button" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded cancel-edit-comment-btn">Cancel</button>
-                  </div>
-                </form>
+                {% endif %}
               </div>
+
+              <form id="edit-comment-form-{{ comment.id }}" style="display: none;">
+                <textarea id="edit-comment-content-{{ comment.id }}" rows="3" class="w-full p-3 bg-white border-2 border-gray-300 text-gray-900 rounded-lg mb-3 focus:ring-2 focus:ring-blue-500">{{ comment.content }}</textarea>
+                <div class="flex gap-2">
+                  <button type="button" onclick="saveEditComment({{ comment.id }})" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">Save</button>
+                  <button type="button" onclick="cancelEditComment({{ comment.id }})" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">Cancel</button>
+                </div>
+              </form>
             </div>
-          {% empty %}
-            <p id="no-comments-message" class="text-center text-gray-500 py-8">Be the first to reply!</p>
           {% endfor %}
         </div>
       </div>
@@ -129,158 +129,269 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   const editPostBtn = document.getElementById('edit-post-btn');
+  const deletePostBtn = document.getElementById('delete-post-btn');
+  const cancelEditBtn = document.getElementById('cancel-edit-btn');
+  const postDisplayArea = document.getElementById('post-display-area');
   const editPostForm = document.getElementById('edit-post-form');
+  const createCommentForm = document.getElementById('create-comment-form');
 
   if (editPostBtn) {
     editPostBtn.addEventListener('click', () => {
-      document.getElementById('post-display-area').style.display = 'none';
-      document.getElementById('author-buttons').style.display = 'none';
+      postDisplayArea.style.display = 'none';
       editPostForm.style.display = 'block';
-      document.getElementById('edit-post-category').value = '{{ post.category }}';
     });
-    document.getElementById('cancel-edit-post-btn').addEventListener('click', () => {
-      document.getElementById('post-display-area').style.display = 'block';
-      document.getElementById('author-buttons').style.display = 'block';
+  }
+
+  if (cancelEditBtn) {
+    cancelEditBtn.addEventListener('click', () => {
+      postDisplayArea.style.display = 'block';
       editPostForm.style.display = 'none';
     });
-    editPostForm.addEventListener('submit', (e) => {
+  }
+
+  if (editPostForm) {
+    editPostForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const title = document.getElementById('edit-post-title').value;
-      const content = document.getElementById('edit-post-content').value;
       const category = document.getElementById('edit-post-category').value;
-      fetch("{% url 'forum:edit_post_ajax' post.id %}", {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-        body: JSON.stringify({title, content, category})
-      })
-      .then(res => res.json())
-      .then(data => {
-        if(data.status === 'success') {
-          document.getElementById('post-title-display').textContent = data.post.title;
-          const contentDisplay = document.getElementById('post-content-display');
-          contentDisplay.textContent = data.post.content;
-          contentDisplay.style.whiteSpace = 'pre-wrap';
-          document.getElementById('category-badge-display').textContent = data.post.category_display;
-          document.getElementById('cancel-edit-post-btn').click(); 
-        } else {
-          alert(data.message || "An error occurred while updating the post.");
-        }
-      });
-    });
-  }
+      const content = document.getElementById('edit-post-content').value;
 
-  const deletePostBtn = document.getElementById('delete-post-btn');
-  if (deletePostBtn) {
-    deletePostBtn.addEventListener('click', () => {
-      Swal.fire({
-        title: 'Delete this post?', text: 'This action cannot be undone.', showCancelButton: true,
-        confirmButtonText: 'Delete', cancelButtonText: 'Cancel', showClass: { popup: '' },
-        hideClass: { popup: '' }, buttonsStyling: false, icon: null,
-        customClass: {
-          popup: 'rounded-xl shadow-md p-6',
-          title: 'text-gray-800 font-semibold text-lg mb-2',
-          htmlContainer: 'text-gray-600 mb-4',
-          confirmButton: 'bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 mx-2',
-          cancelButton: 'bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 mx-2'
-        }
-      }).then((result) => {
-        if (result.isConfirmed) {
-          fetch("{% url 'forum:delete_post_ajax' post.id %}", {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken }
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.status === 'success') {
-              Swal.fire({
-                title: 'This post has been removed.', showConfirmButton: false, timer: 1200, background: '#fff',
-                showClass: { popup: '' }, hideClass: { popup: '' },
-                customClass: { title: 'text-gray-700 text-base font-medium' }
-              }).then(() => window.location.href = data.redirect_url);
-            }
+      try {
+        const response = await fetch("{% url 'forum:edit_post_ajax' post.id %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({ title, category, content })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Post updated successfully',
+            confirmButtonColor: '#2563eb'
+          }).then(() => location.reload());
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message || 'Failed to update post',
+            confirmButtonColor: '#dc2626'
           });
         }
-      });
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred',
+          confirmButtonColor: '#dc2626'
+        });
+      }
     });
   }
 
-  const commentList = document.getElementById('comment-list');
-  document.getElementById('create-comment-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const contentInput = document.getElementById('comment-content-input');
-    fetch("{% url 'forum:create_comment_ajax' post.id %}", {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-      body: JSON.stringify({ content: contentInput.value })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'success') {
-        location.reload();
+  if (deletePostBtn) {
+    deletePostBtn.addEventListener('click', async () => {
+      const result = await Swal.fire({
+        title: 'Delete Discussion?',
+        text: "This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch("{% url 'forum:delete_post_ajax' post.id %}", {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+            }
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: 'Discussion has been deleted',
+              confirmButtonColor: '#dc2626'
+            }).then(() => {
+              window.location.href = "{% url 'forum:forum_view' %}";
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message || 'Failed to delete post',
+              confirmButtonColor: '#dc2626'
+            });
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred',
+            confirmButtonColor: '#dc2626'
+          });
+        }
       }
     });
-  });
+  }
 
-  commentList.addEventListener('click', (e) => {
-    const button = e.target.closest('.edit-comment-btn, .delete-comment-btn, .cancel-edit-comment-btn');
-    if (!button) return;
+  createCommentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const content = document.getElementById('comment-content-input').value;
 
-    const commentId = button.dataset.commentId;
-    const commentCard = document.getElementById(`comment-${commentId}`);
-    const displayDiv = document.getElementById(`comment-display-${commentId}`);
-    const editForm = commentCard.querySelector('.edit-comment-form');
-    const authorActions = commentCard.querySelector('.author-comment-actions');
-
-    if (button.matches('.delete-comment-btn')) {
-      Swal.fire({
-        title: 'Delete this comment?', showCancelButton: true, confirmButtonText: 'Delete',
-        buttonsStyling: false, icon: null,
-        showClass: { popup: '' }, hideClass: { popup: '' },
-        customClass: {
-          popup: 'rounded-xl shadow-md p-6', title: 'text-gray-800 font-semibold text-lg',
-          confirmButton: 'bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 mx-2',
-          cancelButton: 'bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 mx-2'
-        }
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const url = "{% url 'forum:delete_comment_ajax' 0 %}".replace('0', commentId);
-          fetch(url, { method: 'POST', headers: {'X-CSRFToken': csrftoken} })
-          .then(res => res.json())
-          .then(data => { if (data.status === 'success') commentCard.remove(); });
-        }
+    try {
+      const response = await fetch("{% url 'forum:create_comment_ajax' post.id %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ content })
       });
-    } else if (button.matches('.edit-comment-btn')) {
-      displayDiv.style.display = 'none';
-      if (authorActions) authorActions.style.display = 'none';
-      editForm.style.display = 'block';
-    } else if (button.matches('.cancel-edit-comment-btn')) {
-      displayDiv.style.display = 'block';
-      if (authorActions) authorActions.style.display = 'flex';
-      editForm.style.display = 'none';
+
+      const data = await response.json();
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Comment posted successfully',
+          confirmButtonColor: '#dc2626',
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => location.reload());
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.message || 'Failed to post comment',
+          confirmButtonColor: '#dc2626'
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred',
+        confirmButtonColor: '#dc2626'
+      });
     }
   });
 
-  commentList.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!e.target.matches('.edit-comment-form')) return;
-    const commentId = e.target.dataset.commentId;
-    const content = e.target.querySelector('textarea').value;
-    const url = "{% url 'forum:edit_comment_ajax' 0 %}".replace('0', commentId);
-    fetch(url, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-      body: JSON.stringify({ content })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'success') {
-        location.reload();
+  function editComment(commentId) {
+    document.getElementById(`comment-display-${commentId}`).style.display = 'none';
+    document.getElementById(`edit-comment-form-${commentId}`).style.display = 'block';
+  }
+
+  function cancelEditComment(commentId) {
+    document.getElementById(`comment-display-${commentId}`).style.display = 'block';
+    document.getElementById(`edit-comment-form-${commentId}`).style.display = 'none';
+  }
+
+  async function saveEditComment(commentId) {
+    const content = document.getElementById(`edit-comment-content-${commentId}`).value;
+
+    try {
+      const response = await fetch(`/forum/comment/${commentId}/edit/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ content })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Comment updated successfully',
+          confirmButtonColor: '#2563eb',
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => location.reload());
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.message || 'Failed to update comment',
+          confirmButtonColor: '#dc2626'
+        });
       }
+    } catch (error) {
+      console.error('Error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred',
+        confirmButtonColor: '#dc2626'
+      });
+    }
+  }
+
+  async function deleteComment(commentId) {
+    const result = await Swal.fire({
+      title: 'Delete Comment?',
+      text: "This action cannot be undone!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
     });
-  });
-});
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`/forum/comment/${commentId}/delete/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: 'Comment has been deleted',
+            confirmButtonColor: '#dc2626',
+            timer: 1500,
+            showConfirmButton: false
+          }).then(() => location.reload());
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message || 'Failed to delete comment',
+            confirmButtonColor: '#dc2626'
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred',
+          confirmButtonColor: '#dc2626'
+        });
+      }
+    }
+  }
 </script>
 {% endblock content %}

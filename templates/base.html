@@ -20,77 +20,7 @@
 
 <body class="bg-gray-50">
 
-  <nav class="bg-gray-900 shadow-md fixed w-full top-0 z-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16">
-        <div class="flex">
-          <a href="{% url 'main:show_main' %}"
-            class="flex-shrink-0 flex items-center text-white text-xl font-bold tracking-wider">
-            OLR.<span class="text-green-500">GG</span>
-          </a>
-          <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-            <a href="{% url 'main:show_main' %}" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors
-                 {% if request.resolver_match.app_name == 'main' %}
-                   border-green-500 text-white
-                 {% else %}
-                   border-transparent text-gray-300 hover:border-gray-300 hover:text-white
-                 {% endif %}">
-              Home
-            </a>
-            {% if user.is_authenticated %}
-            <a href="{% url 'readinglist:show_lists' %}" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors
-                 {% if request.resolver_match.app_name == 'readinglist' %}
-                   border-green-500 text-white
-                 {% else %}
-                   border-transparent text-gray-300 hover:border-gray-300 hover:text-white
-                 {% endif %}">
-              Reading List
-            </a>
-            <a href="{% url 'forum:forum_view' %}" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors
-                 {% if request.resolver_match.app_name == 'forum' %}
-                   border-green-500 text-white
-                 {% else %}
-                   border-transparent text-gray-300 hover:border-gray-300 hover:text-white
-                 {% endif %}">
-              Forum
-            </a>
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="flex items-center">
-          {% if user.is_authenticated %}
-          <a href="{% url 'users:show_profile' user.id %}"
-            class="text-sm font-medium text-gray-300 mr-4 hidden sm:flex sm:items-center sm:space-x-3 hover:text-white transition-colors group">
-            {% if user.profile_picture %}
-            <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}"
-              class="w-8 h-8 rounded-full border-2 border-gray-600 object-cover group-hover:border-green-500 transition-colors">
-            {% else %}
-            <div
-              class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white font-semibold border-2 border-gray-600 group-hover:border-green-500 transition-colors">
-              {{ user.username|slice:":1"|upper }}
-            </div>
-            {% endif %}
-            <span>{{ user.username }}</span>
-          </a>
-          <a href="{% url 'main:logout' %}"
-            class="ml-3 inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm">
-            Logout
-          </a>
-          {% else %}
-          <a href="{% url 'main:login' %}"
-            class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-gray-100 hover:bg-white transition-colors shadow-sm">
-            Login
-          </a>
-          <a href="{% url 'main:register' %}"
-            class="ml-3 inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors shadow-sm">
-            Register
-          </a>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </nav>
+  {% include 'navbar.html' %}
 
   <main>
     {% block content %}{% endblock content %}

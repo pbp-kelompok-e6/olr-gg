@@ -54,7 +54,6 @@ def add_comment(request, news_id):
                     "message": "Content is required."
                 }, status=400)
             
-            # Use news_id from URL parameter instead of POST
             news = get_object_or_404(News, pk=news_id)
             
             comment_baru = Comments(
@@ -87,7 +86,7 @@ def edit_comment(request, id, news_id):
     try:
         comment = get_object_or_404(Comments, pk=id)
         
-        # Check permissions
+
         if comment.user != request.user and not request.user.is_staff:
             return JsonResponse({
                 "status": "ERROR",
@@ -129,7 +128,6 @@ def delete_comment(request, id, news_id):
     try:
         comment = Comments.objects.get(pk=id)
         
-        # Check permissions
         if comment.user != request.user and not request.user.is_staff:
             return JsonResponse({
                 "status": "ERROR",

@@ -83,7 +83,7 @@ def show_json(request):
             'title': item.title,
             'content': item.content,
             'category': item.category,
-            'thumbnail': item.thumbnail.url if item.thumbnail else None,
+            'thumbnail': item.thumbnail if item.thumbnail else None,
             'is_featured': item.is_featured,
             'created_at': item.created_at.isoformat(),
             'news_views': getattr(item, 'news_views', 0),  # Safe access dengan default 0

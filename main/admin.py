@@ -2,8 +2,31 @@ from django.contrib import admin
 from users.models import CustomUser, Report
 from django.contrib.auth.admin import UserAdmin
 
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
 
-class CustomUserAdmin(UserAdmin):
+class CustomUserResource(resources.ModelResource):
+    
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password', 
+                  'bio', 'profile_picture', 'is_staff', 'is_active', 'is_superuser', 'strikes')
+        
+        import_id_fields = ('username',) 
+        skip_unchanged = True
+        report_skipped = True
+
+    def before_save_instance(self, instance, row, **kwargs):
+        """
+        Dipanggil sebelum instance model disimpan.
+        Kita gunakan untuk men-setting password dari CSV secara benar.
+        """
+        if instance.password:
+            instance.set_password(instance.password)
+
+class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
+    resource_class = CustomUserResource
+    
     readonly_fields = ('id',)  
 
     fieldsets = (
@@ -15,6 +38,7 @@ class CustomUserAdmin(UserAdmin):
     )
 
     list_display = ('id', 'username', 'email', 'is_staff', 'strikes')
+
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
@@ -28,18 +52,15 @@ class ReportAdmin(admin.ModelAdmin):
     readonly_fields = [field.name for field in Report._meta.fields]
 
     def get_created_at(self, obj):
-        # Asumsi model Report Anda punya field 'created_at'
         if hasattr(obj, 'created_at'):
             return obj.created_at.strftime("%Y-%m-%d %H:%M")
         return None
     get_created_at.short_description = 'Waktu Laporan'
 
     def has_add_permission(self, request):
-        # Admin tidak boleh membuat laporan dari admin panel
         return False
 
     def has_delete_permission(self, request, obj=None):
-        # Izinkan admin menghapus laporan jika perlu (misal: spam report)
         return True
     
     def delete_model(self, request, obj):
@@ -53,10 +74,7 @@ class ReportAdmin(admin.ModelAdmin):
             user_to_pardon.strikes -= 1
             user_to_pardon.save()
 
-    # FUNGSI 2: Dipanggil saat delete MASSAL (dari halaman list)
     def delete_queryset(self, request, queryset):
-        # 1. Kumpulkan dulu siapa saja yang strike-nya mau dikurangi
-        #    Kita pakai dict agar efisien: {user_obj: jumlah_laporan_dihapus}
         user_strike_counts = {}
         for report in queryset:
             user = report.reported_user
@@ -65,15 +83,14 @@ class ReportAdmin(admin.ModelAdmin):
             else:
                 user_strike_counts[user] = 1
 
-        # 2. Panggil fungsi delete aslinya untuk menghapus laporan
         super().delete_queryset(request, queryset)
 
-        # 3. Update strike count untuk setiap user yang terpengaruh
         for user, count_to_reduce in user_strike_counts.items():
             if user.strikes >= count_to_reduce:
                 user.strikes -= count_to_reduce
             else:
-                user.strikes = 0  # Pastikan tidak negatif
+                user.strikes = 0  
             user.save()
+
 
 admin.site.register(CustomUser, CustomUserAdmin)

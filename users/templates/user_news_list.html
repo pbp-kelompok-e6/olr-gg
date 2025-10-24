@@ -2,7 +2,7 @@
 <div class="space-y-4 pt-2 rounded-lg">
     {% for news_item in news_list %}
     <div class="p-4 border rounded-lg drop-shadow-md bg-white">
-        <a href="{% url 'main:show_news' news_item.id %}" class="text-lg font-bold text-green-600 hover:underline">
+        <a href="{% url 'main:show_news' news_item.id %}" class="text-lg font-bold text-red-600 hover:underline">
             {{ news_item.title }}
         </a>
 

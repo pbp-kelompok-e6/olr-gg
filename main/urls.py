@@ -1,5 +1,5 @@
 from django.urls import path, include
-from main.views import show_main, register, login_user, logout_user
+from main.views import show_main, register, login_user, logout_user, landing_page
 from berita.views import show_news, create_news, edit_news, delete_news, show_json, show_json_by_id
 from users import views as user_views
 from comments.views import show_comments, edit_comment, delete_comment, add_comment,show_comments_json
@@ -7,7 +7,8 @@ from comments.views import show_comments, edit_comment, delete_comment, add_comm
 app_name = 'main'
 
 urlpatterns = [
-    path('', show_main, name='show_main'),
+    path('', landing_page, name='landing_page'),
+    path('news/', show_main, name='show_main'),
     path('register/', register, name='register'),
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),

@@ -1,5 +1,4 @@
 # forum/views.py
-
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -7,12 +6,8 @@ from .models import ForumPost, ForumComment
 from django.urls import reverse
 import json
 from django.utils.html import strip_tags
-
-# Impor form yang sudah Anda buat di forum/forms.py
 from .forms import ForumPostForm
 
-
-@login_required
 def forum_view(request):
     """
     Merender halaman forum utama dengan daftar semua post.
@@ -31,13 +26,11 @@ def create_post_ajax(request):
     """
     if request.method == 'POST':
         data = json.loads(request.body)
-        
-        # Menggunakan Django Form untuk validasi dan pembersihan data secara otomatis.
-        # Django Forms akan menangani sanitasi dasar untuk keamanan.
+        # Django Forms akan menangani sanitasi dasar untuk keamanan
         form = ForumPostForm(data)
 
         if form.is_valid():
-            # Jika form valid, buat objek post tanpa menyimpannya dulu ke DB
+            # jika form valid, buat objek post tanpa menyimpannya dulu ke DB
             post = form.save(commit=False)
             post.author = request.user  # Tetapkan author post
             post.save()                 # Simpan post ke database
@@ -55,7 +48,7 @@ def create_post_ajax(request):
                 }
             })
         else:
-            # Jika form tidak valid, kirim pesan error yang dihasilkan oleh form
+            # kirim pesan error yang dihasilkan oleh form jika tidak valid
             return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
@@ -69,8 +62,6 @@ def edit_post_ajax(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id, author=request.user)
     if request.method == 'POST':
         data = json.loads(request.body)
-        
-        # Membersihkan input dari tag HTML sebelum disimpan
         post.title = strip_tags(data.get('title', post.title))
         post.content = strip_tags(data.get('content', post.content))
         post.category = data.get('category', post.category)
@@ -98,8 +89,6 @@ def delete_post_ajax(request, post_id):
         return JsonResponse({'status': 'success', 'redirect_url': reverse('forum:forum_view')})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
-
-@login_required
 def post_detail_view(request, post_id):
     """
     Menampilkan halaman detail untuk satu post beserta komentarnya.
@@ -121,8 +110,6 @@ def create_comment_ajax(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id)
     if request.method == 'POST':
         data = json.loads(request.body)
-        
-        # Membersihkan konten komentar dari tag HTML
         content = strip_tags(data.get('content'))
 
         if not content:
@@ -161,8 +148,6 @@ def edit_comment_ajax(request, comment_id):
     comment = get_object_or_404(ForumComment, id=comment_id, author=request.user)
     if request.method == 'POST':
         data = json.loads(request.body)
-        
-        # Membersihkan konten komentar yang baru dari tag HTML
         new_content = strip_tags(data.get('content'))
         
         if not new_content:

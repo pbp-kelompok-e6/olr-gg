@@ -25,13 +25,13 @@
                 </div>
                 <div class="my-2">
                     <span class="text-lg text-gray-600">
-                        @{{ usertarget.username }} <span class="ml-1 uppercase bg-green-600 rounded-2xl px-2 py-[1px] text-white font-semibold text-sm">{{ usertarget.role }}</span>
+                        @{{ usertarget.username }} <span class="ml-1 uppercase bg-red-600 rounded-2xl px-2 py-[1px] text-white font-semibold text-sm">{{ usertarget.role }}</span>
                     </span>
                 </div>
             </div>
             <div id="button_edit" class="ml-auto self-end relative">
                 <button id="openProfileMenuTrigger"
-                    class="bg-green-600 text-sm text-white px-3 py-2 rounded-full font-semibold shadow-md hover:bg-green-700 transition duration-150 ease-in-out">
+                    class="bg-red-600 text-sm text-white px-3 py-2 rounded-full font-semibold shadow-md hover:bg-red-700 transition duration-150 ease-in-out">
                     ...
                 </button>
 
@@ -55,7 +55,7 @@
             </div>
         </div>
         <div class="mt-4 py-2" id="about">
-            <h3 class="text-xl font-bold mb-4 border-b-2 pb-2 border-green-600">About</h3>
+            <h3 class="text-xl font-bold mb-4 border-b-2 pb-2 border-red-600">About</h3>
             <p id="profile_bio_display" class="bg-white rounded-lg px-4 py-4 drop-shadow-md">
                 {% if usertarget.bio %}
                 {{ usertarget.bio }}
@@ -65,7 +65,7 @@
             </p>
         </div>
         <div id="posts" class="mt-2">
-            <h3 class="text-xl font-bold pt-4 border-b-2 pb-2 border-green-600 mb-4">
+            <h3 class="text-xl font-bold pt-4 border-b-2 pb-2 border-red-600 mb-4">
                 Posts by @{{ usertarget.username }}
             </h3>
 
@@ -212,7 +212,7 @@
                             }
 
                             const msgDiv = document.getElementById('form-messages');
-                            msgDiv.innerHTML = `<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">${data.message}</div>`;
+                            msgDiv.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">${data.message}</div>`;
 
                             setTimeout(() => {
                                 modalContainer.innerHTML = '';
