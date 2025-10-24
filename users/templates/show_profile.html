@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="bg-gray-50 w-full pt-16 min-h-screen">
+    <div class="max-w-4xl mx-auto my-8" id="profile_container">
+        <div class="flex items-center gap-x-4 bg-white px-3 py-3 rounded-2xl drop-shadow-md" id="nama_dan_role">
+            <div>
+                {% if usertarget.profile_picture %}
+                <img id="profile_image_display" src="{{ usertarget.profile_picture.url }}" alt="Profile Picture" {% if
+                    is_owner %}
+                    class="rounded-full h-36 w-36 object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                    data-url="{% url 'users:change_pic' %}" {% else %} class="rounded-full h-36 w-36 object-cover" {%
+                    endif %}>
+                {% else %}
+                <img id="profile_image_display" src="{% static 'image/default_profile_picture.jpg' %}"
+                    alt="Default Profile Picture" {% if is_owner %}
+                    class="rounded-full h-36 w-36 object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                    data-url="{% url 'users:change_pic' %}" {% else %} class="rounded-full h-36 w-36 object-cover" {%
+                    endif %}>
+                {% endif %}
+            </div>
+            <div class="">
+                <div>
+                    <span id="profile_fullname_display" class="text-3xl font-bold">
+                        {% if usertarget.first_name %} {{ usertarget.first_name }} {% endif %} {% if
+                        usertarget.last_name %} {{ usertarget.last_name }} {% endif %}
+                    </span>
+                </div>
+                <div class="my-2">
+                    <span class="text-lg text-gray-600">
+                        @{{ usertarget.username }} <span
+                            class="ml-1 uppercase bg-green-600 rounded-2xl px-2 py-[1px] text-white font-semibold text-sm">{{
+                            usertarget.role }}</span>
+                    </span>
+                </div>
+            </div>
+            <div id="button_edit" class="ml-auto self-end relative">
+                <button id="openProfileMenuTrigger"
+                    class="bg-green-600 text-sm text-white px-3 py-2 rounded-full font-semibold shadow-md hover:bg-green-700 transition duration-150 ease-in-out">
+                    ...
+                </button>
+
+                <div id="profileOptionsMenu"
+                    class="profile-options-menu hidden absolute top-full right-0 mt-2 w-48 bg-white border rounded-2xl shadow-lg z-10">
+                    {% if is_owner %}
+                    <button id="triggerEditModal"
+                        class="profile-modal-trigger w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-2xl"
+                        data-url="{% url 'users:edit_profile' %}">
+                        Edit Details
+                    </button>
+                    {% endif %}
+                    {% if not is_owner %}
+                    <button id="triggerReportModal"
+                        class="profile-modal-trigger w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-2xl"
+                        data-url="{% url 'users:report_user' usertarget.id %}"> Report User
+                    </button>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+        <div class="mt-4 py-2" id="about">
+            <h3 class="text-xl font-bold mb-4 border-b-2 pb-2 border-green-600">About</h3>
+            <p id="profile_bio_display" class="bg-white rounded-lg px-4 py-4 drop-shadow-md">
+                {% if usertarget.bio %}
+                {{ usertarget.bio }}
+                {% else %}
+                This user has not added a bio yet.
+                {% endif %}
+            </p>
+        </div>
+        <div id="posts" class="mt-2">
+            <h3 class="text-xl font-bold pt-4 border-b-2 pb-2 border-green-600 mb-4">
+                Posts by @{{ usertarget.username }}
+            </h3>
+
+            <div id="posts_content_target" data-url="{% url 'users:load_news' usertarget.id %}">
+                <p id="posts_loading_spinner" class="text-gray-500">Loading posts...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="profileModalContainer">
+    </div>
+</div>
+
+
+<style>
+    .profile-options-menu {
+        /* Pengaturan default untuk animasi (tersembunyi) */
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity 150ms ease-out, transform 150ms ease-out;
+        transform-origin: top right;
+        /* Animasi muncul dari pojok kanan atas */
+    }
+
+    .profile-options-menu.active {
+        /* Status saat aktif (terlihat) */
+        opacity: 1;
+        transform: scale(1);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalContainer = document.getElementById('profileModalContainer');
+        // const modalButton = document.getElementById('openEditModal');
+
+        const profileEditContainer = document.getElementById('button_edit');
+        const profileMenu = document.getElementById('profileOptionsMenu');
+
+        // Fungsi untuk membuka modal (kita buat jadi fungsi agar bisa dipakai ulang)
+        function openProfileModal(url) {
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    modalContainer.innerHTML = html;
+                    document.getElementById('modalBackdrop').classList.remove('hidden');
+                })
+                .catch(error => console.error('Error fetching modal:', error));
+        }
+
+        // Listener utama di container tombol edit
+        if (profileEditContainer) {
+            profileEditContainer.addEventListener('click', function (e) {
+                const trigger = e.target.closest('button'); // Dapatkan tombol yang diklik
+
+                if (!trigger) return; // Jika klik di area kosong, abaikan
+
+                // KASUS 1: Klik tombol trigger utama (⚙️ Edit Profile)
+                if (trigger.id === 'openProfileMenuTrigger') {
+                    profileMenu.classList.toggle('hidden');
+                    setTimeout(() => profileMenu.classList.toggle('active'), 10);
+                }
+
+                // KASUS 2: Klik tombol di dalam pop-up (Edit Details / Change Pic)
+                if (trigger.classList.contains('profile-modal-trigger')) {
+                    const url = trigger.dataset.url;
+                    openProfileModal(url);
+                    // Sembunyikan menu setelah diklik
+                    profileMenu.classList.add('hidden');
+                    profileMenu.classList.remove('active');
+                }
+            });
+        }
+
+        // buka modalnya 
+        // if (modalButton) {
+        //     modalButton.addEventListener('click', function() {
+        //         const url = this.dataset.url;
+
+        //         fetch(url)
+        //             .then(response => response.text())
+        //             .then(html => {
+        //                 // Masukkan HTML form ke dalam container
+        //                 modalContainer.innerHTML = html;
+        //                 // Tampilkan modal (div #modalBackdrop sekarang ada di DOM)
+        //                 document.getElementById('modalBackdrop').classList.remove('hidden');
+        //             })
+        //             .catch(error => console.error('Error fetching modal:', error));
+        //     });
+        // }
+
+        document.addEventListener('click', function (e) {
+            if (profileMenu && !profileEditContainer.contains(e.target)) {
+                profileMenu.classList.add('hidden');
+                profileMenu.classList.remove('active');
+            }
+        });
+
+        const reportButton = document.getElementById('triggerReportModal');
+        if (reportButton) {
+            reportButton.addEventListener('click', function () {
+                const url = this.dataset.url;
+                openProfileModal(url);
+            });
+        }
+
+        // close modalnya ama submit formnya
+        modalContainer.addEventListener('click', function (e) {
+
+            if (e.target.id === 'closeEditModal' || e.target.id === 'cancelEdit' || e.target.id === 'modalBackdrop') {
+                modalContainer.innerHTML = '';
+            }
+
+        });
+
+        modalContainer.addEventListener('submit', function (e) {
+            // tombol submit 
+            if (e.target.id === 'editProfileForm') {
+                e.preventDefault();
+
+                const form = e.target;
+                const url = form.action;
+                const formData = new FormData(form);
+                const saveButton = form.querySelector('#saveProfileButton');
+                saveButton.disabled = true;
+                saveButton.textContent = 'Menyimpan...';
+
+                clearAllErrors();
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            if (data.new_data) {
+                                document.getElementById('profile_fullname_display').textContent = data.new_data.full_name;
+                                document.getElementById('profile_bio_display').textContent = data.new_data.bio;
+                                document.getElementById('profile_image_display').src = data.new_data.profile_picture_url;
+                            }
+
+                            const msgDiv = document.getElementById('form-messages');
+                            msgDiv.innerHTML = `<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">${data.message}</div>`;
+
+                            setTimeout(() => {
+                                modalContainer.innerHTML = '';
+                            }, 500);
+
+                        } else if (data.status === 'error') {
+                            const errors = JSON.parse(data.errors);
+                            handleFormErrors(errors);
+                            saveButton.disabled = false;
+                            saveButton.textContent = 'Save Changes';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error submitting form:', error);
+                        const msgDiv = document.getElementById('form-messages');
+                        msgDiv.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">Terjadi kesalahan. Coba lagi.</div>`;
+                        saveButton.disabled = false;
+                        saveButton.textContent = 'Save Changes';
+                    });
+            }
+        });
+
+
+        function handleFormErrors(errors) {
+            for (const field in errors) {
+                const errorList = errors[field];
+                const errorDiv = document.getElementById(`error-${field}`);
+                if (errorDiv) {
+                    errorDiv.innerHTML = errorList.map(err => err.message).join('<br>');
+                }
+            }
+        }
+
+        function clearAllErrors() {
+            document.querySelectorAll('[id^="error-"]').forEach(div => {
+                div.innerHTML = '';
+            });
+            document.getElementById('form-messages').innerHTML = '';
+        }
+
+        const postsContentTarget = document.getElementById('posts_content_target');
+
+        if (postsContentTarget) {
+            const postsUrl = postsContentTarget.dataset.url;
+
+            fetch(postsUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    postsContentTarget.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error fetching posts:', error);
+                    postsContentTarget.innerHTML = '<p class="text-red-500">Could not load posts. Please try refreshing the page.</p>';
+                });
+        }
+
+        const picTrigger = document.getElementById('profile_image_display');
+        if (picTrigger && picTrigger.dataset.url) {
+            picTrigger.addEventListener('click', function () {
+                const url = this.dataset.url;
+
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        // Masukkan HTML form ke dalam container
+                        modalContainer.innerHTML = html;
+                        // Tampilkan modal
+                        document.getElementById('modalBackdrop').classList.remove('hidden');
+                    })
+                    .catch(error => console.error('Error fetching pic modal:', error));
+            });
+        }
+
+    });
+</script>
+{% endblock content %}

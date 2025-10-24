@@ -59,9 +59,19 @@
 
         <div class="flex items-center">
           {% if user.is_authenticated %}
-          <div class="text-sm font-medium text-gray-300 mr-4 hidden sm:block">
-            Welcome, {{ user.username }}
-          </div>
+          <a href="{% url 'users:show_profile' user.id %}"
+            class="text-sm font-medium text-gray-300 mr-4 hidden sm:flex sm:items-center sm:space-x-3 hover:text-white transition-colors group">
+            {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}"
+              class="w-8 h-8 rounded-full border-2 border-gray-600 object-cover group-hover:border-green-500 transition-colors">
+            {% else %}
+            <div
+              class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white font-semibold border-2 border-gray-600 group-hover:border-green-500 transition-colors">
+              {{ user.username|slice:":1"|upper }}
+            </div>
+            {% endif %}
+            <span>{{ user.username }}</span>
+          </a>
           <a href="{% url 'main:logout' %}"
             class="ml-3 inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm">
             Logout
