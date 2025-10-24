@@ -1,0 +1,478 @@
+{% load static %}
+
+
+<div class="bg-white rounded-xl border-2 border-gray-200 shadow-lg p-6 sm:p-8 mt-8">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">
+        Comments (<span id="commentCount">{{ comments.count }}</span>)
+    </h2>
+
+    <!-- form comment -->
+    {% if user.is_authenticated %}
+    <div class="mb-8">
+        <form id="commentForm" class="space-y-4 bg-gray-50 rounded-lg border-2 border-gray-200 p-5">
+            {% csrf_token %}
+            <input type="hidden" name="news_id" value="{{ news.id }}">
+            <div>
+                <label for="commentContent" class="block text-sm font-semibold text-gray-700 mb-2">Add a Comment</label>
+                <textarea 
+                    name="content" 
+                    id="commentContent"
+                    rows="4" 
+                    class="w-full px-4 py-3 bg-white border-2 border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                    placeholder="Share your thoughts..."
+                    required
+                ></textarea>
+            </div>
+            <div class="flex justify-end">
+                <button 
+                    type="submit" 
+                    class="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+                >
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                    Post Comment
+                </button>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <div class="mb-8 bg-blue-50 border-2 border-blue-200 rounded-lg p-6 text-center">
+        <svg class="w-12 h-12 text-blue-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+        </svg>
+        <p class="text-gray-700 font-medium mb-3">Want to join the discussion?</p>
+        <a href="{% url 'main:login' %}" class="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+            Login to Comment
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- list comment -->
+    <div id="commentsList" class="space-y-4">
+        {% for comment in comments %}
+        <div class="comment-item border-2 border-gray-200 rounded-lg p-5 bg-white hover:border-blue-300 transition-colors" data-comment-id="{{ comment.id }}">
+            
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-start gap-3">
+                    {% if comment.user.profile_picture %}
+                    <img src="{{ comment.user.profile_picture.url }}" alt="{{ comment.user.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-300">
+                    {% else %}
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-red-600 flex items-center justify-center text-white font-bold text-lg border-2 border-gray-300">
+                        {{ comment.user.username|slice:":1"|upper }}
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-semibold text-gray-900">{{ comment.user.username }}</span>
+                            
+                            {% if comment.user.role == "Admin" %}
+                            <span class="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Admin</span>
+                            {% elif comment.user.role == "Writer" %}
+                            <span class="bg-blue-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Writer</span>
+                            {% endif %}
+                        </div>
+                        <!-- format data created_at -->
+                        <p class="text-sm text-gray-500">
+                            <script>
+                                document.write(new Date("{{ comment.created_at|date:'c' }}").toLocaleDateString('en-US', { 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }));
+                            </script>
+                            {% if comment.updated_at %}
+                            <span class="italic text-gray-400">(edited)</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <!-- edit/dete comment hanya kalo comment dibuat user atau admin -->
+                {% if user == comment.user or user.is_staff %} 
+                <div class="flex gap-3">
+                    <button 
+                        onclick="editComment('{{ comment.id }}', '{{ comment.content|escapejs }}')"
+                        class="text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors inline-flex items-center gap-1"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit
+                    </button>
+                    <button 
+                        onclick="confirmDeleteComment('{{ comment.id }}')"
+                        class="text-red-600 hover:text-red-800 text-sm font-semibold transition-colors inline-flex items-center gap-1"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="comment-content text-gray-700 ml-13 leading-relaxed">
+                <p id="content-{{ comment.id }}">{{ comment.content }}</p>
+            </div>
+
+            <div id="edit-form-{{ comment.id }}" class="hidden mt-3 ml-13">
+                <textarea 
+                    id="edit-content-{{ comment.id }}"
+                    class="w-full px-4 py-3 bg-white border-2 border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                    rows="3"
+                >{{ comment.content }}</textarea>
+                <div class="flex gap-2 mt-3">
+                    <button 
+                        onclick="saveEdit('{{ comment.id }}')"
+                        class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md text-sm"
+                    >
+                        Save
+                    </button>
+                    <button 
+                        onclick="cancelEdit('{{ comment.id }}')"
+                        class="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-sm"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div id="noComments" class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+            <div class="text-5xl mb-3">💬</div>
+            <p class="text-gray-600 font-medium">No comments yet</p>
+            <p class="text-gray-500 text-sm mt-1">Be the first to share your thoughts!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- confirm delete modal -->
+<div id="deleteCommentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-6 border-2 border-gray-200 w-96 shadow-2xl rounded-xl bg-white">
+        <div class="text-center">
+            <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-red-100 mb-5">
+                <svg class="h-7 w-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Delete Comment</h3>
+            <p class="text-gray-600 mb-6">
+                Are you sure you want to delete this comment?
+                <br><span class="text-sm text-red-600 font-medium">This action cannot be undone.</span>
+            </p>
+            <div class="flex gap-3">
+                <button onclick="deleteComment()" 
+                    class="flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold shadow-md hover:shadow-lg">
+                    Delete
+                </button>
+                <button onclick="hideDeleteCommentModal()" 
+                    class="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+const currentUsername = "{{ user.username }}";
+const currentUserRole = "{{ user.role }}";
+// boolean is_staff
+const isStaff = {{ user.is_staff|default:"false"|lower }};
+
+let commentToDelete = null;
+function updateCommentCount(change) {
+    const countElement = document.getElementById('commentCount');
+    if (countElement) {
+        const currentCount = parseInt(countElement.textContent) || 0;
+        countElement.textContent = currentCount + change;
+    }
+}
+
+document.getElementById('commentForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const newsId = document.querySelector('input[name="news_id"]').value;
+    
+    try {
+        const response = await fetch(`/news/${newsId}/comments/add/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'SUCCESS') {
+            document.getElementById('commentContent').value = '';
+            
+
+            addCommentToDOM(data.comment);
+            
+            updateCommentCount(1);
+            
+            const noComments = document.getElementById('noComments');
+            if (noComments) {
+                noComments.remove();
+            }
+        } else {
+            alert(data.message || 'Failed to post comment');
+        }
+    } catch (error) {
+        alert('Error posting comment');
+        console.error(error);
+    }
+});
+
+function addCommentToDOM(comment) {
+    const commentsList = document.getElementById('commentsList');
+    
+    // html prof pic
+    let profilePicHTML = '';
+    if (comment.profile_picture) {
+        profilePicHTML = `<img src="${comment.profile_picture}" alt="${comment.user}" class="w-10 h-10 rounded-full object-cover">`;
+    } else {
+        profilePicHTML = `<div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold">
+            ${comment.user.charAt(0).toUpperCase()}
+        </div>`;
+    }
+    
+    // badge untuk writer/admin
+    let roleBadgeHTML = '';
+    if (comment.role === 'Admin') {
+        roleBadgeHTML = '<span class="bg-red-500 text-white text-xs px-2 py-1 rounded">Admin</span>';
+    } else if (comment.role === 'Writer') {
+        roleBadgeHTML = '<span class="bg-blue-500 text-white text-xs px-2 py-1 rounded">Writer</span>';
+    }
+    
+    // edit/delete button kalo user adalah pemilik comment atau staff
+    let actionButtonsHTML = '';
+    if (comment.user === currentUsername || isStaff) {
+        actionButtonsHTML = `
+            <div class="flex gap-2">
+                <button 
+                    onclick="editComment('${comment.id}', '${comment.content.replace(/'/g, "\\'").replace(/"/g, "&quot;")}')"
+                    class="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                >
+                    Edit
+                </button>
+                <button 
+                    onclick="confirmDeleteComment('${comment.id}')"
+                    class="text-red-500 hover:text-red-700 text-sm font-medium"
+                >
+                    Delete
+                </button>
+            </div>
+        `;
+    }
+    const createdAt = new Date().toLocaleString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+    const commentHTML = `
+        <div class="comment-item border-b border-gray-200 pb-4 last:border-b-0" data-comment-id="${comment.id}">
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center gap-3">
+                    ${profilePicHTML}
+                    
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-semibold text-gray-800">${comment.user}</span>
+                            ${roleBadgeHTML}
+                        </div>
+                        
+                        <p class="text-sm text-gray-500">
+                            ${createdAt}
+                        </p>
+                    </div>
+                </div>
+                
+                ${actionButtonsHTML}
+            </div>
+
+            <div class="comment-content text-gray-700 ml-13">
+                <p id="content-${comment.id}">${comment.content}</p>
+            </div>
+
+            <div id="edit-form-${comment.id}" class="hidden mt-3 ml-13">
+                <textarea 
+                    id="edit-content-${comment.id}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    rows="3"
+                >${comment.content}</textarea>
+                <div class="flex gap-2 mt-2">
+                    <button 
+                        onclick="saveEdit('${comment.id}')"
+                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm"
+                    >
+                        Save
+                    </button>
+                    <button 
+                        onclick="cancelEdit('${comment.id}')"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-1 rounded text-sm"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    commentsList.insertAdjacentHTML('afterbegin', commentHTML);
+}
+
+function editComment(commentId, content) {
+    document.getElementById(`content-${commentId}`)?.classList.add('hidden');
+    document.getElementById(`edit-form-${commentId}`)?.classList.remove('hidden');
+}
+
+function cancelEdit(commentId) {
+    document.getElementById(`content-${commentId}`)?.classList.remove('hidden');
+    document.getElementById(`edit-form-${commentId}`)?.classList.add('hidden');
+}
+
+async function saveEdit(commentId) {
+    const content = document.getElementById(`edit-content-${commentId}`)?.value;
+    
+    if (!content || !content.trim()) {
+        alert('Comment cannot be empty');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('content', content);
+    const newsId = document.querySelector('input[name="news_id"]').value;
+    
+    try {
+        const response = await fetch(`/news/${newsId}/comments/${commentId}/edit/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'SUCCESS') {
+            // update konten comment
+            const contentElement = document.getElementById(`content-${commentId}`);
+            if (contentElement) {
+                contentElement.textContent = content;
+            }
+            
+            cancelEdit(commentId);
+            
+            // nambah label "edited" kalo user edit comment
+            const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+            const timeElement = commentItem?.querySelector('.text-sm.text-gray-500');
+            if (timeElement && !timeElement.querySelector('.italic')) {
+                timeElement.innerHTML += ' <span class="italic">(edited)</span>';
+            }
+        } else {
+            alert(data.message || 'Failed to update comment');
+        }
+    } catch (error) {
+        alert('Error updating comment');
+        console.error(error);
+    }
+}
+
+// konfirmasi delete comment
+function confirmDeleteComment(commentId) {
+    commentToDelete = commentId;
+    document.getElementById('deleteCommentModal')?.classList.remove('hidden');
+}
+// nutup delete modal
+function hideDeleteCommentModal() {
+    commentToDelete = null;
+    const modal = document.getElementById('deleteCommentModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+async function deleteComment() {
+    if (!commentToDelete) {
+        console.error('No comment ID to delete');
+        return;
+    }
+    
+    const commentId = commentToDelete;
+    const newsId = document.querySelector('input[name="news_id"]')?.value;
+    
+    if (!newsId) {
+        console.error('News ID not found');
+        hideDeleteCommentModal();
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/news/${newsId}/comments/${commentId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'SUCCESS') {
+            hideDeleteCommentModal();
+            
+            const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+            if (commentElement) {
+                
+                setTimeout(() => {
+                    commentElement.remove();
+                    
+                    updateCommentCount(-1);
+                    
+                    const commentsList = document.getElementById('commentsList');
+                    const remainingComments = commentsList?.querySelectorAll('.comment-item');
+                    
+                    if (commentsList && remainingComments.length === 0) {
+                        commentsList.innerHTML = '<div id="noComments" class="text-center py-8 text-gray-500"><p>No comments yet. Be the first to comment!</p></div>';
+                    }
+                }, 300);
+            }
+        } else {
+            hideDeleteCommentModal();
+            alert(data.message || 'Failed to delete comment');
+        }
+    } catch (error) {
+        hideDeleteCommentModal();
+        alert('Error deleting comment');
+        console.error(error);
+    }
+}
+</script>

@@ -6,24 +6,27 @@
   
   <style>
     .filter-btn {
-      background-color: #f3f4f6; /* gray-100 */
-      color: #374151; /* gray-700 */
+      background-color: #f3f4f6; 
+      color: #4b5563; 
       transition: background-color 0.2s, color 0.2s;
     }
     .filter-btn.active-filter, .filter-btn:hover {
-      background-color: #3b82f6; /* blue-500 */
+      background-color: #dc2626; 
       color: white;
+    }
+    .post-card-actions button {
+        transition: all 0.2s;
     }
   </style>
 {% endblock meta %}
 
 {% block content %}
-<div class="bg-gray-100 min-h-screen pt-16">
+<div class="bg-white min-h-screen pt-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
     <div class="mb-6">
         <a href="{% url 'main:show_main' %}"
-            class="text-gray-600 hover:text-blue-600 font-medium transition-colors inline-flex items-center">
+            class="text-gray-600 hover:text-red-600 font-medium transition-colors inline-flex items-center">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -34,31 +37,31 @@
 
     <div class="flex justify-between items-center mb-8">
         <div>
-            <h1 class="text-4xl font-extrabold text-gray-900 mb-2 border-b-4 border-blue-600 inline-block pr-8 pb-1">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-2 border-b-4 border-red-600 inline-block pr-8 pb-1">
                 Discussions
             </h1>
             <p class="text-gray-600 text-lg mt-2">Engage with the community on the latest sports topics</p>
         </div>
         <div class="flex items-center gap-4">
-            <button id="show-form-btn" class="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
+            <button id="show-form-btn" class="inline-flex items-center px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 Create Discussion
             </button>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm" id="create-post-card" style="display: none;">
-      <h5 class="text-xl font-semibold text-gray-800 mb-4">Start a New Discussion</h5>
+    <div class="bg-gray-50 rounded-xl border-2 border-gray-200 p-6 mb-8 shadow-sm" id="create-post-card" style="display: none;">
+      <h5 class="text-xl font-semibold text-gray-900 mb-4">Start a New Discussion</h5>
       <form id="create-post-form">
         {% csrf_token %}
         <div class="mb-4">
           <label for="post-title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-          <input type="text" id="post-title" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+          <input type="text" id="post-title" class="w-full px-3 py-2 bg-white border-2 border-gray-300 text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
         </div>
         
         <div class="mb-4">
           <label for="post-category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-          <select id="post-category" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+          <select id="post-category" class="w-full px-3 py-2 bg-white border-2 border-gray-300 text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
             <option value="" disabled selected>Select a sport</option>
             <option value="soccer">Soccer</option>
             <option value="basketball">Basketball</option>
@@ -71,16 +74,16 @@
 
         <div class="mb-4">
           <label for="post-content" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea id="post-content" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required></textarea>
+          <textarea id="post-content" rows="4" class="w-full px-3 py-2 bg-white border-2 border-gray-300 text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" required></textarea>
         </div>
-        <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors">
+        <button type="submit" class="bg-red-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-red-700 transition-colors shadow-md">
           Post Discussion
         </button>
       </form>
     </div>
 
     <div class="mb-6">
-        <div id="filter-buttons" class="flex flex-wrap items-center gap-2 bg-white p-3 rounded-xl border border-gray-200">
+        <div id="filter-buttons" class="flex flex-wrap items-center gap-2 bg-gray-50 p-3 rounded-xl border-2 border-gray-200">
             <button data-filter="all" class="filter-btn active-filter px-4 py-1.5 text-sm font-semibold rounded-lg">All</button>
             <button data-filter="soccer" class="filter-btn px-4 py-1.5 text-sm font-semibold rounded-lg">Soccer</button>
             <button data-filter="basketball" class="filter-btn px-4 py-1.5 text-sm font-semibold rounded-lg">Basketball</button>
@@ -93,312 +96,224 @@
 
     <div class="space-y-4" id="post-list-container">
       {% for post in posts %}
-        <a href="{% url 'forum:post_detail_view' post.id %}" id="post-{{ post.id }}" class="post-card block bg-white p-5 rounded-xl border border-gray-200 transition-shadow duration-200 hover:shadow-md" data-category="{{ post.category }}">
+        <div id="post-{{ post.id }}" class="post-card bg-white p-5 rounded-xl border-2 border-gray-200 transition-all duration-200 hover:shadow-lg hover:border-red-600" data-category="{{ post.category }}">
           <div class="flex justify-between items-start gap-4">
-            <div class="flex-grow">
-              <div class="flex items-center gap-3 mb-1">
-                <h5 class="text-lg font-semibold text-gray-900 break-words">{{ post.title }}</h5>
-                <span class="category-badge inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500 text-white">
-                  {{ post.get_category_display }}
-                </span>
+              <a href="{% url 'forum:post_detail_view' post.id %}" class="flex-grow">
+                  <div class="flex items-center gap-3 mb-1">
+                      <h5 class="text-lg font-semibold text-gray-900 break-words" id="title-{{ post.id }}">{{ post.title }}</h5>
+                      <span class="category-badge inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-600 text-white" id="category-{{ post.id }}">{{ post.get_category_display }}</span>
+                  </div>
+                  <p class="text-sm text-gray-600 mt-1">Started by {{ post.author.username }}</p>
+              </a>
+              <div class="text-right flex-shrink-0">
+                  <p class="text-xs text-gray-500 mb-1">{{ post.created_at|date:"M d, Y" }}</p>
+                  <div class="flex items-center justify-end gap-1 text-gray-600">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                      <span class="text-sm font-medium">{{ post.comment_count }}</span>
+                  </div>
               </div>
-              <p class="text-sm text-gray-600 mt-1">Started by {{ post.author.username }}</p>
-              <span class="text-sm font-medium text-blue-600 mt-3 inline-block">
-                View More →
-              </span>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <small class="text-sm text-gray-500">{{ post.comments.count }} comments</small>
-              {% if post.author == user %}
-                <div class="flex items-center gap-3 mt-2 justify-end">
-                  <button class="text-xs font-medium text-blue-600 hover:text-blue-800 edit-post-btn" 
-                          data-post-id="{{ post.id }}" 
-                          data-post-title="{{ post.title }}" 
-                          data-post-content="{{ post.content }}"
-                          data-post-category="{{ post.category }}">Edit</button>
-                  <button class="text-xs font-medium text-red-600 hover:text-red-800 delete-post-btn" data-post-id="{{ post.id }}">Delete</button>
-                </div>
-              {% endif %}
-            </div>
           </div>
-        </a>
-      {% empty %}
-        <div id="no-posts-message" class="bg-white text-center p-12 rounded-xl border border-gray-200">
-          <p class="text-gray-500">No discussions have been started yet.</p>
+          <div class="flex justify-between items-end mt-3">
+              <a href="{% url 'forum:post_detail_view' post.id %}" class="text-sm font-medium text-red-600 hover:underline">View More →</a>
+              {% if post.author == user %}
+              <div class="post-card-actions flex items-center gap-3">
+                  <button class="edit-post-btn text-sm font-semibold text-blue-600 hover:text-blue-800" data-post-id="{{ post.id }}">Edit</button>
+                  <button class="delete-post-btn text-sm font-semibold text-red-600 hover:text-red-800" data-post-id="{{ post.id }}">Delete</button>
+              </div>
+              {% endif %}
+          </div>
         </div>
       {% endfor %}
     </div>
-  </div>
-</div>
 
-<div id="edit-post-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" style="display: none;">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
-    <div class="p-6">
-      <h5 class="text-xl font-semibold text-gray-800 mb-4">Edit Discussion</h5>
-      <form id="edit-post-modal-form">
-        <input type="hidden" id="edit-post-id-input">
-        <div class="mb-4">
-          <label for="edit-post-title-input" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-          <input type="text" id="edit-post-title-input" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-        </div>
+    {% if not posts %}
+      <div id="no-posts-message" class="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+        <div class="text-6xl mb-4">💬</div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">No discussions yet</h3>
+        <p class="text-gray-600 mb-6">Be the first to start a conversation</p>
+        <button id="empty-state-btn" class="inline-flex items-center px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          Create Discussion
+        </button>
+      </div>
+    {% endif %}
 
-        <div class="mb-4">
-            <label for="edit-post-category-input" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <select id="edit-post-category-input" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-                <option value="soccer">Soccer</option>
-                <option value="basketball">Basketball</option>
-                <option value="football">Football</option>
-                <option value="hockey">Hockey</option>
-                <option value="volleyball">Volleyball</option>
-                <option value="baseball">Baseball</option>
-            </select>
-        </div>
-
-        <div class="mb-4">
-          <label for="edit-post-content-input" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea id="edit-post-content-input" rows="5" class="w-full px-3 py-2 border border-gray-300 rounded-md" required></textarea>
-        </div>
-        <div class="flex justify-end gap-3 mt-6">
-          <button type="button" id="cancel-edit-modal-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
-          <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Save Changes</button>
-        </div>
-      </form>
-    </div>
   </div>
 </div>
 
 <script>
-// Your JavaScript remains unchanged
 document.addEventListener('DOMContentLoaded', function() {
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-  const postListContainer = document.getElementById('post-list-container');
-  
-  // --- Logika Filter Kategori ---
-  const filterButtonsContainer = document.getElementById('filter-buttons');
-  
-  if(filterButtonsContainer) {
-    filterButtonsContainer.addEventListener('click', function(e) {
-      if (e.target.matches('.filter-btn')) {
-        const filterValue = e.target.getAttribute('data-filter');
-        if(this.querySelector('.active-filter')) {
-          this.querySelector('.active-filter').classList.remove('active-filter');
-        }
-        e.target.classList.add('active-filter');
-        const allPosts = postListContainer.querySelectorAll('.post-card');
-        let visiblePostsCount = 0;
-        allPosts.forEach(post => {
-          const postCategory = post.getAttribute('data-category');
-          if (filterValue === 'all' || filterValue === postCategory) {
-            post.style.display = 'block';
-            visiblePostsCount++;
-          } else {
-            post.style.display = 'none';
-          }
-        });
-        const noPostsMessage = document.getElementById('no-posts-message');
-        if (noPostsMessage) {
-          noPostsMessage.style.display = (visiblePostsCount === 0 && allPosts.length > 0) ? 'block' : 'none';
-        }
-      }
-    });
-  }
-
-  // --- Logika Create Post ---
   const showFormBtn = document.getElementById('show-form-btn');
+  const emptyStateBtn = document.getElementById('empty-state-btn');
   const createPostCard = document.getElementById('create-post-card');
   const createPostForm = document.getElementById('create-post-form');
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const postListContainer = document.getElementById('post-list-container');
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-  if(showFormBtn) {
-    showFormBtn.addEventListener('click', function() {
+  // Tampilkan/Sembunyikan Form Pembuatan Post 
+  const toggleCreateForm = () => {
+    if (createPostCard) {
       const isHidden = createPostCard.style.display === 'none';
       createPostCard.style.display = isHidden ? 'block' : 'none';
-      
-      const icon = this.querySelector('svg');
-      const text = this.querySelector('span');
+      if (isHidden) createPostCard.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
+  if (showFormBtn) showFormBtn.addEventListener('click', toggleCreateForm);
+  if (emptyStateBtn) emptyStateBtn.addEventListener('click', toggleCreateForm);
 
-      if (isHidden) {
-          this.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> <span>Cancel</span>`;
-          this.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-          this.classList.add('bg-gray-500', 'hover:bg-gray-600');
-      } else {
-          this.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> <span>Create Discussion</span>`;
-          this.classList.add('bg-blue-600', 'hover:bg-blue-700');
-          this.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+  // Post Baru
+  if(createPostForm) {
+    createPostForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('post-title').value;
+      const category = document.getElementById('post-category').value;
+      const content = document.getElementById('post-content').value;
+
+      try {
+        const response = await fetch("{% url 'forum:create_post_ajax' %}", {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+          body: JSON.stringify({ title, category, content })
+        });
+
+        if (response.ok) {
+          Swal.fire({ icon: 'success', title: 'Success!', text: 'Discussion created successfully', confirmButtonColor: '#dc2626' })
+          .then(() => window.location.reload());
+        } else {
+          const data = await response.json();
+          Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Failed to create discussion', confirmButtonColor: '#dc2626' });
+        }
+      } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'An error occurred', confirmButtonColor: '#dc2626' });
       }
     });
   }
 
-  if(createPostForm){
-    createPostForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const postTitle = document.getElementById('post-title').value;
-      const postContent = document.getElementById('post-content').value;
-      const postCategory = document.getElementById('post-category').value;
+  // Filter Kategori 
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter;
+      filterButtons.forEach(b => b.classList.remove('active-filter'));
+      btn.classList.add('active-filter');
 
-      fetch("{% url 'forum:create_post_ajax' %}", {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-        body: JSON.stringify({ title: postTitle, content: postContent, category: postCategory }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'success') {
-          const newPostElement = document.createElement('a');
-          newPostElement.href = data.post.url;
-          newPostElement.id = `post-${data.post.id}`;
-          newPostElement.className = 'post-card block bg-white p-5 rounded-xl border border-gray-200 transition-shadow duration-200 hover:shadow-md';
-          newPostElement.setAttribute('data-category', data.post.category_code);
-          newPostElement.innerHTML = `
-            <div class="flex justify-between items-start gap-4">
-              <div class="flex-grow">
-                  <div class="flex items-center gap-3 mb-1">
-                      <h5 class="text-lg font-semibold text-gray-900 break-words">${data.post.title}</h5>
-                      <span class="category-badge inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-500 text-white">
-                          ${data.post.category_display}
-                      </span>
-                  </div>
-                  <p class="text-sm text-gray-600 mt-1">Started by ${data.post.author}</p>
-                  <span class="text-sm font-medium text-blue-600 mt-3 inline-block">
-                    View More →
-                  </span>
-              </div>
-              <div class="text-right flex-shrink-0">
-                <small class="text-sm text-gray-500">0 comments</small>
-                <div class="flex items-center gap-3 mt-2 justify-end">
-                  <button class="text-xs font-medium text-blue-600 hover:text-blue-800 edit-post-btn" data-post-id="${data.post.id}" data-post-title="${data.post.title}" data-post-content="${data.post.content}" data-post-category="${data.post.category_code}">Edit</button>
-                  <button class="text-xs font-medium text-red-600 hover:text-red-800 delete-post-btn" data-post-id="${data.post.id}">Delete</button>
-                </div>
-              </div>
-            </div>
-          `;
-          postListContainer.prepend(newPostElement);
-          const noPostsMessage = document.getElementById('no-posts-message');
-          if(noPostsMessage) noPostsMessage.remove();
-          this.reset();
-          showFormBtn.click(); 
-        } else {
-          alert(data.message || 'An error occurred.');
-        }
+      document.querySelectorAll('.post-card').forEach(card => {
+        card.style.display = (filter === 'all' || card.dataset.category === filter) ? 'block' : 'none';
       });
     });
-  }
+  });
 
-  // --- Logika Edit/Delete & Modal ---
-  const editModal = document.getElementById('edit-post-modal');
-  const editModalForm = document.getElementById('edit-post-modal-form');
-  const cancelEditBtn = document.getElementById('cancel-edit-modal-btn');
-  
-  if(postListContainer) {
-    postListContainer.addEventListener('click', function(e) {
-      if (e.target.matches('.delete-post-btn') || e.target.closest('.delete-post-btn')) {
-          e.preventDefault();
-          e.stopPropagation();
-          const button = e.target.closest('.delete-post-btn');
-          const postId = button.dataset.postId;
-          Swal.fire({
-              title: 'Delete this discussion?',
-              text: 'This action cannot be undone.',
-              showCancelButton: true,
-              confirmButtonText: 'Delete',
-              cancelButtonText: 'Cancel',
-              buttonsStyling: false,
-              showClass: { popup: '' },
-              hideClass: { popup: '' },
-              customClass: {
-                  popup: 'rounded-xl shadow-md p-6',
-                  title: 'text-gray-800 font-semibold text-lg mb-2',
-                  htmlContainer: 'text-gray-600 mb-4',
-                  confirmButton: 'bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 mx-2',
-                  cancelButton: 'bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 mx-2'
-              }
-          }).then((result) => {
-              if (result.isConfirmed) {
-                  const url = "{% url 'forum:delete_post_ajax' 0 %}".replace('0', postId);
-                  fetch(url, { method: 'POST', headers: {'X-CSRFToken': csrftoken} })
-                  .then(res => res.json())
-                  .then(data => {
-                      if (data.status === 'success') {
-                          Swal.fire({
-                              title: 'This discussion has been removed.',
-                              showConfirmButton: false, timer: 1200, background: '#fff',
-                              showClass: { popup: '' }, hideClass: { popup: '' },
-                              customClass: { title: 'text-gray-700 text-base font-medium' }
-                          });
-                          document.getElementById(`post-${postId}`).remove();
-                      } else {
-                          alert(data.message || 'Failed to delete post.');
-                      }
-                  });
-              }
-          });
-      }
+  // Edit dan Delete
+  postListContainer.addEventListener('click', function(e) {
+    const editButton = e.target.closest('.edit-post-btn');
+    const deleteButton = e.target.closest('.delete-post-btn');
 
-      if (e.target.matches('.edit-post-btn') || e.target.closest('.edit-post-btn')) {
-        e.preventDefault();
-        e.stopPropagation();
-        const button = e.target.closest('.edit-post-btn');
-        const postId = button.dataset.postId;
-        const currentTitle = button.dataset.postTitle;
-        const currentContent = button.dataset.postContent;
-        const currentCategory = button.dataset.postCategory;
-        document.getElementById('edit-post-id-input').value = postId;
-        document.getElementById('edit-post-title-input').value = currentTitle;
-        document.getElementById('edit-post-content-input').value = currentContent;
-        document.getElementById('edit-post-category-input').value = currentCategory;
-        if(editModal) editModal.style.display = 'flex';
-      }
-    });
-  }
+    if (editButton) {
+      e.preventDefault(); 
+      handleEditPost(editButton.dataset.postId);
+    }
 
-  if(editModalForm) {
-    editModalForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const postId = document.getElementById('edit-post-id-input').value;
-      const newTitle = document.getElementById('edit-post-title-input').value;
-      const newContent = document.getElementById('edit-post-content-input').value;
-      const newCategory = document.getElementById('edit-post-category-input').value;
-      const url = "{% url 'forum:edit_post_ajax' 0 %}".replace('0', postId);
-      fetch(url, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-        body: JSON.stringify({ title: newTitle, content: newContent, category: newCategory })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success') {
-          const postElement = document.getElementById(`post-${postId}`);
-          if(postElement) {
-            postElement.querySelector('h5').textContent = data.post.title;
-            postElement.querySelector('.category-badge').textContent = data.post.category_display;
-            postElement.setAttribute('data-category', newCategory);
-            const editBtn = postElement.querySelector('.edit-post-btn');
-            if(editBtn) {
-              editBtn.dataset.postTitle = data.post.title;
-              editBtn.dataset.postContent = data.post.content;
-              editBtn.dataset.postCategory = newCategory;
+    if (deleteButton) {
+      e.preventDefault(); 
+      handleDeletePost(deleteButton.dataset.postId);
+    }
+  });
+
+  // Edit Post
+  async function handleEditPost(postId) {
+    const getDataUrl = `{% url 'forum:get_post_data_ajax' 0 %}`.replace('0', postId);
+    try {
+        const response = await fetch(getDataUrl, { headers: { 'X-CSRFToken': csrfToken } });
+        const data = await response.json();
+        if (data.status !== 'success') throw new Error('Failed to fetch post data.');
+
+        const post = data.post;
+        
+        const { value: formValues } = await Swal.fire({
+            title: 'Edit Discussion',
+            html: `
+                <input id="swal-title" class="swal2-input" value="${post.title}">
+                <select id="swal-category" class="swal2-select">
+                    <option value="soccer" ${post.category === 'soccer' ? 'selected' : ''}>Soccer</option>
+                    <option value="basketball" ${post.category === 'basketball' ? 'selected' : ''}>Basketball</option>
+                    <option value="football" ${post.category === 'football' ? 'selected' : ''}>Football</option>
+                    <option value="hockey" ${post.category === 'hockey' ? 'selected' : ''}>Hockey</option>
+                    <option value="volleyball" ${post.category === 'volleyball' ? 'selected' : ''}>Volleyball</option>
+                    <option value="baseball" ${post.category === 'baseball' ? 'selected' : ''}>Baseball</option>
+                </select>
+                <textarea id="swal-content" class="swal2-textarea">${post.content}</textarea>`,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#dc2626',
+            preConfirm: () => {
+                return {
+                    title: document.getElementById('swal-title').value,
+                    category: document.getElementById('swal-category').value,
+                    content: document.getElementById('swal-content').value
+                }
             }
-          }
-          if(editModal) editModal.style.display = 'none';
-        } else {
-          alert(data.message || 'Failed to update post.');
+        });
+
+        if (formValues) {
+            const editUrl = `{% url 'forum:edit_post_ajax' 0 %}`.replace('0', postId);
+            const updateResponse = await fetch(editUrl, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+                body: JSON.stringify(formValues)
+            });
+            const updateData = await updateResponse.json();
+
+            if (updateData.status === 'success') {
+                document.getElementById(`title-${postId}`).textContent = updateData.post.title;
+                document.getElementById(`category-${postId}`).textContent = updateData.post.category_display;
+                document.querySelector(`#post-${postId}`).dataset.category = formValues.category; // Update data-category for filtering
+                Swal.fire('Saved!', 'Your discussion has been updated.', 'success');
+            } else {
+                Swal.fire('Error!', 'Could not save changes.', 'error');
+            }
         }
-      });
-    });
+    } catch (error) {
+        Swal.fire('Error!', 'Something went wrong.', 'error');
+    }
   }
 
-  if(cancelEditBtn) {
-    cancelEditBtn.addEventListener('click', () => {
-      if(editModal) editModal.style.display = 'none';
-    });
-  }
-  
-  if(editModal) {
-    editModal.addEventListener('click', (e) => {
-      if (e.target === editModal) {
-        editModal.style.display = 'none';
+  // Delete Post
+  function handleDeletePost(postId) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const url = `{% url 'forum:delete_post_ajax' 0 %}`.replace('0', postId);
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken }
+          });
+          const data = await response.json();
+          if (data.status === 'success') {
+            document.getElementById(`post-${postId}`).remove();
+            Swal.fire('Deleted!', 'Your discussion has been deleted.', 'success');
+            
+            if (postListContainer.children.length === 0 && !document.getElementById('no-posts-message')) {
+                postListContainer.innerHTML = `<div id="no-posts-message" class="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">...</div>`; // Ganti dengan HTML no-posts-message Anda
+            }
+          } else {
+            Swal.fire('Error!', 'Could not delete the post.', 'error');
+          }
+        } catch (error) {
+          Swal.fire('Error!', 'Something went wrong.', 'error');
+        }
       }
     });
   }
 });
 </script>
-{% endblock %}
+{% endblock content %}

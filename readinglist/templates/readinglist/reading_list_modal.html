@@ -1,18 +1,38 @@
-<div id="readingListModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
-            <h3 class="text-xl font-semibold text-gray-900">Tambahkan ke Reading List</h3>
+<div id="readingListModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 hidden">
+    <div class="relative top-20 mx-auto p-6 border-2 border-gray-200 w-full max-w-md shadow-2xl rounded-xl bg-white">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center pb-4 border-b-2 border-gray-200">
+            <h3 class="text-2xl font-bold text-gray-900">Add to Reading List</h3>
             <button onclick="closeReadingListModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
         </div>
-        <div class="mt-4">
-            <p class="text-sm text-gray-600 mb-4">Pilih list untuk menambahkan atau menghapus berita ini.</p>
-            <div id="list-options-container" class="space-y-2"></div>
-            <p id="list-loading-status" class="text-sm text-gray-500 mt-4">Memuat list...</p>
+
+        <!-- Loading Status -->
+        <div id="list-loading-status" class="text-center py-8">
+            <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <p class="text-gray-600 font-medium">Loading lists...</p>
+        </div>
+
+        <!-- List Options Container -->
+        <div id="list-options-container" class="mt-6 space-y-3 max-h-96 overflow-y-auto">
+        </div>
+
+        <!-- Create New List Link -->
+        <div class="mt-6 pt-4 border-t-2 border-gray-200">
+            <a href="{% url 'readinglist:show_lists' %}" 
+               class="block text-center px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Manage Reading Lists
+            </a>
         </div>
     </div>
 </div>
