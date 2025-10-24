@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'main',
     'berita',
     'readinglist',
+    'forum',
 ]
 
 MIDDLEWARE = [

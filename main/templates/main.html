@@ -7,52 +7,6 @@
 
 {% block content %}
 
-<nav class="bg-gray-900 shadow-md fixed w-full top-0 z-10">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16">
-      <div class="flex">
-        <a href="{% url 'main:show_main' %}"
-          class="flex-shrink-0 flex items-center text-white text-xl font-bold tracking-wider">
-          OLR.<span class="text-green-500">GG</span>
-        </a>
-        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-          <a href="{% url 'main:show_main' %}"
-            class="inline-flex items-center px-1 pt-1 border-b-2 border-green-500 text-sm font-medium text-white transition-colors">
-            Home
-          </a>
-          {% if user.is_authenticated %}
-          <a href="{% url 'readinglist:show_lists' %}"
-            class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:border-gray-300 hover:text-white transition-colors">
-            Reading List
-          </a>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="flex items-center">
-        {% if user.is_authenticated %}
-        <div class="text-sm font-medium text-gray-300 mr-4 hidden sm:block">
-          Welcome, {{ user.username }}
-        </div>
-        <a href="{% url 'main:logout' %}"
-          class="ml-3 inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm">
-          Logout
-        </a>
-        {% else %}
-        <a href="{% url 'main:login' %}"
-          class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-gray-100 hover:bg-white transition-colors shadow-sm">
-          Login
-        </a>
-        <a href="{% url 'main:register' %}"
-          class="ml-3 inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors shadow-sm">
-          Register
-        </a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-</nav>
-
 <div class="bg-gray-50 w-full pt-16 min-h-screen">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="mb-8">
@@ -126,15 +80,131 @@
   </div>
 </div>
 
-<!-- Include Reading List Modal -->
-{% include 'readinglist/reading_list_modal.html' %}
+<div id="createNewsModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg">
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900">Create New News</h3>
+                    <p class="text-sm text-gray-500 mt-1">Share your football news and stories with the community</p>
+                </div>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
 
+            <hr class="mb-6">
+
+            <form id="create-news-form" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input type="text" name="title" id="title" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter news title" required>
+                </div>
+                <div>
+                    <label for="content" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                    <textarea name="content" id="content" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter news content" required></textarea>
+                </div>
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select name="category" id="category" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                        <option value="" disabled selected>Choose a category</option>
+                        <option value="soccer">Soccer</option>
+                        <option value="basketball">Basketball</option>
+                        <option value="football">Football</option>
+                        <option value="hockey">Hockey</option>
+                        <option value="volleyball">Volleyball</option>
+                        <option value="baseball">Baseball</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="thumbnail" class="block text-sm font-medium text-gray-700 mb-1">Thumbnail URL</label>
+                    <input type="url" name="thumbnail" id="thumbnail" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="is_featured" id="is_featured" class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                    <label for="is_featured" class="ml-2 block text-sm text-gray-900">Featured News</label>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-gray-200">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2 bg-gray-100 text-gray-800 font-semibold rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">Publish News</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include 'readinglist/reading_list_modal.html' %}
 {% include 'readinglist/reading_list_scripts.html' %}
 <script>
+  // =======================================================================
+  // BAGIAN BARU: JavaScript untuk Modal Create News
+  // =======================================================================
+
+  const createNewsModal = document.getElementById('createNewsModal');
+  const createNewsForm = document.getElementById('create-news-form');
+
+  // Fungsi untuk menampilkan modal
+  function showModal() {
+      if (createNewsModal) {
+          createNewsModal.classList.remove('hidden');
+      }
+  }
+
+  // Fungsi untuk menutup modal
+  function closeModal() {
+      if (createNewsModal) {
+          createNewsModal.classList.add('hidden');
+          if (createNewsForm) {
+            createNewsForm.reset(); // Mengosongkan form setelah ditutup
+          }
+      }
+  }
+
+  // Event listener untuk submit form create news
+  if (createNewsForm) {
+    createNewsForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Mencegah form dari reload halaman
+        const formData = new FormData(createNewsForm);
+
+        fetch("{% url 'main:create_news' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => {
+            if (response.status === 201) { // 201 Created
+                closeModal();
+                // Menggunakan custom event untuk refresh list berita
+                document.dispatchEvent(new Event('newsAdded'));
+                // Menampilkan notifikasi sukses
+                if(window.showTemporaryMessage) {
+                    window.showTemporaryMessage('News created successfully!');
+                } else {
+                    alert('News created successfully!');
+                }
+            } else {
+                // Handle error
+                response.text().then(text => alert('Error: ' + text));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while creating the news.');
+        });
+    });
+  }
+
+
+  // =======================================================================
+  // Script yang Sudah Ada Sebelumnya
+  // =======================================================================
+
   window.READING_LIST_TOGGLE_ENDPOINT_BASE = "{% url 'readinglist:add_remove_news' '00000000-0000-0000-0000-000000000000' %}";
   window.NEWS_STATUS_ENDPOINT_BASE = "{% url 'readinglist:get_news_list_status' '00000000-0000-0000-0000-000000000000' %}";
   window.IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === 'true';
-
 
   const NEWS_API_ENDPOINT = "{% url 'main:show_json' %}";
   const CURRENT_USER_ID = "{{ user.id|default_if_none:'null' }}";
@@ -166,12 +236,14 @@
   }
 
   function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
-    loadingSpinner.classList.toggle('hidden', !showLoading);
-    errorMessage.classList.toggle('hidden', !showError);
-    emptyStateDisplay.classList.toggle('hidden', !showEmpty);
-    newsGridContainer.classList.toggle('hidden', !showGrid);
-    if (showGrid) {
-      newsGridContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+    if(loadingSpinner) loadingSpinner.classList.toggle('hidden', !showLoading);
+    if(errorMessage) errorMessage.classList.toggle('hidden', !showError);
+    if(emptyStateDisplay) emptyStateDisplay.classList.toggle('hidden', !showEmpty);
+    if(newsGridContainer) {
+        newsGridContainer.classList.toggle('hidden', !showGrid);
+        if (showGrid) {
+          newsGridContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+        }
     }
   }
 
@@ -204,16 +276,16 @@
     const article = document.createElement('article');
     article.className = 'bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full';
     const linkDetail = `{% url 'main:show_news' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', item.id);
-    const title = DOMPurify.sanitize(item.title);
-    const content = DOMPurify.sanitize(item.content);
-    const category = DOMPurify.sanitize(item.category);
-    const thumbnail = DOMPurify.sanitize(item.thumbnail);
-    const createdAt = DOMPurify.sanitize(new Date(item.created_at).toLocaleDateString('en-US', {
+    const title = item.title;
+    const content = item.content;
+    const category = item.category;
+    const thumbnail = item.thumbnail;
+    const createdAt = new Date(item.created_at).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
-    }));
-    const newsViews = DOMPurify.sanitize(item.news_views || 0);
+    });
+    const newsViews = item.news_views || 0;
     const isFeatured = item.is_featured;
     const isHot = newsViews > 20;
     const thumbnailHtml = item.thumbnail
@@ -275,7 +347,9 @@
       filterAndDisplayNews();
     } catch (error) {
       console.error('Error loading news:', error);
-      errorMessage.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 p-4 rounded" role="alert"><strong class="font-bold">Error!</strong><span class="block sm:inline">Failed to load news: ${error.message}</span></div>`;
+      if(errorMessage) {
+          errorMessage.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 p-4 rounded" role="alert"><strong class="font-bold">Error!</strong><span class="block sm:inline">Failed to load news: ${error.message}</span></div>`;
+      }
       displayPageSection({ showError: true });
     }
   }
@@ -302,7 +376,6 @@
       showMyNewsButton.addEventListener('click', handleShowMyNewsClick);
     }
 
-
     const urlParams = new URLSearchParams(window.location.search);
     const urlFilter = urlParams.get('filter');
     if (urlFilter === 'my' && IS_AUTHENTICATED) {
@@ -313,7 +386,10 @@
     fetchNewsFromServer();
   }
 
-  initializeNewsPage();
+  // Panggil fungsi inisialisasi saat DOM siap
+  document.addEventListener('DOMContentLoaded', initializeNewsPage);
+  
+  // Listener untuk event custom 'newsAdded'
   document.addEventListener('newsAdded', function () {
     fetchNewsFromServer();
   });
