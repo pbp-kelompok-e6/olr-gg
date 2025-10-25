@@ -1,0 +1,137 @@
+{% extends "base.html" %} 
+{% load static %}
+
+{% block meta %}
+<title>Request Writer Role - OLR.GG</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white mt-16 shadow overflow-hidden sm:rounded-lg">
+        <div class="border-b border-gray-200 px-4 py-5 sm:px-6">
+            <h1 class="text-2xl font-bold leading-6 text-gray-900">Permintaan Menjadi Writer</h1>
+            <p class="mt-1 text-sm text-gray-500">
+                Jelaskan mengapa Anda tertarik untuk berkontribusi sebagai writer di OLR.GG.
+            </p>
+        </div>
+        
+        <div class="px-4 pb-5 sm:px-6">
+            
+            <div id="ajax-message" class="mb-4"></div>
+
+            {% if existing_request %}
+                <div class="p-4 rounded-md bg-blue-50 border border-blue-200">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3 flex-1 md:flex md:justify-between">
+                            <p class="text-sm text-blue-700">
+                                Anda sudah memiliki permintaan yang sedang ditinjau. Mohon tunggu review dari admin.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            {% else %}
+                <form id="writer-request-form" method="POST" action="{% url 'users:request_writer_role' %}">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label for="{{ form.reason.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.reason.label }}</label>
+                        <div class="mt-1">
+                            {{ form.reason }}
+                        </div>
+                        <div id="error-reason" class="text-red-600 text-sm mt-1"></div>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Jelaskan juga topik apa yang Anda kuasai atau ingin Anda tulis.
+                        </p>
+                    </div>
+
+                    <div class="mt-6">
+                        <button id="submit-button" type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Kirim Permintaan
+                        </button>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('writer-request-form');
+    if (!form) return; // Keluar jika form tidak ada (misal: user sudah request)
+
+    const submitButton = document.getElementById('submit-button');
+    const messageContainer = document.getElementById('ajax-message');
+    const errorReason = document.getElementById('error-reason');
+    const formUrl = form.action;
+    const csrftoken = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Hentikan submit form standar
+
+        // Tampilkan status loading
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Mengirim...';
+        errorReason.textContent = '';
+        messageContainer.innerHTML = '';
+
+        const formData = new FormData(form);
+
+        fetch(formUrl, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest' // Penting untuk deteksi AJAX di view
+            }
+        })
+        .then(response => response.json().then(data => ({ status: response.status, body: data })))
+        .then(data => {
+            if (data.status === 200 && data.body.status === 'success') {
+                // Sukses
+                showAjaxMessage(data.body.message, 'success');
+                // Sembunyikan form dan tombol
+                form.style.display = 'none';
+            } else {
+                // Gagal (validasi form atau error lainnya)
+                if (data.body.errors) {
+                    const errors = JSON.parse(data.body.errors);
+                    if (errors.reason) {
+                        errorReason.textContent = errors.reason[0].message;
+                    }
+                } else {
+                    // Error umum
+                    showAjaxMessage(data.body.message || 'Terjadi kesalahan.', 'error');
+                }
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Kirim Permintaan';
+            }
+        })
+        .catch(error => {
+            console.error('Fetch Error:', error);
+            showAjaxMessage('Tidak dapat terhubung ke server.', 'error');
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Kirim Permintaan';
+        });
+    });
+
+    function showAjaxMessage(message, type) {
+        const bgColor = type === 'success' 
+            ? 'bg-green-100 border-green-500 text-green-700' 
+            : 'bg-red-100 border-red-500 text-red-700';
+        
+        messageContainer.innerHTML = `
+            <div class="p-4 rounded-md border-l-4 ${bgColor}" role="alert">
+                <p>${message}</p>
+            </div>
+        `;
+    }
+});
+</script>
+{% endblock %}

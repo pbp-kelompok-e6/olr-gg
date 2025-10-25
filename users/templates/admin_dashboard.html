@@ -6,8 +6,10 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-6">Admin Dashboard</h1>
+    
     <div id="ajax-messages" class="mb-4 space-y-4"></div>
     <div id="form-messages" class="mb-4"></div>
+
     <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
         <div class="border-b border-gray-200 px-4 py-5 sm:px-6">
             <h2 class="text-xl font-semibold leading-6 text-gray-900">User Management</h2>
@@ -57,7 +59,7 @@
                                             {% endif %}
                                         </td>
                                         <td id="user-strikes-{{ user.id }}" class="px-6 py-4 whitespace-nowrap text-sm">
-                                            <span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">{{ user.strikes }} / 3</span>
+                                            <span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full {% if user.strikes < 3 %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">{{ user.strikes }} / 3</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <a href="{% url 'users:admin_edit_user' user.id %}" class="inline-block align-middle px-3 py-1 border border-indigo-600 text-indigo-600 text-xs rounded-md hover:bg-indigo-50 mb-1 sm:mb-0">Edit</a>
@@ -86,7 +88,7 @@
         </div>
     </div>
 
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
         <div class="border-b border-gray-200 px-4 py-5 sm:px-6">
             <h2 class="text-xl font-semibold leading-6 text-gray-900">Report Management</h2>
         </div>
@@ -115,7 +117,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <a href="{% url 'users:show_profile' report.reported_user.id %}" class="text-indigo-600 hover:text-indigo-900">{{ report.reported_user.username }}</a>
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-gray-500 whitespace-pre-wrap break-words min-w-[200px] max-w-xs">
+                                        <td class="px-6 py-4 text-sm text-gray-500 break-words min-w-[200px] max-w-xs">
                                             {{ report.reason }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
@@ -136,7 +138,7 @@
                                         </td>
                                     </tr>
                                     {% empty %}
-                                    <tr>
+                                    <tr id="no-report-row">
                                         <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">Tidak ada laporan.</td>
                                     </tr>
                                     {% endfor %}
@@ -148,6 +150,66 @@
             </div>
         </div>
     </div>
+
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+        <div class="border-b border-gray-200 px-4 py-5 sm:px-6">
+            <h2 class="text-xl font-semibold leading-6 text-gray-900">Writer Role Requests</h2>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex flex-col">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alasan</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="writer-request-table-body" class="bg-white divide-y divide-gray-200">
+                                    {% for req in writer_requests %}
+                                    <tr id="writer-req-row-{{ req.id }}">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ req.created_at|date:"d M Y, H:i" }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="{% url 'users:show_profile' req.user.id %}" class="text-indigo-600 hover:text-indigo-900">{{ req.user.username }}</a>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-500  break-words min-w-[200px] max-w-xs">
+                                            {{ req.reason }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button type="button" 
+                                                    data-action-url="{% url 'users:admin_approve_writer' req.id %}"
+                                                    data-request-id="{{ req.id }}"
+                                                    data-user-id="{{ req.user.id }}"
+                                                    class="writer-action-btn inline-block px-3 py-1 border border-green-600 text-green-600 text-xs font-medium rounded-md hover:bg-green-50">
+                                                Approve
+                                            </button>
+                                            
+                                            <button type="button" 
+                                                    data-action-url="{% url 'users:admin_reject_writer' req.id %}"
+                                                    data-request-id="{{ req.id }}"
+                                                    class="writer-action-btn inline-block px-3 py-1 border border-red-600 text-red-600 text-xs font-medium rounded-md hover:bg-red-50">
+                                                Reject
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr id="no-writer-request-row">
+                                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Tidak ada permintaan role writer.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -155,13 +217,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ambil elemen tabel
     const reportTableBody = document.getElementById('report-table-body');
     const userTableBody = document.getElementById('user-table-body');
+    const writerReqTableBody = document.getElementById('writer-request-table-body'); // BARU
+    
     // Ambil kontainer pesan
     const messageContainer = document.getElementById('ajax-messages');
     
-    // Ambil CSRF token dari <input> yang kita sembunyikan di atas
+    // Ambil CSRF token dari <input>
     const csrftokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
     
-    // Cek jika elemen-elemen penting ada
     if (!csrftokenInput) {
         console.error('CSRF token input not found!');
         return;
@@ -183,6 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const url = targetButton.dataset.actionUrl;
             const reportId = targetButton.dataset.reportId;
+            const originalHtml = targetButton.innerHTML;
 
             // Nonaktifkan tombol
             const rowButtons = document.querySelectorAll(`#report-row-${reportId} .report-action-btn`);
@@ -204,23 +268,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (reportRow) {
                     reportRow.style.transition = 'opacity 0.3s ease-out';
                     reportRow.style.opacity = '0';
-                    setTimeout(() => reportRow.remove(), 300);
+                    setTimeout(() => {
+                        reportRow.remove();
+                        // Cek jika tabel report jadi kosong
+                        if (reportTableBody.rows.length === 0) {
+                            reportTableBody.innerHTML = `<tr id="no-report-row"><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">Tidak ada laporan.</td></tr>`;
+                        }
+                    }, 300);
                 }
 
                 if (data.action === 'accepted' && data.user_id) {
-                    updateUserTableRow(data.user_id, data.new_strike_count, data.is_active);
+                    updateUserTableRow(data.user_id, data.new_strike_count, data.is_active, null);
                 }
             })
             .catch(error => {
                 showAjaxMessage(error.message || 'Terjadi kesalahan.', 'error');
+                // Kembalikan tombol jika error
                 rowButtons.forEach(btn => {
                     btn.disabled = false;
                     btn.innerHTML = btn.dataset.userId ? 'Accept' : 'Reject';
                 });
             });
         });
-    } else {
-        console.log('Report table body not found (maybe no reports).');
     }
 
     // --- LISTENER #2: UNTUK TABEL USER (Reset Strike) ---
@@ -250,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.ok ? response.json() : response.json().then(data => Promise.reject(data)))
             .then(data => {
                 showAjaxMessage(data.message, 'success');
-                updateUserTableRow(data.user_id, data.new_strike_count, data.is_active);
+                updateUserTableRow(data.user_id, data.new_strike_count, data.is_active, null);
                 
                 // Sembunyikan tombol "Reset Strike"
                 targetButton.style.transition = 'opacity 0.3s ease-out';
@@ -263,12 +332,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 targetButton.innerHTML = originalButtonHtml;
             });
         });
-    } else {
-        console.log('User table body not found (maybe no users).');
+    }
+
+    // --- LISTENER #3: UNTUK TABEL WRITER REQUEST (Approve/Reject) ---
+    if (writerReqTableBody) {
+        writerReqTableBody.addEventListener('click', function(event) {
+            const targetButton = event.target.closest('.writer-action-btn');
+            if (!targetButton) return; 
+
+            event.preventDefault();
+            
+            const url = targetButton.dataset.actionUrl;
+            const requestId = targetButton.dataset.requestId;
+            const isApprove = !!targetButton.dataset.userId;
+
+            // Nonaktifkan tombol
+            const rowButtons = document.querySelectorAll(`#writer-req-row-${requestId} .writer-action-btn`);
+            rowButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.innerHTML = '...';
+            });
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.ok ? response.json() : response.json().then(data => Promise.reject(data)))
+            .then(data => {
+                showAjaxMessage(data.message, 'success');
+                
+                const requestRow = document.getElementById(`writer-req-row-${requestId}`);
+                if (requestRow) {
+                    requestRow.style.transition = 'opacity 0.3s ease-out';
+                    requestRow.style.opacity = '0';
+                    setTimeout(() => {
+                        requestRow.remove();
+                        // Cek jika tabel request jadi kosong
+                        if (writerReqTableBody.rows.length === 0) {
+                            writerReqTableBody.innerHTML = `<tr id="no-writer-request-row"><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Tidak ada permintaan role writer.</td></tr>`;
+                        }
+                    }, 300);
+                }
+
+                if (data.action === 'approved' && data.user_id) {
+                    // Update tabel user dengan role baru
+                    updateUserTableRow(data.user_id, null, null, data.new_role);
+                }
+            })
+            .catch(error => {
+                showAjaxMessage(error.message || 'Terjadi kesalahan.', 'error');
+                // Kembalikan tombol jika error
+                rowButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.innerHTML = btn.dataset.userId ? 'Approve' : 'Reject';
+                });
+            });
+        });
     }
 
 
-    // --- FUNGSI HELPER (Dipakai oleh kedua listener) ---
+    // --- FUNGSI HELPER (Dipakai oleh semua listener) ---
 
     function showAjaxMessage(message, type) {
         const bgColor = type === 'success' ? 'bg-green-100 border-green-500 text-green-700' : 'bg-red-100 border-red-500 text-red-700';
@@ -291,28 +414,84 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    function updateUserTableRow(userId, newStrikeCount, isActive) {
-        const strikeCell = document.getElementById(`user-strikes-${userId}`);
-        const statusCell = document.getElementById(`user-status-${userId}`);
+    /**
+     * Helper untuk update baris di tabel User.
+     * newStrikeCount, isActive, dan newRole bersifat opsional.
+     * Kirim 'null' jika tidak ingin mengupdate value tsb.
+     */
+    function updateUserTableRow(userId, newStrikeCount, isActive, newRole) {
+        const userRow = document.getElementById(`user-row-${userId}`);
+        if (!userRow) return;
 
-        if (strikeCell) {
-            strikeCell.innerHTML = `<span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full bg-yellow-100 text-yellow-800">${newStrikeCount} / 3</span>`;
+        // 1. Update Strikes (jika datanya ada)
+        if (newStrikeCount !== null && newStrikeCount !== undefined) {
+            const strikeCell = document.getElementById(`user-strikes-${userId}`);
+            if (strikeCell) {
+                const strikeClass = newStrikeCount >= 3 ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800';
+                strikeCell.innerHTML = `<span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full ${strikeClass}">${newStrikeCount} / 3</span>`;
+            
+                // Tampilkan/sembunyikan tombol reset
+                const resetButton = userRow.querySelector('.reset-strike-btn');
+                if (newStrikeCount > 0 && !resetButton) {
+                    // Perlu membuat tombol reset baru
+                    const actionsCell = userRow.cells[userRow.cells.length - 1]; // Sel aksi
+                    const editLink = actionsCell.querySelector('a');
+                    const newButton = document.createElement('button');
+                    newButton.type = 'button';
+                    // Kita perlu URL-nya. Cara paling aman adalah jika URL sudah ada di template
+                    // tapi untuk sekarang, kita hardcode dari pola URL
+                    newButton.dataset.actionUrl = `/admin-dashboard/reset-strikes/${userId}/`;
+                    newButton.dataset.userId = userId;
+                    newButton.className = 'reset-strike-btn inline-block align-middle px-3 py-1 ml-3 border border-yellow-600 text-yellow-600 text-xs font-medium rounded-md hover:bg-yellow-50 mb-1 sm:mb-0';
+                    newButton.innerHTML = 'Reset Strikes';
+                    
+                    // Tambahkan spasi jika ada edit link
+                    if(editLink) {
+                        editLink.insertAdjacentElement('afterend', newButton);
+                    } else {
+                        actionsCell.appendChild(newButton);
+                    }
+                } else if (newStrikeCount === 0 && resetButton) {
+                    resetButton.remove();
+                }
+            }
         }
 
-        if (statusCell) {
-            if (isActive) {
-                statusCell.innerHTML = `<span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full bg-green-100 text-green-800">Active</span>`;
-            } else {
-                statusCell.innerHTML = `<span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full bg-gray-100 text-gray-800">Inactive</span>`;
+        // 2. Update Status (jika datanya ada)
+        if (isActive !== null && isActive !== undefined) {
+            const statusCell = document.getElementById(`user-status-${userId}`);
+            if (statusCell) {
+                if (isActive) {
+                    statusCell.innerHTML = `<span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full bg-green-100 text-green-800">Active</span>`;
+                } else {
+                    statusCell.innerHTML = `<span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full bg-gray-100 text-gray-800">Inactive</span>`;
+                }
             }
         }
         
-        const userRow = document.getElementById(`user-row-${userId}`);
-        if(userRow) {
-            userRow.style.transition = 'background-color 0.3s ease';
-            userRow.style.backgroundColor = '#fdfdea'; // Kuning muda
-            setTimeout(() => { userRow.style.backgroundColor = ''; }, 1500);
+        // 3. (BARU) Update Role (jika datanya ada)
+        if (newRole) {
+            // Asumsi 'Role' adalah kolom ke-3 (index 2)
+            const roleCell = userRow.cells[2]; 
+            if (roleCell) {
+                let roleHtml = '';
+                if (newRole === 'writer') {
+                    roleHtml = `<span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full bg-blue-100 text-blue-800">Writer</span>`;
+                } else if (newRole === 'admin') {
+                    roleHtml = `<span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full bg-red-100 text-red-800">Admin</span>`;
+                } else {
+                    roleHtml = `<span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full bg-gray-100 text-gray-800">Reader</span>`;
+                }
+                roleCell.innerHTML = roleHtml;
+            }
         }
+        
+        // Highlight baris
+        userRow.style.transition = 'background-color 0.3s ease';
+        userRow.style.backgroundColor = '#fdfdea'; // Kuning muda
+        setTimeout(() => { 
+            if (userRow) userRow.style.backgroundColor = ''; 
+        }, 1500);
     }
 });
 </script>

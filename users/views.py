@@ -4,11 +4,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import CustomUserChangeForm, ProfilePictureForm, ReportUserForm
 from django.shortcuts import get_object_or_404
-from .models import CustomUser as User, Report
+from .models import CustomUser as User, Report, WriterRequest
 from django.contrib.auth import get_user_model
 from django.templatetags.static import static 
 from berita.models import News
-from .forms import AdminUserUpdateForm
+from .forms import AdminUserUpdateForm, WriterRequestForm
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -149,10 +150,11 @@ def admin_dashboard(request):
     """
     users = User.objects.all().order_by('username')
     reports = Report.objects.all().select_related('reporter', 'reported_user').order_by('-created_at')
-    
+    writer_requests = WriterRequest.objects.filter(status='pending').select_related('user').order_by('created_at')
     context = {
         'users': users,
         'reports': reports,
+        'writer_requests': writer_requests,
     }
     return render(request, 'admin_dashboard.html', context)
 
@@ -281,6 +283,106 @@ def admin_accept_report(request, id):
             'user_id': user_to_strike.id,
             'new_strike_count': user_to_strike.strikes,
             'is_active': user_to_strike.is_active
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+@login_required(login_url='/login')
+def request_writer_role(request):
+    """
+    BARU: Halaman untuk Reader me-request role Writer.
+    """
+    # Hanya reader yang bisa request
+    if request.user.role != 'reader':
+        messages.error(request, 'Hanya Reader yang dapat mengakses halaman ini.')
+        return redirect('users:show_profile', id=request.user.id)
+
+    # Cek apakah sudah ada request yang pending
+    existing_request = WriterRequest.objects.filter(user=request.user, status='pending').first()
+
+    if request.method == 'POST':
+        # Pastikan ini AJAX
+        if not request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'message': 'Invalid request.'}, status=400)
+        
+        if existing_request:
+            return JsonResponse({'status': 'error', 'message': 'Anda sudah memiliki permintaan yang sedang ditinjau.'}, status=400)
+
+        form = WriterRequestForm(request.POST)
+        if form.is_valid():
+            req = form.save(commit=False)
+            req.user = request.user
+            req.save()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Permintaan Anda telah terkirim. Admin akan meninjaunya.'
+            })
+        else:
+            errors = form.errors.as_json()
+            return JsonResponse({'status': 'error', 'errors': errors}, status=400)
+
+    # GET Request
+    form = WriterRequestForm()
+    context = {
+        'form': form,
+        'existing_request': existing_request
+    }
+    return render(request, 'request_writer_role.html', context)
+
+
+@user_passes_test(is_admin, login_url='/login')
+def admin_approve_writer(request, id):
+    """
+    BARU: Menerima request writer (POST only, AJAX).
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid method.'}, status=405)
+    
+    try:
+        writer_req = get_object_or_404(WriterRequest, id=id)
+        user_to_promote = writer_req.user
+        
+        # 1. Ubah role user
+        user_to_promote.role = 'writer'
+        user_to_promote.save()
+        
+        # 2. Update status request
+        writer_req.status = 'approved'
+        writer_req.save()
+        
+        # Hapus request lain yang mungkin pending dari user yang sama
+        WriterRequest.objects.filter(user=user_to_promote, status='pending').delete()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': f"{user_to_promote.username} telah dipromosikan menjadi Writer.",
+            'action': 'approved',
+            'user_id': user_to_promote.id,
+            'new_role': user_to_promote.role
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@user_passes_test(is_admin, login_url='/login')
+def admin_reject_writer(request, id):
+    """
+    BARU: Menolak request writer (POST only, AJAX).
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid method.'}, status=405)
+        
+    try:
+        writer_req = get_object_or_404(WriterRequest, id=id)
+        
+        # Cukup update status, jangan dihapus agar ada history
+        writer_req.status = 'rejected'
+        writer_req.save()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Permintaan telah ditolak.',
+            'action': 'rejected'
         })
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

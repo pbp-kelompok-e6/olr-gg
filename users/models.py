@@ -66,3 +66,20 @@ class Report(models.Model):
 
     def __str__(self):
         return f"Report by {self.reporter.username} against {self.reported_user.username}"
+    
+class WriterRequest(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name="writer_request"
+    )
+    reason = models.TextField()
+    status = models.CharField(
+        max_length=10, 
+        choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')],
+        default='pending'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Writer request from {self.user.username} (Status: {self.status})"
