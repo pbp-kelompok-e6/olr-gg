@@ -12,7 +12,7 @@ CATEGORY_CHOICES = (
     ('baseball', 'Baseball'),
 )
 
-# Model untuk setiap post di forum
+# model untuk post di forum
 class ForumPost(models.Model):
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=200)
@@ -24,7 +24,7 @@ class ForumPost(models.Model):
     def __str__(self):
         return self.title
 
-# Model untuk setiap komentar pada sebuah post (HANYA SATU DEFINISI)
+# model untuk komentar pada post 
 class ForumComment(models.Model):
     post = models.ForeignKey(ForumPost, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

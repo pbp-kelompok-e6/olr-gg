@@ -7,14 +7,17 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
+from comments.models import Comments
+from django.db.models import Avg
+from rating.models import Rating
 
 def show_news(request, id):
     news = get_object_or_404(News, pk=id)
-
+    comments = Comments.objects.filter(news=news).select_related('user').order_by('-created_at')
     context = {
-        'news': news
+        'news': news,
+        'comments': comments
     }
-
     return render(request, "news_detail.html", context)
 
 @csrf_exempt
@@ -68,21 +71,27 @@ def create_news(request):
     return HttpResponse(b"CREATED", status=201)
 
 def show_json(request):
-    news_list = News.objects.all()
-    data = [
-        {
-            'id': str(news.id),
-            'title': news.title,
-            'content': news.content,
-            'category': news.category,
-            'thumbnail': news.thumbnail,
-            'created_at': news.created_at.isoformat() if news.created_at else None,
-            'is_featured': news.is_featured,
-            'user_id': news.user_id,
-        }
-        for news in news_list
-    ]
-
+    news = News.objects.all().select_related('user')
+    data = []
+    for item in news:
+        # Get average rating for this news
+        avg_rating = Rating.objects.filter(news=item).aggregate(Avg('rating'))['rating__avg']
+        rating_count = Rating.objects.filter(news=item).count()
+        
+        data.append({
+            'id': str(item.id),
+            'title': item.title,
+            'content': item.content,
+            'category': item.category,
+            'thumbnail': item.thumbnail if item.thumbnail else None,
+            'is_featured': item.is_featured,
+            'created_at': item.created_at.isoformat(),
+            'news_views': getattr(item, 'news_views', 0),  # Safe access dengan default 0
+            'user_id': str(item.user.id),
+            'user_username': item.user.username,
+            'average_rating': round(avg_rating, 1) if avg_rating else None,
+            'rating_count': rating_count,
+        })
     return JsonResponse(data, safe=False)
 
 def show_json_by_id(request, news_id):

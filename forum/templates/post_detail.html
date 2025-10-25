@@ -15,7 +15,6 @@
         ← Back to Forum
       </a>
     </div>
-    
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-8">
       <div class="p-6 sm:p-8">
         <div id="post-display-area">
@@ -29,33 +28,9 @@
             <hr class="border-gray-200">
             <div id="post-content-display" class="prose max-w-none mt-4 text-gray-800 leading-relaxed">{{ post.content|linebreaksbr }}</div>
         </div>
-
         <form id="edit-post-form" style="display: none;">
-          <div class="mb-4">
-            <label for="edit-post-title" class="block text-sm font-medium text-gray-700 mb-1">Edit Title</label>
-            <input type="text" id="edit-post-title" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="{{ post.title }}">
-          </div>
-          <div class="mb-4">
-            <label for="edit-post-category" class="block text-sm font-medium text-gray-700 mb-1">Edit Category</label>
-            <select id="edit-post-category" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-                <option value="soccer">Soccer</option>
-                <option value="basketball">Basketball</option>
-                <option value="football">Football</option>
-                <option value="hockey">Hockey</option>
-                <option value="volleyball">Volleyball</option>
-                <option value="baseball">Baseball</option>
-            </select>
-          </div>
-          <div class="mb-4">
-            <label for="edit-post-content" class="block text-sm font-medium text-gray-700 mb-1">Edit Description</label>
-            <textarea id="edit-post-content" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5">{{ post.content }}</textarea>
-          </div>
-          <div class="flex gap-3">
-            <button type="submit" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">Save Changes</button>
-            <button type="button" id="cancel-edit-post-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
-          </div>
+            <div class="mb-4"><label for="edit-post-title" class="block text-sm font-medium text-gray-700 mb-1">Edit Title</label><input type="text" id="edit-post-title" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="{{ post.title }}"></div><div class="mb-4"><label for="edit-post-category" class="block text-sm font-medium text-gray-700 mb-1">Edit Category</label><select id="edit-post-category" class="w-full px-3 py-2 border border-gray-300 rounded-md" required><option value="soccer">Soccer</option><option value="basketball">Basketball</option><option value="football">Football</option><option value="hockey">Hockey</option><option value="volleyball">Volleyball</option><option value="baseball">Baseball</option></select></div><div class="mb-4"><label for="edit-post-content" class="block text-sm font-medium text-gray-700 mb-1">Edit Description</label><textarea id="edit-post-content" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5">{{ post.content }}</textarea></div><div class="flex gap-3"><button type="submit" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">Save Changes</button><button type="button" id="cancel-edit-post-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button></div>
         </form>
-        
         {% if post.author == user %}
           <div id="author-buttons" class="mt-6 border-t border-gray-200 pt-4 flex gap-3">
             <button id="edit-post-btn" class="text-sm font-medium bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Edit Post</button>
@@ -64,218 +39,252 @@
         {% endif %}
       </div>
     </div>
+    <div class="bg-white rounded-xl border-2 border-gray-200 shadow-lg p-6 sm:p-8 mt-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">
+            Replies (<span id="commentCount">{{ comments.count }}</span>)
+        </h2>
 
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
-      <div class="p-6 sm:p-8">
-        <h4 class="text-xl font-semibold text-gray-800">Replies</h4>
-        <hr class="my-4 border-gray-200">
-
-        <form id="create-comment-form" class="mb-6">
-          {% csrf_token %}
-          <div class="flex items-center gap-3">
-            <input type="text" id="comment-content-input" class="flex-grow w-full px-4 py-2 bg-gray-100 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="Write a comment..." required>
-            <button class="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors" type="submit">Post</button>
-          </div>
-        </form>
+        {% if user.is_authenticated %}
+        <div class="mb-8">
+            <form id="create-comment-form" class="space-y-4 bg-gray-50 rounded-lg border-2 border-gray-200 p-5">
+                {% csrf_token %}
+                <div>
+                    <label for="comment-content-input" class="block text-sm font-semibold text-gray-700 mb-2">Add a Reply</label>
+                    <textarea name="content" id="comment-content-input" rows="4" class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg" placeholder="Share your thoughts..." required></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 shadow-md">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        Post Reply
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="mb-8 bg-blue-50 border-2 border-blue-200 rounded-lg p-6 text-center">
+            <svg class="w-12 h-12 text-blue-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            <p class="text-gray-700 font-medium mb-3">Want to join the discussion?</p>
+            <a href="{% url 'main:login' %}" class="text-blue-600 hover:text-blue-800 font-semibold hover:underline">Login to Reply</a>
+        </div>
+        {% endif %}
 
         <div id="comment-list" class="space-y-4">
-          {% for comment in comments %}
-            <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg" id="comment-{{ comment.id }}">
-              <div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                <span class="text-lg font-bold text-gray-600">{{ comment.author.username|first|upper }}</span>
-              </div>
-              <div class="flex-grow">
-                <div id="comment-display-{{ comment.id }}">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <strong class="text-sm font-semibold text-gray-900">{{ comment.author.username }}</strong>
-                            <span class="ml-2 text-xs text-gray-500">
-                                {{ comment.updated_at|localtime|date:"F d, Y \a\t P" }}
-                                {% if comment.updated_at|timesince:comment.created_at != "0 minutes" %}
-                                    (edited)
-                                {% endif %}
-                            </span>
+            {% for comment in comments %}
+            <div class="comment-item border-2 border-gray-200 rounded-lg p-5 bg-white" id="comment-{{ comment.id }}">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <span class="text-lg font-bold text-gray-600">{{ comment.author.username|first|upper }}</span>
                         </div>
-                        {% if comment.author == user %}
-                          <div class="author-comment-actions flex items-center gap-3">
-                            <button class="text-xs font-medium text-gray-500 hover:text-blue-600 edit-comment-btn" data-comment-id="{{ comment.id }}">Edit</button>
-                            <button class="text-xs font-medium text-gray-500 hover:text-red-600 delete-comment-btn" data-comment-id="{{ comment.id }}">Delete</button>
-                          </div>
-                        {% endif %}
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-semibold text-gray-900">{{ comment.author.username }}</span>
+                                {% if comment.author.role == "Admin" %}<span class="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Admin</span>{% elif comment.author.role == "Writer" %}<span class="bg-blue-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Writer</span>{% endif %}
+                            </div>
+                            <p class="text-sm text-gray-500" id="timestamp-{{ comment.id }}">
+                                <span class="time-display">{{ comment.updated_at|localtime|date:"F d, Y \a\t P" }}</span>
+                                <span class="edited-tag italic text-gray-400" {% if comment.updated_at|timesince:comment.created_at == "0 minutes" %}style="display: none;"{% endif %}>
+                                    (edited)
+                                </span>
+                            </p>
+                            </div>
                     </div>
-                    <p class="mt-1 text-gray-800">{{ comment.content }}</p>
+                    {% if comment.author == user %}
+                    <div class="author-comment-actions flex gap-3">
+                        <button class="text-blue-600 hover:text-blue-800 text-sm font-semibold edit-comment-btn" data-comment-id="{{ comment.id }}">Edit</button>
+                        <button class="text-red-600 hover:text-red-800 text-sm font-semibold delete-comment-btn" data-comment-id="{{ comment.id }}">Delete</button>
+                    </div>
+                    {% endif %}
                 </div>
-                <form class="edit-comment-form" data-comment-id="{{ comment.id }}" style="display: none;">
-                  <textarea class="w-full p-2 border border-gray-300 rounded-md mb-2">{{ comment.content }}</textarea>
-                  <div class="flex gap-2">
-                    <button type="submit" class="text-xs bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded">Save</button>
-                    <button type="button" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded cancel-edit-comment-btn">Cancel</button>
-                  </div>
-                </form>
-              </div>
+                <div class="comment-content text-gray-700 ml-13 leading-relaxed"><p id="content-{{ comment.id }}">{{ comment.content }}</p></div>
+                <div id="edit-form-{{ comment.id }}" class="hidden mt-3 ml-13">
+                    <textarea id="edit-content-{{ comment.id }}" class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg" rows="3">{{ comment.content }}</textarea>
+                    <div class="flex gap-2 mt-3">
+                        <button class="save-edit-btn px-4 py-2 bg-blue-600 text-white rounded-lg text-sm" data-comment-id="{{ comment.id }}">Save</button>
+                        <button class="cancel-edit-btn px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg text-sm" data-comment-id="{{ comment.id }}">Cancel</button>
+                    </div>
+                </div>
             </div>
-          {% empty %}
-            <p id="no-comments-message" class="text-center text-gray-500 py-8">Be the first to reply!</p>
-          {% endfor %}
+            {% empty %}
+            <div id="no-comments-message" class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <div class="text-5xl mb-3">💬</div><p class="text-gray-600 font-medium">No replies yet</p><p class="text-gray-500 text-sm mt-1">Be the first to share your thoughts!</p>
+            </div>
+            {% endfor %}
         </div>
-      </div>
     </div>
-  </div>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-  const editPostBtn = document.getElementById('edit-post-btn');
-  const editPostForm = document.getElementById('edit-post-form');
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value; // Menambahkan '?' untuk keamanan
+  const commentList = document.getElementById('comment-list');
+  
+  // Fungsi bantuan untuk memformat tanggal agar sesuai dengan format Django
+  function formatISODate(isoString) {
+      const date = new Date(isoString);
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const month = months[date.getMonth()];
+      const day = date.getDate();
+      const year = date.getFullYear();
+      let hour = date.getHours();
+      const minute = date.getMinutes().toString().padStart(2, '0');
+      const ampm = hour >= 12 ? 'p.m.' : 'a.m.';
+      hour = hour % 12;
+      hour = hour ? hour : 12; // Jam 0 harus menjadi 12
+      // Format: October 24, 2025 at 09:59 PM (mirip dengan format Django)
+      return `${month} ${day}, ${year} at ${hour}:${minute} ${ampm}`;
+  }
 
-  if (editPostBtn) {
-    editPostBtn.addEventListener('click', () => {
-      document.getElementById('post-display-area').style.display = 'none';
-      document.getElementById('author-buttons').style.display = 'none';
-      editPostForm.style.display = 'block';
-      document.getElementById('edit-post-category').value = '{{ post.category }}';
-    });
-    document.getElementById('cancel-edit-post-btn').addEventListener('click', () => {
-      document.getElementById('post-display-area').style.display = 'block';
-      document.getElementById('author-buttons').style.display = 'block';
-      editPostForm.style.display = 'none';
-    });
-    editPostForm.addEventListener('submit', (e) => {
+  // Fungsi bantuan untuk update jumlah komentar
+  function updateCommentCount(change) {
+      const countEl = document.getElementById('commentCount');
+      if (countEl) countEl.textContent = parseInt(countEl.textContent) + change;
+  }
+  
+  // Fungsi untuk menambahkan komentar baru ke halaman
+  function addCommentToDOM(comment) {
+      document.getElementById('no-comments-message')?.remove();
+
+      let roleBadge = '';
+      if (comment.author_role === "Admin") roleBadge = '<span class="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Admin</span>';
+      else if (comment.author_role === "Writer") roleBadge = '<span class="bg-blue-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Writer</span>';
+
+      const newCommentHTML = `
+      <div class="comment-item border-2 border-gray-200 rounded-lg p-5 bg-white" id="comment-${comment.id}">
+          <div class="flex items-start justify-between mb-3">
+              <div class="flex items-start gap-3">
+                  <div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                      <span class="text-lg font-bold text-gray-600">${comment.author_username.charAt(0).toUpperCase()}</span>
+                  </div>
+                  <div>
+                      <div class="flex items-center gap-2 mb-1">
+                          <span class="font-semibold text-gray-900">${comment.author_username}</span>
+                          ${roleBadge}
+                      </div>
+                      <p class="text-sm text-gray-500" id="timestamp-${comment.id}">
+                          <span class="time-display">${formatISODate(comment.created_at)}</span>
+                          <span class="edited-tag italic text-gray-400" style="display: none;">(edited)</span>
+                      </p>
+                  </div>
+              </div>
+              <div class="author-comment-actions flex gap-3">
+                  <button class="text-blue-600 hover:text-blue-800 text-sm font-semibold edit-comment-btn" data-comment-id="${comment.id}">Edit</button>
+                  <button class="text-red-600 hover:text-red-800 text-sm font-semibold delete-comment-btn" data-comment-id="${comment.id}">Delete</button>
+              </div>
+          </div>
+          <div class="comment-content text-gray-700 ml-13 leading-relaxed"><p id="content-${comment.id}">${comment.content}</p></div>
+          <div id="edit-form-${comment.id}" class="hidden mt-3 ml-13">
+              <textarea id="edit-content-${comment.id}" class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg" rows="3">${comment.content}</textarea>
+              <div class="flex gap-2 mt-3">
+                  <button class="save-edit-btn px-4 py-2 bg-blue-600 text-white rounded-lg text-sm" data-comment-id="${comment.id}">Save</button>
+                  <button class="cancel-edit-btn px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg text-sm" data-comment-id="${comment.id}">Cancel</button>
+              </div>
+          </div>
+      </div>`;
+      commentList.insertAdjacentHTML('afterbegin', newCommentHTML);
+  }
+
+  // Event Listener untuk Membuat Komentar
+  document.getElementById('create-comment-form')?.addEventListener('submit', function(e) {
       e.preventDefault();
-      const title = document.getElementById('edit-post-title').value;
-      const content = document.getElementById('edit-post-content').value;
-      const category = document.getElementById('edit-post-category').value;
-      fetch("{% url 'forum:edit_post_ajax' post.id %}", {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-        body: JSON.stringify({title, content, category})
+      const contentInput = document.getElementById('comment-content-input');
+      fetch("{% url 'forum:create_comment_ajax' post.id %}", {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
+          body: JSON.stringify({ content: contentInput.value })
       })
       .then(res => res.json())
       .then(data => {
-        if(data.status === 'success') {
-          document.getElementById('post-title-display').textContent = data.post.title;
-          const contentDisplay = document.getElementById('post-content-display');
-          contentDisplay.textContent = data.post.content;
-          contentDisplay.style.whiteSpace = 'pre-wrap';
-          document.getElementById('category-badge-display').textContent = data.post.category_display;
-          document.getElementById('cancel-edit-post-btn').click(); 
-        } else {
-          alert(data.message || "An error occurred while updating the post.");
-        }
+          if (data.status === 'success') {
+              addCommentToDOM(data.comment);
+              contentInput.value = '';
+              updateCommentCount(1);
+          } else {
+              alert(data.message || "Failed to post reply.");
+          }
       });
-    });
-  }
+  });
 
-  const deletePostBtn = document.getElementById('delete-post-btn');
-  if (deletePostBtn) {
-    deletePostBtn.addEventListener('click', () => {
-      Swal.fire({
-        title: 'Delete this post?', text: 'This action cannot be undone.', showCancelButton: true,
-        confirmButtonText: 'Delete', cancelButtonText: 'Cancel', showClass: { popup: '' },
-        hideClass: { popup: '' }, buttonsStyling: false, icon: null,
-        customClass: {
-          popup: 'rounded-xl shadow-md p-6',
-          title: 'text-gray-800 font-semibold text-lg mb-2',
-          htmlContainer: 'text-gray-600 mb-4',
-          confirmButton: 'bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 mx-2',
-          cancelButton: 'bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 mx-2'
-        }
-      }).then((result) => {
-        if (result.isConfirmed) {
-          fetch("{% url 'forum:delete_post_ajax' post.id %}", {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken }
+  // Event Listener Utama untuk semua tombol di dalam daftar komentar
+  commentList.addEventListener('click', function(e) {
+      const button = e.target.closest('button');
+      if (!button || !button.dataset.commentId) return;
+
+      const commentId = button.dataset.commentId;
+      const contentP = document.getElementById(`content-${commentId}`);
+      const editFormDiv = document.getElementById(`edit-form-${commentId}`);
+
+      // Handle Tombol Edit
+      if (button.classList.contains('edit-comment-btn')) {
+          contentP.parentElement.classList.add('hidden');
+          editFormDiv.classList.remove('hidden');
+      }
+
+      // Handle Tombol Cancel
+      if (button.classList.contains('cancel-edit-btn')) {
+          contentP.parentElement.classList.remove('hidden');
+          editFormDiv.classList.add('hidden');
+      }
+
+      // Handle Tombol Save
+      if (button.classList.contains('save-edit-btn')) {
+          const newContent = document.getElementById(`edit-content-${commentId}`).value;
+          const url = `{% url 'forum:edit_comment_ajax' 0 %}`.replace('0', commentId);
+          fetch(url, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
+              body: JSON.stringify({ content: newContent })
           })
           .then(res => res.json())
           .then(data => {
-            if (data.status === 'success') {
-              Swal.fire({
-                title: 'This post has been removed.', showConfirmButton: false, timer: 1200, background: '#fff',
-                showClass: { popup: '' }, hideClass: { popup: '' },
-                customClass: { title: 'text-gray-700 text-base font-medium' }
-              }).then(() => window.location.href = data.redirect_url);
-            }
+              if (data.status === 'success') {
+                  contentP.textContent = data.comment.content;
+                  const timestampP = document.getElementById(`timestamp-${commentId}`);
+                  const editedTag = timestampP.querySelector('.edited-tag');
+                  
+                  // Perbarui timestamp dan tampilkan tag (edited)
+                  timestampP.querySelector('.time-display').textContent = formatISODate(data.comment.updated_at);
+                  if (editedTag) {
+                      editedTag.style.display = 'inline';
+                  }
+                  
+                  // Sembunyikan form edit
+                  contentP.parentElement.classList.remove('hidden');
+                  editFormDiv.classList.add('hidden');
+              } else {
+                  alert(data.message || "Failed to save changes.");
+              }
           });
-        }
-      });
-    });
-  }
-
-  const commentList = document.getElementById('comment-list');
-  document.getElementById('create-comment-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const contentInput = document.getElementById('comment-content-input');
-    fetch("{% url 'forum:create_comment_ajax' post.id %}", {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-      body: JSON.stringify({ content: contentInput.value })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'success') {
-        location.reload();
       }
-    });
-  });
 
-  commentList.addEventListener('click', (e) => {
-    const button = e.target.closest('.edit-comment-btn, .delete-comment-btn, .cancel-edit-comment-btn');
-    if (!button) return;
-
-    const commentId = button.dataset.commentId;
-    const commentCard = document.getElementById(`comment-${commentId}`);
-    const displayDiv = document.getElementById(`comment-display-${commentId}`);
-    const editForm = commentCard.querySelector('.edit-comment-form');
-    const authorActions = commentCard.querySelector('.author-comment-actions');
-
-    if (button.matches('.delete-comment-btn')) {
-      Swal.fire({
-        title: 'Delete this comment?', showCancelButton: true, confirmButtonText: 'Delete',
-        buttonsStyling: false, icon: null,
-        showClass: { popup: '' }, hideClass: { popup: '' },
-        customClass: {
-          popup: 'rounded-xl shadow-md p-6', title: 'text-gray-800 font-semibold text-lg',
-          confirmButton: 'bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 mx-2',
-          cancelButton: 'bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 mx-2'
-        }
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const url = "{% url 'forum:delete_comment_ajax' 0 %}".replace('0', commentId);
-          fetch(url, { method: 'POST', headers: {'X-CSRFToken': csrftoken} })
-          .then(res => res.json())
-          .then(data => { if (data.status === 'success') commentCard.remove(); });
-        }
-      });
-    } else if (button.matches('.edit-comment-btn')) {
-      displayDiv.style.display = 'none';
-      if (authorActions) authorActions.style.display = 'none';
-      editForm.style.display = 'block';
-    } else if (button.matches('.cancel-edit-comment-btn')) {
-      displayDiv.style.display = 'block';
-      if (authorActions) authorActions.style.display = 'flex';
-      editForm.style.display = 'none';
-    }
-  });
-
-  commentList.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!e.target.matches('.edit-comment-form')) return;
-    const commentId = e.target.dataset.commentId;
-    const content = e.target.querySelector('textarea').value;
-    const url = "{% url 'forum:edit_comment_ajax' 0 %}".replace('0', commentId);
-    fetch(url, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-      body: JSON.stringify({ content })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'success') {
-        location.reload();
+      // Handle Tombol Delete
+      if (button.classList.contains('delete-comment-btn')) {
+          Swal.fire({ title: 'Delete this reply?', text: 'This action cannot be undone.', showCancelButton: true, confirmButtonText: 'Delete' })
+          .then((result) => {
+              if (result.isConfirmed) {
+                  const url = `{% url 'forum:delete_comment_ajax' 0 %}`.replace('0', commentId);
+                  fetch(url, { method: 'POST', headers: {'X-CSRFToken': csrftoken} })
+                  .then(res => res.json())
+                  .then(data => {
+                      if (data.status === 'success') {
+                          document.getElementById(`comment-${commentId}`).remove();
+                          updateCommentCount(-1);
+                      } else {
+                          alert(data.message || "Failed to delete reply.");
+                      }
+                  });
+              }
+          });
       }
-    });
   });
+
+  // Script untuk Edit/Delete Post Utama (tidak diubah)
+  const editPostBtn = document.getElementById('edit-post-btn');
+  const deletePostBtn = document.getElementById('delete-post-btn');
+  const editPostForm = document.getElementById('edit-post-form');
+  if(editPostBtn){editPostBtn.addEventListener('click',()=>{document.getElementById('post-display-area').style.display='none';document.getElementById('author-buttons').style.display='none';editPostForm.style.display='block';document.getElementById('edit-post-category').value='{{ post.category }}'});document.getElementById('cancel-edit-post-btn').addEventListener('click',()=>{document.getElementById('post-display-area').style.display='block';document.getElementById('author-buttons').style.display='block';editPostForm.style.display='none'});editPostForm.addEventListener('submit',e=>{e.preventDefault();const t=document.getElementById('edit-post-title').value,n=document.getElementById('edit-post-content').value,o=document.getElementById('edit-post-category').value;fetch(`{% url 'forum:edit_post_ajax' post.id %}`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrftoken},body:JSON.stringify({title:t,content:n,category:o})}).then(e=>e.json()).then(e=>{'success'===e.status&&(document.getElementById('post-title-display').textContent=e.post.title,document.getElementById('post-content-display').innerHTML=e.post.content,document.getElementById('category-badge-display').textContent=e.post.category_display,document.getElementById('cancel-edit-post-btn').click())})})}
+  if(deletePostBtn){deletePostBtn.addEventListener('click',()=>{Swal.fire({title:'Delete this post?',text:'This action cannot be undone.',showCancelButton:!0,confirmButtonText:'Delete'}).then(e=>{e.isConfirmed&&fetch(`{% url 'forum:delete_post_ajax' post.id %}`,{method:'POST',headers:{'X-CSRFToken':csrftoken}}).then(e=>e.json()).then(e=>{'success'===e.status&&Swal.fire({title:'Post has been removed.',timer:1200,showConfirmButton:!1}).then(()=>{window.location.href=e.redirect_url})})})})}
 });
 </script>
 {% endblock content %}

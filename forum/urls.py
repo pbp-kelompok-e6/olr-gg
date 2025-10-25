@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from forum import views
 
 app_name = 'forum'
 
@@ -18,4 +18,5 @@ urlpatterns = [
     path('ajax/create-comment/<int:post_id>/', views.create_comment_ajax, name='create_comment_ajax'),
     path('ajax/edit-comment/<int:comment_id>/', views.edit_comment_ajax, name='edit_comment_ajax'),
     path('ajax/delete-comment/<int:comment_id>/', views.delete_comment_ajax, name='delete_comment_ajax'),
+    path('post/<int:post_id>/get-data/', views.get_post_data_ajax, name='get_post_data_ajax'),
 ]
