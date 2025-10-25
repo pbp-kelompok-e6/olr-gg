@@ -9,9 +9,9 @@
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="bg-white mt-16 shadow overflow-hidden sm:rounded-lg">
         <div class="border-b border-gray-200 px-4 py-5 sm:px-6">
-            <h1 class="text-2xl font-bold leading-6 text-gray-900">Permintaan Menjadi Writer</h1>
+            <h1 class="text-2xl font-bold leading-6 text-gray-900">Request to be a Writer</h1>
             <p class="mt-1 text-sm text-gray-500">
-                Jelaskan mengapa Anda tertarik untuk berkontribusi sebagai writer di OLR.GG.
+                Explain why you are interested in contributing as a writer on OLR.GG.
             </p>
         </div>
         
@@ -29,7 +29,7 @@
                         </div>
                         <div class="ml-3 flex-1 md:flex md:justify-between">
                             <p class="text-sm text-blue-700">
-                                Anda sudah memiliki permintaan yang sedang ditinjau. Mohon tunggu review dari admin.
+                                You have an existing request under review. Please wait for admin review.
                             </p>
                         </div>
                     </div>
@@ -46,13 +46,13 @@
                         </div>
                         <div id="error-reason" class="text-red-600 text-sm mt-1"></div>
                         <p class="mt-2 text-sm text-gray-500">
-                            Jelaskan juga topik apa yang Anda kuasai atau ingin Anda tulis.
+                            Explain what topics you are knowledgeable about or interested in writing about.
                         </p>
                     </div>
 
                     <div class="mt-6">
                         <button id="submit-button" type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Kirim Permintaan
+                            Send Request
                         </button>
                     </div>
                 </form>
@@ -64,7 +64,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('writer-request-form');
-    if (!form) return; // Keluar jika form tidak ada (misal: user sudah request)
+    if (!form) return; 
 
     const submitButton = document.getElementById('submit-button');
     const messageContainer = document.getElementById('ajax-message');
@@ -73,11 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const csrftoken = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
     form.addEventListener('submit', function(event) {
-        event.preventDefault(); // Hentikan submit form standar
-
-        // Tampilkan status loading
+        event.preventDefault(); 
         submitButton.disabled = true;
-        submitButton.innerHTML = 'Mengirim...';
+        submitButton.innerHTML = 'Sending...';
         errorReason.textContent = '';
         messageContainer.innerHTML = '';
 
@@ -107,17 +105,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 } else {
                     // Error umum
-                    showAjaxMessage(data.body.message || 'Terjadi kesalahan.', 'error');
+                    showAjaxMessage(data.body.message || 'There was an error', 'error');
                 }
                 submitButton.disabled = false;
-                submitButton.innerHTML = 'Kirim Permintaan';
+                submitButton.innerHTML = 'Send Request';
             }
         })
         .catch(error => {
             console.error('Fetch Error:', error);
-            showAjaxMessage('Tidak dapat terhubung ke server.', 'error');
+            showAjaxMessage('Unable to connect to the server.', 'error');
             submitButton.disabled = false;
-            submitButton.innerHTML = 'Kirim Permintaan';
+            submitButton.innerHTML = 'Send Request';
         });
     });
 

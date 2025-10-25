@@ -55,10 +55,10 @@ class WriterRequestForm(forms.ModelForm):
     reason = forms.CharField(
         widget=forms.Textarea(attrs={
             'rows': 5, 
-            'placeholder': 'Jelaskan mengapa Anda ingin menjadi Writer...',
+            'placeholder': 'Explain why you want to be a writer...',
             'class': 'p-2 border-2 shadow-sm block w-full focus:ring-black-500 focus:border-black-500 sm:text-sm border-black-700 rounded-md'
         }),
-        label="Alasan Permintaan"
+        label="Reason for Request"
     )
 
     class Meta:

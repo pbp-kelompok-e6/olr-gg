@@ -140,14 +140,10 @@ def report_user(request, id):
     return render(request, 'report_user.html', context)
 
 def is_admin(user):
-    """Helper function untuk decorator @user_passes_test"""
     return user.is_authenticated and (user.is_staff or user.is_superuser)
 
 @user_passes_test(is_admin, login_url='/login')
 def admin_dashboard(request):
-    """
-    Menampilkan halaman dashboard utama dengan list user dan report.
-    """
     users = User.objects.all().order_by('username')
     reports = Report.objects.all().select_related('reporter', 'reported_user').order_by('-created_at')
     writer_requests = WriterRequest.objects.filter(status='pending').select_related('user').order_by('created_at')
@@ -193,7 +189,6 @@ def admin_edit_user(request, id):
             return JsonResponse({'status': 'error', 'errors': errors}, status=400)
     
     else:
-        # Request GET standar, render halaman seperti biasa
         form = AdminUserUpdateForm(instance=user_to_edit)
     
     context = {
@@ -214,12 +209,9 @@ def admin_reset_strikes(request, id):
     try:
         user_to_reset = get_object_or_404(User, id=id)
         user_to_reset.strikes = 0
-        
-        # Method save() di models.py kamu akan otomatis 
-        # mengatur is_active = True karena strike < 3
+
         user_to_reset.save()
         
-        # Kirim kembali data baru agar JavaScript bisa update UI
         return JsonResponse({
             'status': 'success',
             'message': f"Strikes untuk {user_to_reset.username} telah direset.",
@@ -240,13 +232,11 @@ def admin_delete_report(request, id):
     Hanya menghapus laporan.
     """
     if request.method != 'POST':
-        # Ubah error ke JSON
         return JsonResponse({'status': 'error', 'message': 'Invalid method.'}, status=405)
         
     report = get_object_or_404(Report, id=id)
     report.delete()
-    
-    # Ubah redirect ke JSON
+
     return JsonResponse({
         'status': 'success',
         'message': 'Laporan telah ditolak (dihapus).',
@@ -266,14 +256,11 @@ def admin_accept_report(request, id):
         report = get_object_or_404(Report, id=id)
         user_to_strike = report.reported_user
         
-        # 1. Tambah strike
         user_to_strike.strikes += 1
         user_to_strike.save() 
-        # (models.py akan otomatis menonaktifkan user jika strike >= 3)
         
         report_message = f"Laporan terhadap {user_to_strike.username} diterima. Strike sekarang: {user_to_strike.strikes}."
         
-        # 2. Hapus laporan
         report.delete()
         
         return JsonResponse({
@@ -289,15 +276,11 @@ def admin_accept_report(request, id):
 
 @login_required(login_url='/login')
 def request_writer_role(request):
-    """
-    BARU: Halaman untuk Reader me-request role Writer.
-    """
-    # Hanya reader yang bisa request
+
     if request.user.role != 'reader':
-        messages.error(request, 'Hanya Reader yang dapat mengakses halaman ini.')
+        messages.error(request, 'Only readers can request to become writers.')
         return redirect('users:show_profile', id=request.user.id)
 
-    # Cek apakah sudah ada request yang pending
     existing_request = WriterRequest.objects.filter(user=request.user, status='pending').first()
 
     if request.method == 'POST':
@@ -306,7 +289,7 @@ def request_writer_role(request):
             return JsonResponse({'status': 'error', 'message': 'Invalid request.'}, status=400)
         
         if existing_request:
-            return JsonResponse({'status': 'error', 'message': 'Anda sudah memiliki permintaan yang sedang ditinjau.'}, status=400)
+            return JsonResponse({'status': 'error', 'message': 'You already have a pending request.'}, status=400)
 
         form = WriterRequestForm(request.POST)
         if form.is_valid():
@@ -315,7 +298,7 @@ def request_writer_role(request):
             req.save()
             return JsonResponse({
                 'status': 'success',
-                'message': 'Permintaan Anda telah terkirim. Admin akan meninjaunya.'
+                'message': 'Your request has been submitted. Admin will review it.'
             })
         else:
             errors = form.errors.as_json()
@@ -332,9 +315,6 @@ def request_writer_role(request):
 
 @user_passes_test(is_admin, login_url='/login')
 def admin_approve_writer(request, id):
-    """
-    BARU: Menerima request writer (POST only, AJAX).
-    """
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Invalid method.'}, status=405)
     
@@ -355,7 +335,7 @@ def admin_approve_writer(request, id):
         
         return JsonResponse({
             'status': 'success',
-            'message': f"{user_to_promote.username} telah dipromosikan menjadi Writer.",
+            'message': f"{user_to_promote.username} has been promoted to Writer.",
             'action': 'approved',
             'user_id': user_to_promote.id,
             'new_role': user_to_promote.role
@@ -366,9 +346,6 @@ def admin_approve_writer(request, id):
 
 @user_passes_test(is_admin, login_url='/login')
 def admin_reject_writer(request, id):
-    """
-    BARU: Menolak request writer (POST only, AJAX).
-    """
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Invalid method.'}, status=405)
         
@@ -381,7 +358,7 @@ def admin_reject_writer(request, id):
         
         return JsonResponse({
             'status': 'success',
-            'message': 'Permintaan telah ditolak.',
+            'message': 'The request has been rejected.',
             'action': 'rejected'
         })
     except Exception as e:
