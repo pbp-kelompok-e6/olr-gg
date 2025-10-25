@@ -22,7 +22,6 @@
       </div>
     </div>
 
-    {% if user.role != "Reader" and user.is_authenticated %}
     <!-- Action Buttons -->
     {% if user.role != "Reader" and user.is_authenticated %}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
@@ -79,7 +78,7 @@
 </div>
 
 {% if user.is_authenticated %}
-{% include 'readinglist/reading_list_modal.html' %}
+  {% include 'readinglist/reading_list_modal.html' %}
 {% endif %}
 
 {% include 'readinglist/reading_list_scripts.html' %}

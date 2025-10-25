@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
+
+{% block meta %}
+<title>{{ usertarget.username }} - OLR.GG</title>
+{% endblock meta %}
+
 {% block content %}
 <div class="bg-gray-50 w-full pt-16 min-h-screen">
     <div class="max-w-4xl mx-auto my-8" id="profile_container">
