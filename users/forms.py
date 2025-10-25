@@ -26,3 +26,27 @@ class ReportUserForm(forms.ModelForm):
     class Meta:
         model = Report
         fields = ['reason']
+
+class AdminUserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = [
+            'username', 
+            'first_name', 
+            'last_name', 
+            'email', 
+            'bio',
+            'profile_picture',
+            'role',
+            'strikes',
+        ]
+        
+    def __init__(self, *args, **kwargs):
+        super(AdminUserUpdateForm, self).__init__(*args, **kwargs)
+        
+        for field_name, field in self.fields.items():
+            if isinstance(field, forms.BooleanField):
+                 field.widget.attrs.update({'class': 'form-check-input'})
+            else:
+                field.widget.attrs.update({'class': 'form-control'})
+                

@@ -1,0 +1,204 @@
+{% extends "base.html" %} 
+{% load static %} {% block content %}
+<div class="max-w-3xl mx-auto mt-24 pb-12 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="border-b border-gray-200 px-4 pt-8 pb-4 sm:px-6">
+            <h1 class="text-xl font-semibold leading-6 text-gray-900">
+                Edit Profile: {{ user_to_edit.username }}
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">Ubah detail pengguna di bawah ini.</p>
+        </div>
+
+        <form id="edit-user-form" action="{% url 'users:admin_edit_user' user_to_edit.id %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="px-4 pt-4 sm:px-6 space-y-6">
+
+                <div>
+                    <label class="block text-sm font-medium leading-6 text-gray-900">Current Profile Picture</label>
+                    <img id="profile-pic-preview" 
+                         src="{% if user_to_edit.profile_picture %}{{ user_to_edit.profile_picture.url }}{% else %}{% static 'image/default_profile_picture.jpg' %}{% endif %}" 
+                         alt="Profile preview" 
+                         class="mt-2 h-24 w-24 rounded-full object-cover bg-gray-100">
+                </div>
+
+                {% for field in form %}
+                    {% if field.name == 'profile_picture' %}
+                    <div>
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">{{ field.label }} (Ganti)</label>
+                        <div class="mt-2">
+                            <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}" 
+                                   accept="image/*"
+                                   class="block w-full text-sm text-gray-900 border ... (class styling file input) ...">
+                        </div>
+                        <div id="id_{{ field.name }}-error" class="form-field-error mt-1"></div>
+                        
+                        <div class="relative flex items-start mt-2">
+                            <div class="flex h-6 items-center">
+                                <input id="reset-picture-checkbox" name="reset_picture_checkbox" type="checkbox" 
+                                       class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                            </div>
+                            <div class="ml-3 text-sm leading-6">
+                                <label for="reset-picture-checkbox" class="font-medium text-gray-900">Reset ke profile picture default</label>
+                            </div>
+                        </div>
+                        </div>
+                    
+                    {% elif field.name == 'bio' %}
+                    <div>
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">{{ field.label }}</label>
+                        <div class="mt-2">
+                            <textarea id="{{ field.id_for_label }}" name="{{ field.name }}" rows="3" 
+                                      class="pl-3 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">{{ field.value|default_if_none:"" }}</textarea>
+                        </div>
+                        {% if field.help_text %}<p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>{% endif %}
+                        <div id="id_{{ field.name }}-error" class="form-field-error mt-1"></div>
+                    </div>
+                    
+                    
+
+                    {% else %}
+                    <div>
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">{{ field.label }}</label>
+                        <div class="mt-2">
+                            <input type="{{ field.widget_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default_if_none:"" }}"
+                                   class="pl-3 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                        </div>
+                        {% if field.help_text %}<p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>{% endif %}
+                        <div id="id_{{ field.name }}-error" class="form-field-error mt-1"></div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                
+            </div>
+            <div id="form-messages" class="mb-4"></div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button id="submit-button" type="submit" 
+                        class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">
+                    Simpan Perubahan
+                </button>
+                <a href="{% url 'users:admin_dashboard' %}" 
+                   class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
+                    Batal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('edit-user-form');
+    const resetCheckbox = document.getElementById('reset-picture-checkbox'); 
+    const messageContainer = document.getElementById('form-messages');
+    const submitButton = document.getElementById('submit-button');
+    
+    // --- BARU: Listener untuk live preview gambar ---
+    const fileInput = document.getElementById('id_profile_picture');
+    const previewImage = document.getElementById('profile-pic-preview');
+
+    if (fileInput && previewImage) {
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Buat URL lokal untuk file yang dipilih dan perbarui preview
+                previewImage.src = URL.createObjectURL(file);
+            }
+        });
+    }
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // FormData secara otomatis menangani `enctype="multipart/form-data"`
+        const formData = new FormData(form);
+        const url = form.action;
+        
+        if (resetCheckbox.checked) {
+            // Tambahkan flag ini ke data yang akan dikirim ke server
+            formData.append('reset_picture', 'true');
+        }
+
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = `
+            Menyimpan...`;
+
+        messageContainer.innerHTML = '';
+        document.querySelectorAll('.form-field-error').forEach(el => el.innerHTML = '');
+        document.querySelectorAll('input, textarea').forEach(el => {
+            el.classList.remove('ring-red-500');
+            el.classList.add('ring-gray-300');
+        });
+
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => {
+            if (response.ok) return response.json();
+            if (response.status === 400) return response.json().then(data => Promise.reject(data));
+            return Promise.reject({ status: 'error', message: 'Server error. Please try again.' });
+        })
+        .then(data => {
+            // 5. Handle Sukses
+            if (data.status === 'success') {
+                messageContainer.innerHTML = `
+                    <div class="rounded-md bg-green-50 p-4">
+                        <div class="flex">
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-green-800">${data.message}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                
+                if (data.new_profile_picture_url && previewImage) {
+                    previewImage.src = data.new_profile_picture_url;
+                }
+                setTimeout(() => {
+                    window.location.href = "{% url 'users:admin_dashboard' %}";
+                }, 1000);
+            }
+        })
+        .catch(errorData => {
+            // 6. Handle Error
+            if (errorData.status === 'error' && errorData.errors) {
+                const errors = JSON.parse(errorData.errors);
+                
+                for (const fieldName in errors) {
+                    const errorMessages = errors[fieldName];
+                    let errorHTML = '<ul class="text-sm text-red-600 space-y-1 mt-1">';
+                    errorMessages.forEach(err => { errorHTML += `<li>${err.message}</li>`; });
+                    errorHTML += '</ul>';
+
+                    if (fieldName === '__all__') {
+                        messageContainer.innerHTML = errorHTML;
+                    } else {
+                        const fieldErrorContainer = document.getElementById(`id_${fieldName}-error`);
+                        const fieldInput = document.getElementById(`id_${fieldName}`);
+                        
+                        if (fieldErrorContainer) fieldErrorContainer.innerHTML = errorHTML;
+                        if (fieldInput) {
+                            fieldInput.classList.remove('ring-gray-300');
+                            fieldInput.classList.add('ring-red-500');
+                        }
+                    }
+                }
+            } else {
+                messageContainer.innerHTML = `<div class="text-sm text-red-600">${errorData.message || 'An unknown error occurred.'}</div>`;
+            }
+        })
+        .finally(() => {
+            if (!messageContainer.innerHTML.includes('text-green-800')) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

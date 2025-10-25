@@ -1,44 +1,72 @@
 {% load static %}
 <div id="modalBackdrop" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
 
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative form-style">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 relative border-2 border-gray-200 transition-all duration-200 transform scale-100 hover:scale-[1.01]">
 
-        <button id="closeEditModal"
-            class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+    <!-- Tombol Tutup -->
+    <button id="closeEditModal"
+      class="absolute top-4 right-4 text-gray-500 hover:text-red-600 text-2xl transition-all duration-150">&times;</button>
 
-        <h2 class="text-2xl font-semibold mb-4">Edit Profile</h2>
+    <!-- Judul -->
+    <h2 class="text-2xl font-semibold mb-6 text-gray-900 border-b-4 border-red-600 inline-block pb-1">
+      Edit Profile
+    </h2>
 
-        <div id="form-messages" class="mb-4"></div>
+    <div id="form-messages" class="mb-4"></div>
 
-        <form id="editProfileForm" method="POST" action="{% url 'users:change_pic' %}" enctype="multipart/form-data">
-            {% csrf_token %}
+    <form id="editProfileForm" method="POST" action="{% url 'users:change_pic' %}" enctype="multipart/form-data">
+      {% csrf_token %}
 
-            <div class="mb-4">
-                <label for="id_profile_picture" class="block text-sm font-medium text-gray-700 ">Profile Picture</label>
-                {{ form.profile_picture }}
-                <div id="error-profile_picture" class="text-red-500 text-sm mt-1"></div>
-            </div>
+      <!-- Input Gambar -->
+      <div class="mb-5">
+        <label for="id_profile_picture" class="block text-sm font-semibold text-gray-700 mb-1">
+          Profile Picture
+        </label>
+        {{ form.profile_picture }}
+        <div id="error-profile_picture" class="text-red-500 text-sm mt-1"></div>
+      </div>
 
-            <div class="flex justify-end gap-x-3">
-                <button type="button" id="cancelEdit"
-                    class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">
-                    Cancel
-                </button>
-                <button type="submit" id="saveProfileButton"
-                    class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-green-700">
-                    Save Changes
-                </button>
-            </div>
-        </form>
-    </div>
+      <!-- Tombol Aksi -->
+      <div class="flex justify-end gap-x-3 mt-6">
+        <button type="button" id="cancelEdit"
+          class="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200 shadow-sm hover:shadow-md">
+          Cancel
+        </button>
+        <button type="submit" id="saveProfileButton"
+          class="px-5 py-2.5 bg-red-600 text-white font-bold rounded-lg shadow-md hover:bg-red-700 transition-all duration-200">
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
+<!-- Styling Input Otomatis -->
 <script>
-    document.querySelectorAll('#editProfileForm input, #editProfileForm textarea').forEach(el => {
-        if (el.type !== 'file') {
-            el.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-green-500', 'focus:ring-green-500', 'sm:text-sm');
-        } else {
-            el.classList.add('mt-1', 'block', 'w-full', 'text-sm', 'text-gray-900', 'border', 'border-gray-300', 'rounded-lg', 'cursor-pointer', 'bg-gray-50', 'focus:outline-none');
-        }
-    });
+  document.querySelectorAll('#editProfileForm input, #editProfileForm textarea').forEach(el => {
+    if (el.type !== 'file') {
+      el.classList.add(
+        'mt-1', 'block', 'w-full', 'rounded-md',
+        'border-2', 'border-gray-300', 'shadow-sm',
+        'focus:border-red-500', 'focus:ring-2', 'focus:ring-red-400',
+        'text-gray-900', 'px-3', 'py-2', 'transition-all', 'duration-150',
+        'bg-white', 'placeholder-gray-400'
+      );
+    } else {
+      el.classList.add(
+        'mt-1', 'block', 'w-full', 'text-sm', 'text-gray-900',
+        'border-2', 'border-gray-300', 'rounded-lg', 'cursor-pointer',
+        'bg-gray-50', 'focus:outline-none', 'focus:border-red-500', 'focus:ring-2', 'focus:ring-red-400',
+        'transition-all', 'duration-150'
+      );
+    }
+  });
+
+  // Tutup modal
+  document.getElementById('closeEditModal').addEventListener('click', () => {
+    document.getElementById('modalBackdrop').classList.add('hidden');
+  });
+  document.getElementById('cancelEdit').addEventListener('click', () => {
+    document.getElementById('modalBackdrop').classList.add('hidden');
+  });
 </script>

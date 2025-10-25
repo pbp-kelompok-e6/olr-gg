@@ -20,11 +20,18 @@
         <div id="post-display-area">
             <div class="flex items-center gap-4 mb-2">
                 <h2 id="post-title-display" class="text-3xl font-bold text-gray-900">{{ post.title }}</h2>
-                <span id="category-badge-display" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                <span id="category-badge-display" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                     {{ post.get_category_display }}
                 </span>
             </div>
-            <p class="text-sm text-gray-500 mb-4">By {{ post.author.username }} on {{ post.created_at|localtime|date:"F d, Y" }}</p>
+            
+            <p class="text-sm text-gray-500 mb-4">
+                By {{ post.author.username }} on {{ post.created_at|localtime|date:"F d, Y" }}
+                <span class="post-edited-tag italic text-gray-400" {% if post.updated_at|date:'YmdHis' == post.created_at|date:'YmdHis' %}style="display: none;"{% endif %}>
+                    (edited)
+                </span>
+            </p>
+            
             <hr class="border-gray-200">
             <div id="post-content-display" class="prose max-w-none mt-4 text-gray-800 leading-relaxed">{{ post.content|linebreaksbr }}</div>
         </div>
@@ -40,6 +47,7 @@
         {% endif %}
       </div>
     </div>
+    
     <div class="bg-white rounded-xl border-2 border-gray-200 shadow-lg p-6 sm:p-8 mt-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">
             Replies (<span id="commentCount">{{ comments.count }}</span>)
@@ -84,7 +92,7 @@
                             </div>
                             <p class="text-sm text-gray-500" id="timestamp-{{ comment.id }}">
                                 <span class="time-display">{{ comment.updated_at|localtime|date:"F d, Y \a\t P" }}</span>
-                                <span class="edited-tag italic text-gray-400" {% if comment.updated_at|timesince:comment.created_at == "0 minutes" %}style="display: none;"{% endif %}>
+                                <span class="edited-tag italic text-gray-400" {% if comment.updated_at|date:'YmdHis' == comment.created_at|date:'YmdHis' %}style="display: none;"{% endif %}>
                                     (edited)
                                 </span>
                             </p>
@@ -113,12 +121,12 @@
             {% endfor %}
         </div>
     </div>
-    </div>
+  </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value; 
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
   const commentList = document.getElementById('comment-list');
   
   function formatISODate(isoString) {
@@ -131,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const minute = date.getMinutes().toString().padStart(2, '0');
       const ampm = hour >= 12 ? 'p.m.' : 'a.m.';
       hour = hour % 12;
-      hour = hour ? hour : 12; 
+      hour = hour ? hour : 12;
       return `${month} ${day}, ${year} at ${hour}:${minute} ${ampm}`;
   }
 
@@ -142,43 +150,10 @@ document.addEventListener('DOMContentLoaded', function() {
   
   function addCommentToDOM(comment) {
       document.getElementById('no-comments-message')?.remove();
-
       let roleBadge = '';
       if (comment.author_role === "Admin") roleBadge = '<span class="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Admin</span>';
       else if (comment.author_role === "Writer") roleBadge = '<span class="bg-blue-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Writer</span>';
-
-      const newCommentHTML = `
-      <div class="comment-item border-2 border-gray-200 rounded-lg p-5 bg-white" id="comment-${comment.id}">
-          <div class="flex items-start justify-between mb-3">
-              <div class="flex items-start gap-3">
-                  <div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                      <span class="text-lg font-bold text-gray-600">${comment.author_username.charAt(0).toUpperCase()}</span>
-                  </div>
-                  <div>
-                      <div class="flex items-center gap-2 mb-1">
-                          <span class="font-semibold text-gray-900">${comment.author_username}</span>
-                          ${roleBadge}
-                      </div>
-                      <p class="text-sm text-gray-500" id="timestamp-${comment.id}">
-                          <span class="time-display">${formatISODate(comment.created_at)}</span>
-                          <span class="edited-tag italic text-gray-400" style="display: none;">(edited)</span>
-                      </p>
-                  </div>
-              </div>
-              <div class="author-comment-actions flex gap-3">
-                  <button class="text-blue-600 hover:text-blue-800 text-sm font-semibold edit-comment-btn" data-comment-id="${comment.id}">Edit</button>
-                  <button class="text-red-600 hover:text-red-800 text-sm font-semibold delete-comment-btn" data-comment-id="${comment.id}">Delete</button>
-              </div>
-          </div>
-          <div class="comment-content text-gray-700 ml-13 leading-relaxed"><p id="content-${comment.id}">${comment.content}</p></div>
-          <div id="edit-form-${comment.id}" class="hidden mt-3 ml-13">
-              <textarea id="edit-content-${comment.id}" class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg" rows="3">${comment.content}</textarea>
-              <div class="flex gap-2 mt-3">
-                  <button class="save-edit-btn px-4 py-2 bg-blue-600 text-white rounded-lg text-sm" data-comment-id="${comment.id}">Save</button>
-                  <button class="cancel-edit-btn px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg text-sm" data-comment-id="${comment.id}">Cancel</button>
-              </div>
-          </div>
-      </div>`;
+      const newCommentHTML = `<div class="comment-item border-2 border-gray-200 rounded-lg p-5 bg-white" id="comment-${comment.id}"><div class="flex items-start justify-between mb-3"><div class="flex items-start gap-3"><div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center"><span class="text-lg font-bold text-gray-600">${comment.author_username.charAt(0).toUpperCase()}</span></div><div><div class="flex items-center gap-2 mb-1"><span class="font-semibold text-gray-900">${comment.author_username}</span>${roleBadge}</div><p class="text-sm text-gray-500" id="timestamp-${comment.id}"><span class="time-display">${formatISODate(comment.created_at)}</span><span class="edited-tag italic text-gray-400" style="display: none;">(edited)</span></p></div></div><div class="author-comment-actions flex gap-3"><button class="text-blue-600 hover:text-blue-800 text-sm font-semibold edit-comment-btn" data-comment-id="${comment.id}">Edit</button><button class="text-red-600 hover:text-red-800 text-sm font-semibold delete-comment-btn" data-comment-id="${comment.id}">Delete</button></div></div><div class="comment-content text-gray-700 ml-13 leading-relaxed"><p id="content-${comment.id}">${comment.content}</p></div><div id="edit-form-${comment.id}" class="hidden mt-3 ml-13"><textarea id="edit-content-${comment.id}" class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg" rows="3">${comment.content}</textarea><div class="flex gap-2 mt-3"><button class="save-edit-btn px-4 py-2 bg-blue-600 text-white rounded-lg text-sm" data-comment-id="${comment.id}">Save</button><button class="cancel-edit-btn px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg text-sm" data-comment-id="${comment.id}">Cancel</button></div></div></div>`;
       commentList.insertAdjacentHTML('afterbegin', newCommentHTML);
   }
 
@@ -205,44 +180,29 @@ document.addEventListener('DOMContentLoaded', function() {
   commentList.addEventListener('click', function(e) {
       const button = e.target.closest('button');
       if (!button || !button.dataset.commentId) return;
-
       const commentId = button.dataset.commentId;
       const contentP = document.getElementById(`content-${commentId}`);
       const editFormDiv = document.getElementById(`edit-form-${commentId}`);
-
-      // Tombol Edit
       if (button.classList.contains('edit-comment-btn')) {
           contentP.parentElement.classList.add('hidden');
           editFormDiv.classList.remove('hidden');
       }
-
-      // Tombol Cancel
       if (button.classList.contains('cancel-edit-btn')) {
           contentP.parentElement.classList.remove('hidden');
           editFormDiv.classList.add('hidden');
       }
-
-      // Tombol Save
       if (button.classList.contains('save-edit-btn')) {
           const newContent = document.getElementById(`edit-content-${commentId}`).value;
           const url = `{% url 'forum:edit_comment_ajax' 0 %}`.replace('0', commentId);
-          fetch(url, {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-              body: JSON.stringify({ content: newContent })
-          })
+          fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken}, body: JSON.stringify({ content: newContent }) })
           .then(res => res.json())
           .then(data => {
               if (data.status === 'success') {
                   contentP.textContent = data.comment.content;
                   const timestampP = document.getElementById(`timestamp-${commentId}`);
                   const editedTag = timestampP.querySelector('.edited-tag');
-                  
                   timestampP.querySelector('.time-display').textContent = formatISODate(data.comment.updated_at);
-                  if (editedTag) {
-                      editedTag.style.display = 'inline';
-                  }
-                  
+                  if (editedTag) { editedTag.style.display = 'inline'; }
                   contentP.parentElement.classList.remove('hidden');
                   editFormDiv.classList.add('hidden');
               } else {
@@ -250,8 +210,6 @@ document.addEventListener('DOMContentLoaded', function() {
               }
           });
       }
-
-      // Tombol Delete
       if (button.classList.contains('delete-comment-btn')) {
           Swal.fire({ title: 'Delete this reply?', text: 'This action cannot be undone.', showCancelButton: true, confirmButtonText: 'Delete' })
           .then((result) => {
@@ -275,8 +233,79 @@ document.addEventListener('DOMContentLoaded', function() {
   const editPostBtn = document.getElementById('edit-post-btn');
   const deletePostBtn = document.getElementById('delete-post-btn');
   const editPostForm = document.getElementById('edit-post-form');
-  if(editPostBtn){editPostBtn.addEventListener('click',()=>{document.getElementById('post-display-area').style.display='none';document.getElementById('author-buttons').style.display='none';editPostForm.style.display='block';document.getElementById('edit-post-category').value='{{ post.category }}'});document.getElementById('cancel-edit-post-btn').addEventListener('click',()=>{document.getElementById('post-display-area').style.display='block';document.getElementById('author-buttons').style.display='block';editPostForm.style.display='none'});editPostForm.addEventListener('submit',e=>{e.preventDefault();const t=document.getElementById('edit-post-title').value,n=document.getElementById('edit-post-content').value,o=document.getElementById('edit-post-category').value;fetch(`{% url 'forum:edit_post_ajax' post.id %}`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrftoken},body:JSON.stringify({title:t,content:n,category:o})}).then(e=>e.json()).then(e=>{'success'===e.status&&(document.getElementById('post-title-display').textContent=e.post.title,document.getElementById('post-content-display').innerHTML=e.post.content,document.getElementById('category-badge-display').textContent=e.post.category_display,document.getElementById('cancel-edit-post-btn').click())})})}
-  if(deletePostBtn){deletePostBtn.addEventListener('click',()=>{Swal.fire({title:'Delete this post?',text:'This action cannot be undone.',showCancelButton:!0,confirmButtonText:'Delete'}).then(e=>{e.isConfirmed&&fetch(`{% url 'forum:delete_post_ajax' post.id %}`,{method:'POST',headers:{'X-CSRFToken':csrftoken}}).then(e=>e.json()).then(e=>{'success'===e.status&&Swal.fire({title:'Post has been removed.',timer:1200,showConfirmButton:!1}).then(()=>{window.location.href=e.redirect_url})})})})}
+  
+  if(editPostBtn) {
+    editPostBtn.addEventListener('click', () => {
+      document.getElementById('post-display-area').style.display = 'none';
+      document.getElementById('author-buttons').style.display = 'none';
+      editPostForm.style.display = 'block';
+      document.getElementById('edit-post-category').value = '{{ post.category }}';
+    });
+
+    document.getElementById('cancel-edit-post-btn').addEventListener('click', () => {
+      document.getElementById('post-display-area').style.display = 'block';
+      document.getElementById('author-buttons').style.display = 'block';
+      editPostForm.style.display = 'none';
+    });
+
+    editPostForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const title = document.getElementById('edit-post-title').value;
+      const content = document.getElementById('edit-post-content').value;
+      const category = document.getElementById('edit-post-category').value;
+      
+      fetch(`{% url 'forum:edit_post_ajax' post.id %}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
+        body: JSON.stringify({title: title, content: content, category: category})
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          document.getElementById('post-title-display').textContent = data.post.title;
+          document.getElementById('post-content-display').innerHTML = data.post.content.replace(/\n/g, '<br>');
+          document.getElementById('category-badge-display').textContent = data.post.category_display;
+          
+          const editedTag = document.querySelector('.post-edited-tag');
+          if (editedTag) {
+            editedTag.style.display = 'inline';
+          }
+          
+          document.getElementById('cancel-edit-post-btn').click(); 
+        }
+      });
+    });
+  }
+  
+  if(deletePostBtn) {
+    deletePostBtn.addEventListener('click', () => {
+      Swal.fire({
+        title: 'Delete this post?',
+        text: 'This action cannot be undone.',
+        showCancelButton: true,
+        confirmButtonText: 'Delete'
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch(`{% url 'forum:delete_post_ajax' post.id %}`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': csrftoken}
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'success') {
+              Swal.fire({
+                title: 'Post has been removed.',
+                timer: 1200,
+                showConfirmButton: false
+              }).then(() => {
+                window.location.href = data.redirect_url;
+              });
+            }
+          });
+        }
+      });
+    });
+  }
 });
 </script>
 {% endblock content %}

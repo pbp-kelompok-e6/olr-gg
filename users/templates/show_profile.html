@@ -41,7 +41,7 @@
                     <button id="triggerEditModal"
                         class="profile-modal-trigger w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-2xl"
                         data-url="{% url 'users:edit_profile' %}">
-                        Edit Details
+                        Edit Profile
                     </button>
                     {% endif %}
                     {% if not is_owner %}
@@ -203,7 +203,7 @@
                             }
 
                             const msgDiv = document.getElementById('form-messages');
-                            msgDiv.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">${data.message}</div>`;
+                            msgDiv.innerHTML = `<div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative" role="alert">${data.message}</div>`;
 
                             setTimeout(() => {
                                 modalContainer.innerHTML = '';
