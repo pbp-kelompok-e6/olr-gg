@@ -24,6 +24,7 @@
 
     {% if user.role != "Reader" and user.is_authenticated %}
     <!-- Action Buttons -->
+    {% if user.role != "Reader" and user.is_authenticated %}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
       <!-- Create News Button -->
       <button onclick="showModal()"
@@ -43,7 +44,6 @@
       </div>
     </div>
     {% endif %}
-
     <!-- Loading State -->
     <div id="loading" class="bg-white border border-gray-300 shadow-sm p-12 text-center hidden">
       <svg class="animate-spin h-12 w-12 text-red-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none"
