@@ -235,15 +235,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         const data = await response.json();
         if (response.ok && data.status === 'success') {
-          Swal.fire({title: 'Discussion created successfully', showConfirmButton: false, timer: 1500, animation: true});
+          Swal.fire({title: 'Discussion created successfully', showConfirmButton: false, timer: 1500, animation: false});
           addPostToDOM(data.post); 
           createPostForm.reset(); 
           createPostCard.style.display = 'none'; 
         } else {
-          Swal.fire({title: 'Error', text: data.message || 'Failed to create discussion', animation: true});
+          Swal.fire({title: 'Error', text: data.message || 'Failed to create discussion', animation: false});
         }
       } catch (error) {
-        Swal.fire({title: 'Error', text: 'An error occurred', animation: true});
+        Swal.fire({title: 'Error', text: 'An error occurred', animation: false});
       }
     });
   }
@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showCancelButton: true,
             confirmButtonText: 'Save Changes',
             confirmButtonColor: '#dc2626',
-            animation: true,
+            animation: false,
             preConfirm: () => ({ 
               title: document.getElementById('swal-title').value, 
               category: document.getElementById('swal-category').value, 
@@ -330,13 +330,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById(`title-${postId}`).textContent = updateData.post.title;
                 document.getElementById(`category-${postId}`).textContent = updateData.post.category_display;
                 document.querySelector(`#post-${postId}`).dataset.category = formValues.category;
-                Swal.fire({title: 'Your discussion has been updated.', showConfirmButton: false, timer: 1500, animation: true});
+                Swal.fire({title: 'Your discussion has been updated.', showConfirmButton: false, timer: 1500, animation: false});
             } else {
-                Swal.fire({title: 'Error!', text: 'Could not save changes.', animation: true});
+                Swal.fire({title: 'Error!', text: 'Could not save changes.', animation: false});
             }
         }
     } catch (error) {
-        Swal.fire({title: 'Error!', text: 'Something went wrong.', animation: true});
+        Swal.fire({title: 'Error!', text: 'Something went wrong.', animation: false});
     }
   }
 
@@ -358,15 +358,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const data = await response.json();
         if (data.status === 'success') {
           document.getElementById(`post-${postToDeleteId}`).remove();
-          Swal.fire({title: 'Your discussion has been deleted.', showConfirmButton: false, timer: 1500, animation: true});
+          Swal.fire({title: 'Your discussion has been deleted.', showConfirmButton: false, timer: 1500, animation: false});
           if (postListContainer.children.length === 0 && !document.getElementById('no-posts-message')) {
               postListContainer.innerHTML = `<div id="no-posts-message" class="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">...</div>`;
           }
         } else {
-          Swal.fire({title: 'Error!', text: 'Could not delete the post.', animation: true});
+          Swal.fire({title: 'Error!', text: 'Could not delete the post.', animation: false});
         }
       } catch (error) {
-        Swal.fire({title: 'Error!', text: 'Something went wrong.', animation: true});
+        Swal.fire({title: 'Error!', text: 'Something went wrong.', animation: false});
       } finally {
         hideDeleteModal();
       }

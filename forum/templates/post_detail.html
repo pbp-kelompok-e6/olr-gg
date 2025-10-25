@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
               contentInput.value = '';
               updateCommentCount(1);
           } else {
-              Swal.fire({title: 'Error', text: data.message || "Failed to post reply.", animation: true});
+              Swal.fire({title: 'Error', text: data.message || "Failed to post reply.", animation: false});
           }
       });
   });
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   contentP.parentElement.classList.remove('hidden');
                   editFormDiv.classList.add('hidden');
               } else {
-                  Swal.fire({title: 'Error', text: data.message || "Failed to save changes.", animation: true});
+                  Swal.fire({title: 'Error', text: data.message || "Failed to save changes.", animation: false});
               }
           });
       }
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const editedTag = document.querySelector('.post-edited-tag');
           if (editedTag) editedTag.style.display = 'inline';
           document.getElementById('cancel-edit-post-btn').click(); 
-          Swal.fire({title: 'Post updated successfully', showConfirmButton: false, timer: 1500, animation: true});
+          Swal.fire({title: 'Post updated successfully', showConfirmButton: false, timer: 1500, animation: false});
         }
       });
     });
@@ -327,19 +327,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (data.status === 'success') {
             if (itemToDelete.type === 'post') {
-                Swal.fire({title: 'Post has been removed.', showConfirmButton: false, timer: 1200, animation: true}).then(() => {
+                Swal.fire({title: 'Post has been removed.', showConfirmButton: false, timer: 1200, animation: false}).then(() => {
                     window.location.href = data.redirect_url;
                 });
             } else {
                 document.getElementById(`comment-${itemToDelete.id}`).remove();
                 updateCommentCount(-1);
-                Swal.fire({title: 'Reply has been removed.', showConfirmButton: false, timer: 1500, animation: true});
+                Swal.fire({title: 'Reply has been removed.', showConfirmButton: false, timer: 1500, animation: false});
             }
         } else {
-            Swal.fire({title: 'Error!', text: data.message || "Failed to delete item.", animation: true});
+            Swal.fire({title: 'Error!', text: data.message || "Failed to delete item.", animation: false});
         }
       } catch (error) {
-        Swal.fire({title: 'Error!', text: 'Something went wrong.', animation: true});
+        Swal.fire({title: 'Error!', text: 'Something went wrong.', animation: false});
       } finally {
         hideDeleteModal();
       }
