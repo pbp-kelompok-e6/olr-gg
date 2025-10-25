@@ -199,10 +199,6 @@ def admin_edit_user(request, id):
 
 @user_passes_test(is_admin, login_url='/login')
 def admin_reset_strikes(request, id):
-    """
-    MODIFIKASI: Action (POST only, AJAX) untuk mereset strike user.
-    Logika re-aktivasi ditangani oleh models.py
-    """
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Invalid method.'}, status=405)
 
@@ -227,10 +223,6 @@ def admin_reset_strikes(request, id):
 
 @user_passes_test(is_admin, login_url='/login')
 def admin_delete_report(request, id):
-    """
-    MODIFIKASI: Menolak laporan (POST only, AJAX).
-    Hanya menghapus laporan.
-    """
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Invalid method.'}, status=405)
         
@@ -245,10 +237,6 @@ def admin_delete_report(request, id):
 
 @user_passes_test(is_admin, login_url='/login')
 def admin_accept_report(request, id):
-    """
-    BARU: Menerima laporan (POST only, AJAX).
-    Memberi +1 strike dan menghapus laporan.
-    """
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Invalid method.'}, status=405)
     
