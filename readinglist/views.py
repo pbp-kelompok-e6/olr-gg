@@ -1,15 +1,15 @@
 import json
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.db import IntegrityError
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from berita.models import News 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render
 from .models import ReadingList, ReadingListItem
 from .forms import ReadingListForm
 from users.models import CustomUser as User
 from django.contrib.auth import get_user_model
+from django.views.decorators.csrf import csrf_exempt
+from django.db import IntegrityError
+from berita.models import News
 
 User = get_user_model();
 
@@ -70,13 +70,13 @@ def get_news_list_status_ajax(request, news_id):
 @login_required
 def show_reading_lists(request):
     """Dashboard List Bacaan Pribadi (URL: /list/)"""
-    # Memastikan list default ada, terutama saat pengguna pertama kali mengakses dashboard
+    # Memastikan list default ada, terutama pas si pengguna pertama kali mengakses dashboard
     get_or_create_default_list(request.user) 
     
-    # Mengambil semua list pengguna, prefetch terkait item dan beritanya
+    # Ngambil semua list pengguna, prefetch terkait item dan beritanya
     user_lists = ReadingList.objects.filter(user=request.user).prefetch_related('items__news')
     
-    # Form untuk membuat list baru
+    # buat list baru
     list_form = ReadingListForm()
 
     context = {
@@ -128,16 +128,15 @@ def delete_list_ajax(request, list_id):
 @require_POST
 def add_to_list_ajax(request, news_id):
     try:
-        # 1. Parsing data dari body POST request
         data = json.loads(request.body)
         list_id = data.get('list_id')
         if not list_id:
             return JsonResponse({"status": "ERROR", "message": "List ID is required."}, status=400)
-        # 2. Ambil objek News dan List
+        # Ambil objek News dan List
         news = get_object_or_404(News, id=news_id)
-        # Penting: Pastikan list tersebut dimiliki oleh user yang sedang login
+        # Penting: Pastiin list tersebut dimiliki oleh user yang sedang login
         reading_list = get_object_or_404(ReadingList, id=list_id, user=request.user)
-        # 3. Toggle Status
+        # Buat toggle statusnya
         item, created = ReadingListItem.objects.get_or_create(
             list=reading_list,
             news=news
@@ -146,7 +145,7 @@ def add_to_list_ajax(request, news_id):
             message = f"News berhasil ditambahkan ke list '{reading_list.name}'."
             status = "ADDED"
         else:
-            # Jika sudah ada, hapus (Toggle)
+            # Kalo sudah ada, hapus 
             item.delete()
             message = f"News berhasil dihapus dari list '{reading_list.name}'."
             status = "REMOVED"
@@ -162,10 +161,9 @@ def add_to_list_ajax(request, news_id):
 
 @require_POST
 @login_required
-@csrf_exempt
 def toggle_read_status_ajax(request, item_id):
     """Mengubah Status Baca Berita (Toggle is_read) (POST ke /toggle_read/{item_id}/)"""
-    # Pastikan item_id milik pengguna yang sedang login
+    # Pastiin item_id milik pengguna yang sedang login
     item = get_object_or_404(ReadingListItem, id=item_id, list__user=request.user)
     
     # Toggle status
@@ -174,3 +172,73 @@ def toggle_read_status_ajax(request, item_id):
     
     status = "sudah dibaca" if item.is_read else "belum dibaca"
     return JsonResponse({"status": "SUCCESS", "message": f"Status diubah menjadi '{status}'."}, status=200)
+
+@login_required
+@require_POST
+def create_list(request):
+    try:
+        data = json.loads(request.body or "{}")
+    except Exception:
+        return JsonResponse({"message": "Invalid JSON body"}, status=400)
+
+    name = (data.get("name") or "").strip()
+    if not name:
+        return JsonResponse({"message": "List name is required"}, status=400)
+    if name.lower() == "favorites":
+        return JsonResponse({"message": 'Name "Favorites" is reserved'}, status=400)
+
+    rl = ReadingList.objects.create(user=request.user, name=name)
+    return JsonResponse({
+        "message": "List created",
+        "list": {
+            "id": str(rl.id),
+            "name": rl.name,
+            "items_count": rl.items.count(),
+        }
+    }, status=201)
+
+@login_required
+@require_POST
+def rename_list(request, list_id):
+    rl = get_object_or_404(ReadingList, id=list_id, user=request.user)
+    if rl.name == "Favorites":
+        return JsonResponse({"message": "Favorites cannot be renamed"}, status=400)
+
+    try:
+        data = json.loads(request.body or "{}")
+    except Exception:
+        return JsonResponse({"message": "Invalid JSON body"}, status=400)
+
+    new_name = (data.get("name") or "").strip()
+    if not new_name:
+        return JsonResponse({"message": "List name is required"}, status=400)
+    if new_name.lower() == "favorites":
+        return JsonResponse({"message": 'Name "Favorites" is reserved'}, status=400)
+
+    rl.name = new_name
+    rl.save(update_fields=["name"])
+    return JsonResponse({
+        "message": "List renamed",
+        "list": {
+            "id": str(rl.id),
+            "name": rl.name,
+        }
+    })
+
+@login_required
+@require_POST
+def delete_list(request, list_id):
+    rl = get_object_or_404(ReadingList, id=list_id, user=request.user)
+    if rl.name == "Favorites":
+        return JsonResponse({"message": "Favorites cannot be deleted"}, status=400)
+
+    rl.delete()
+    return JsonResponse({"message": "List deleted", "id": str(list_id)})
+
+@login_required
+@require_POST
+def toggle_read(request, item_id):
+    item = get_object_or_404(ReadingListItem, id=item_id, list__user=request.user)
+    item.is_read = not item.is_read
+    item.save(update_fields=["is_read"])
+    return JsonResponse({"success": True, "is_read": item.is_read})

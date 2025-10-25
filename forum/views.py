@@ -7,6 +7,7 @@ from django.urls import reverse
 import json
 from django.utils.html import strip_tags
 from .forms import ForumPostForm
+from django.template.defaultfilters import date as _date
 
 def forum_view(request):
     all_posts = ForumPost.objects.all().order_by('-created_at')
@@ -24,19 +25,20 @@ def create_post_ajax(request):
 
         if form.is_valid():
             post = form.save(commit=False)
-            post.author = request.user  
-            post.save()               
+            post.author = request.user
+            post.save()
 
             return JsonResponse({
                 'status': 'success',
                 'post': {
                     'id': post.id,
                     'title': post.title,
-                    'content': post.content,
-                    'author': post.author.username,
+                    'author_username': post.author.username,
                     'url': reverse('forum:post_detail_view', kwargs={'post_id': post.id}),
                     'category_code': post.category,
-                    'category_display': post.get_category_display()
+                    'category_display': post.get_category_display(),
+                    'created_at_formatted': _date(post.created_at, "M d, Y"), # Format tanggal
+                    'comment_count': 0 
                 }
             })
         else:
@@ -95,7 +97,6 @@ def create_comment_ajax(request, post_id):
             return JsonResponse({'status': 'error', 'message': 'Comment cannot be empty.'}, status=400)
 
         comment = ForumComment.objects.create(post=post, author=request.user, content=content)
-        
         return JsonResponse({
             'status': 'success',
             'comment': {
@@ -129,8 +130,8 @@ def edit_comment_ajax(request, comment_id):
             return JsonResponse({'status': 'error', 'message': 'Comment cannot be empty.'}, status=400)
             
         comment.content = new_content
-        comment.save()
-        
+        comment.save() 
+
         return JsonResponse({
             'status': 'success',
             'comment': {

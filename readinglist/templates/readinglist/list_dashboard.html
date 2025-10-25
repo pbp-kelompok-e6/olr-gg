@@ -42,9 +42,11 @@
 
         <!-- Lists Container -->
         {% if user_lists %}
+        <div id="listsContainer">
         {% for reading_list in user_lists %}
         <div class="mb-6 bg-white rounded-lg border-2 {% if reading_list.name == 'Favorites' %}border-red-500 shadow-lg{% else %}border-gray-200 shadow{% endif %} overflow-hidden transition-shadow hover:shadow-xl"
-            data-list-id="{{ reading_list.id }}">
+            data-list-id="{{ reading_list.id }}"
+            data-is-favorites="{% if reading_list.name == 'Favorites' %}true{% else %}false{% endif %}">
 
             <!-- List Header -->
             <div
@@ -84,8 +86,7 @@
                             class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete list">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                </path>
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7-3h8a1 1 0 011 1v1H5V5a1 1 0 011-1z"/>
                             </svg>
                         </button>
                         {% else %}
@@ -162,10 +163,10 @@
             </div>
         </div>
         {% endfor %}
-
+        </div>
         {% else %}
         <!-- Empty State -->
-        <div class="bg-white rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+        <div id="emptyState" class="bg-white rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
             <div class="text-6xl mb-4">📚</div>
             <h3 class="text-xl font-semibold text-gray-900 mb-2">No reading lists yet</h3>
             <p class="text-gray-600 mb-6">Create your first list to start organizing news articles</p>
@@ -194,6 +195,7 @@
         </div>
 
         <form id="listForm" class="mt-6">
+            {% csrf_token %}
             <div class="mb-5">
                 <label for="listName" class="block text-sm font-semibold text-gray-700 mb-2">List Name</label>
                 <input type="text" id="listName" name="name" required maxlength="100"
@@ -222,24 +224,22 @@
     <div class="relative top-20 mx-auto p-6 border border-gray-200 w-96 shadow-2xl rounded-xl bg-white">
         <div class="text-center">
             <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-red-100 mb-5">
-                <svg class="h-7 w-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7-3h8a1 1 0 011 1v1H5V5a1 1 0 011-1z"/>
                 </svg>
             </div>
             <h3 class="text-xl font-bold text-gray-900 mb-3">Delete Reading List</h3>
             <p class="text-gray-600 mb-6">
-                Are you sure you want to delete "<span id="deleteListName" class="font-semibold text-gray-900"></span>"?
-                <br><span class="text-sm text-red-600 font-medium">This action cannot be undone.</span>
+                Are you sure you want to delete '<span id="deleteTargetName" class="font-semibold"></span>'?
             </p>
             <div class="flex gap-3">
-                <button onclick="executeDelete()" id="confirmDeleteBtn"
-                    class="flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold shadow-md hover:shadow-lg">
-                    Delete List
-                </button>
-                <button onclick="closeDeleteModal()"
-                    class="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                    Cancel
-                </button>
+                <button id="cancelDeleteBtn" type="button"
+                        class="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                        onclick="closeDeleteModal()">Cancel</button>
+                <button id="confirmDeleteBtn" type="button"
+                        class="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                        onclick="executeDelete()">Delete List</button>
             </div>
         </div>
     </div>
@@ -262,6 +262,21 @@
     let currentListId = null;
     let deleteTargetId = null;
 
+  
+    function confirmDeleteList(listId, listName) {
+        deleteTargetId = listId;
+        const modal = document.getElementById('deleteModal');
+        const nameSpan = document.getElementById('deleteTargetName');
+        if (nameSpan) nameSpan.textContent = listName;
+        modal.classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        deleteTargetId = null;
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('hidden');
+    }
+
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -282,7 +297,7 @@
         const existing = document.getElementById('toast-notification');
         if (existing) existing.remove();
 
-        const bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+        const bgColor = type === 'success' ? 'bg-blue-600' : 'bg-red-600';
         const icon = type === 'success'
             ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'
             : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
@@ -367,7 +382,137 @@
         currentListId = null;
     }
 
-    // Handle form submission
+    // Helper buat DOMnya
+    function ensureListsContainer() {
+        let container = document.getElementById('listsContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'listsContainer';
+            const empty = document.getElementById('emptyState');
+            if (empty) empty.replaceWith(container);
+            else document.querySelector('.max-w-7xl')?.appendChild(container);
+        }
+        return container;
+    }
+
+    function findFavoritesCard() {
+        return document.querySelector('[data-is-favorites="true"]');
+    }
+
+    function escapeJs(str) {
+        return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
+    function buildListCardHTML(list) {
+        const count = list.items_count ?? 0;
+        return `
+<div class="mb-6 bg-white rounded-lg border-2 border-gray-200 shadow overflow-hidden transition-shadow hover:shadow-xl"
+     data-list-id="${list.id}" data-is-favorites="false">
+  <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+          </path>
+        </svg>
+        <h2 class="text-2xl font-bold text-gray-900">${list.name}</h2>
+        <span class="px-3 py-1 bg-blue-600 text-white text-sm font-semibold rounded-full">
+          ${count} item${count === 1 ? '' : 's'}
+        </span>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="showRenameModal('${list.id}', '${escapeJs(list.name)}')"
+                class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Rename list">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+            </path>
+          </svg>
+        </button>
+        <button onclick="confirmDeleteList('${list.id}', '${escapeJs(list.name)}')"
+                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete list">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+            </path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="px-6 py-5 bg-white">
+    <div class="text-center py-12">
+      <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+        </path>
+      </svg>
+      <p class="text-gray-600 font-medium">No items in this list yet</p>
+      <p class="text-gray-500 text-sm mt-1">Add news articles from the main page</p>
+    </div>
+  </div>
+</div>`;
+    }
+
+    function insertListCard(list) {
+        const container = ensureListsContainer();
+        const html = buildListCardHTML(list).trim();
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        const card = tmp.firstElementChild;
+        const favorites = findFavoritesCard();
+
+        if (favorites && favorites.parentElement === container) {
+            if (favorites.nextElementSibling) {
+                container.insertBefore(card, favorites.nextElementSibling);
+            } else {
+                container.appendChild(card);
+            }
+        } else {
+            container.appendChild(card);
+        }
+
+        // small pop-in animation
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(-6px)';
+        requestAnimationFrame(() => {
+            card.style.transition = 'all .2s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        });
+
+        return card;
+    }
+
+    function maybeShowEmptyState() {
+        const container = document.getElementById('listsContainer');
+        const cards = container ? container.querySelectorAll('[data-list-id]') : [];
+        if (!container || cards.length === 0) {
+            const empty = document.createElement('div');
+            empty.id = 'emptyState';
+            empty.className = 'bg-white rounded-lg border-2 border-dashed border-gray-300 p-12 text-center';
+            empty.innerHTML = `
+                <div class="text-6xl mb-4">📚</div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No reading lists yet</h3>
+                <p class="text-gray-600 mb-6">Create your first list to start organizing news articles</p>
+                <button onclick="showCreateListModal()"
+                    class="inline-flex items-center px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create Your First List
+                </button>
+            `;
+            if (container) {
+                container.replaceWith(empty);
+            } else {
+                document.querySelector('.max-w-7xl')?.appendChild(empty);
+            }
+        }
+    }
+
+    // Handle form submission (Create/Rename) 
     document.getElementById('listForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -403,9 +548,29 @@
             const result = await response.json();
 
             if (response.ok) {
-                showToast(result.message);
+                if (currentListId) {
+                    // Rename: update title and button handlers
+                    const card = document.querySelector(`[data-list-id="${currentListId}"]`);
+                    if (card) {
+                        const titleEl = card.querySelector('h2');
+                        if (titleEl) titleEl.textContent = result.list?.name || listName;
+
+                        const renameBtn = card.querySelector('button[title="Rename list"]');
+                        if (renameBtn) renameBtn.setAttribute('onclick', `showRenameModal('${currentListId}', '${escapeJs(result.list?.name || listName)}')`);
+
+                        const deleteBtn = card.querySelector('button[title="Delete list"]');
+                        if (deleteBtn) deleteBtn.setAttribute('onclick', `confirmDeleteList('${currentListId}', '${escapeJs(result.list?.name || listName)}')`);
+                    }
+
+                    showToast(result.message || 'List renamed');
+                } else {
+                    // Create: insert below Favorites
+                    const payload = result.list || { id: result.id, name: listName, items_count: 0 };
+                    insertListCard(payload);
+                    showToast(result.message || 'List created');
+                }
+
                 closeListModal();
-                setTimeout(() => location.reload(), 500);
             } else {
                 errorDiv.textContent = result.message || 'An error occurred';
                 errorDiv.classList.remove('hidden');
@@ -420,25 +585,13 @@
         }
     });
 
-    // Show delete confirmation
-    function confirmDeleteList(listId, listName) {
-        deleteTargetId = listId;
-        document.getElementById('deleteListName').textContent = listName;
-        document.getElementById('deleteModal').classList.remove('hidden');
-    }
-
-    // Close delete modal
-    function closeDeleteModal() {
-        document.getElementById('deleteModal').classList.add('hidden');
-        deleteTargetId = null;
-    }
-
-    // Execute delete
+    // Execute delete 
     async function executeDelete() {
         if (!deleteTargetId) return;
 
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         confirmBtn.disabled = true;
+        const originalText = confirmBtn.textContent;
         confirmBtn.textContent = 'Deleting...';
 
         const url = DELETE_LIST_URL_BASE.replace('00000000-0000-0000-0000-000000000000', deleteTargetId);
@@ -448,33 +601,37 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
             });
 
             const result = await response.json();
 
             if (response.ok) {
-                showToast(result.message);
-                closeDeleteModal();
-
+                // Hapus kartu dari DOM
                 const card = document.querySelector(`[data-list-id="${deleteTargetId}"]`);
                 if (card) {
+                    card.style.transition = 'all .2s ease';
                     card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
-                    setTimeout(() => location.reload(), 500);
+                    card.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        const parent = card.parentElement;
+                        card.remove();
+                        if (parent && !parent.querySelector('[data-list-id]')) {
+                            maybeShowEmptyState();
+                        }
+                    }, 180);
                 }
+                showToast(result.message || 'List deleted');
+                closeDeleteModal();
             } else {
                 showToast(result.message || 'Failed to delete list', 'error');
-                closeDeleteModal();
             }
-        } catch (error) {
-            console.error('Error:', error);
-            showToast('Network error occurred', 'error');
-            closeDeleteModal();
+        } catch (err) {
+            showToast('Network error while deleting', 'error');
         } finally {
             confirmBtn.disabled = false;
-            confirmBtn.textContent = 'Delete List';
+            confirmBtn.textContent = originalText;
         }
     }
 

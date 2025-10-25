@@ -4,7 +4,6 @@ from django.conf import settings
 from berita.models import News 
 from users.models import CustomUser
 
-# Model untuk List Bacaan (Folder)
 class ReadingList(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -14,11 +13,9 @@ class ReadingList(models.Model):
     def __str__(self):
         return f"{self.user.username}'s List: {self.name}"
 
-# Model untuk Item Berita di dalam List
+# Model untuk Item Berita di dalam Listnya
 class ReadingListItem(models.Model):
-    # Foreign key ke list mana item ini berada
     list = models.ForeignKey(ReadingList, on_delete=models.CASCADE, related_name='items') 
-    # Foreign key ke berita yang disimpan
     news = models.ForeignKey(News, on_delete=models.CASCADE) 
     added_at = models.DateTimeField(auto_now_add=True)
     
