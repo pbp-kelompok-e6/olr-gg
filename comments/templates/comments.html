@@ -6,7 +6,7 @@
         Comments (<span id="commentCount">{{ comments.count }}</span>)
     </h2>
 
-    <!-- Comment Form -->
+    <!-- form comment -->
     {% if user.is_authenticated %}
     <div class="mb-8">
         <form id="commentForm" class="space-y-4 bg-gray-50 rounded-lg border-2 border-gray-200 p-5">
@@ -48,15 +48,13 @@
     </div>
     {% endif %}
 
-    <!-- Comments List -->
+    <!-- list comment -->
     <div id="commentsList" class="space-y-4">
         {% for comment in comments %}
         <div class="comment-item border-2 border-gray-200 rounded-lg p-5 bg-white hover:border-blue-300 transition-colors" data-comment-id="{{ comment.id }}">
             
-            <!-- Comment Header -->
             <div class="flex items-start justify-between mb-3">
                 <div class="flex items-start gap-3">
-                    <!-- Profile Picture -->
                     {% if comment.user.profile_picture %}
                     <img src="{{ comment.user.profile_picture.url }}" alt="{{ comment.user.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-300">
                     {% else %}
@@ -69,14 +67,13 @@
                         <div class="flex items-center gap-2 mb-1">
                             <span class="font-semibold text-gray-900">{{ comment.user.username }}</span>
                             
-                            <!-- Role Badges -->
                             {% if comment.user.role == "Admin" %}
                             <span class="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Admin</span>
                             {% elif comment.user.role == "Writer" %}
                             <span class="bg-blue-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Writer</span>
                             {% endif %}
                         </div>
-                        
+                        <!-- format data created_at -->
                         <p class="text-sm text-gray-500">
                             <script>
                                 document.write(new Date("{{ comment.created_at|date:'c' }}").toLocaleDateString('en-US', { 
@@ -93,9 +90,8 @@
                         </p>
                     </div>
                 </div>
-                
-                <!-- Action Buttons -->
-                {% if user == comment.user or user.is_staff %}
+                <!-- edit/dete comment hanya kalo comment dibuat user atau admin -->
+                {% if user == comment.user or user.is_staff %} 
                 <div class="flex gap-3">
                     <button 
                         onclick="editComment('{{ comment.id }}', '{{ comment.content|escapejs }}')"
@@ -119,12 +115,10 @@
                 {% endif %}
             </div>
 
-            <!-- Comment Content -->
             <div class="comment-content text-gray-700 ml-13 leading-relaxed">
                 <p id="content-{{ comment.id }}">{{ comment.content }}</p>
             </div>
 
-            <!-- Edit Form (Hidden) -->
             <div id="edit-form-{{ comment.id }}" class="hidden mt-3 ml-13">
                 <textarea 
                     id="edit-content-{{ comment.id }}"
@@ -157,7 +151,7 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- confirm delete modal -->
 <div id="deleteCommentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
     <div class="relative top-20 mx-auto p-6 border-2 border-gray-200 w-96 shadow-2xl rounded-xl bg-white">
         <div class="text-center">
@@ -206,6 +200,7 @@ function getCookie(name) {
 const csrftoken = getCookie('csrftoken');
 const currentUsername = "{{ user.username }}";
 const currentUserRole = "{{ user.role }}";
+// boolean is_staff
 const isStaff = {{ user.is_staff|default:"false"|lower }};
 
 let commentToDelete = null;

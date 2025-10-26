@@ -72,82 +72,67 @@ def load_news(request, id):
 @login_required(login_url='/login')
 def change_profile_pic(request):
     if request.method == 'POST':
-        # Gunakan form baru kita
         form = ProfilePictureForm(request.POST, request.FILES, instance=request.user)
         
         if form.is_valid():
             user_instance = form.save()
-            
-            # Logika untuk mendapatkan URL gambar (sama seperti di view edit_profile Anda)
+
             if user_instance.profile_picture:
                 pic_url = user_instance.profile_picture.url
             else:
                 pic_url = static('image/default_profile_picture.jpg') 
 
-            # Kirim JSON response yang SAMA PERSIS dengan view edit_profile Anda
-            # Ini penting agar JavaScript Anda bisa memprosesnya
             return JsonResponse({
                 'status': 'success', 
                 'message': 'Profile picture berhasil di update.',
                 'new_data': {
-                    # Kita tetap kirim data ini agar JS tidak error
                     'full_name': f"{user_instance.first_name or ''} {user_instance.last_name or ''}".strip(),
                     'bio': user_instance.bio or "This user has not added a bio yet.",
-                    # Ini data yang akan di-update
                     'profile_picture_url': pic_url 
                 }
             })
     
         else:
-            # Kirim error jika form tidak valid
+
             errors = form.errors.as_json()
             return JsonResponse({'status': 'error', 'errors': errors}, status=400)
     
-    # Untuk GET request, tampilkan form
     form = ProfilePictureForm(instance=request.user)
     context = {
         'form': form
     }
-    # Kita akan buat template modal baru
     return render(request, 'change_pic.html', context)
 
 
 @login_required(login_url='/login')
 def report_user(request, id):
-    # 'id' adalah ID user yang DILAPORKAN
     try:
         usertarget = User.objects.get(id=id)
     except User.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'User not found.'}, status=404)
 
-    # Mencegah user melaporkan diri sendiri
     if usertarget == request.user:
         return JsonResponse({'status': 'error', 'message': 'You cannot report yourself.'}, status=403)
 
     if request.method == 'POST':
         form = ReportUserForm(request.POST)
         if form.is_valid():
-            # Buat objek laporan
             report = form.save(commit=False)
             report.reporter = request.user
             report.reported_user = usertarget
             report.save()
-            
-            # Tambahkan strike ke user yang dilaporkan
+
             usertarget.strikes += 1
-            usertarget.save() # Ini akan memicu logic ban otomatis Anda
-            
-            # Kirim JSON success (tanpa 'new_data')
+            usertarget.save() 
+
             return JsonResponse({
                 'status': 'success',
                 'message': f'User {usertarget.username} berhasil dilaporkan. Strike ditambahkan.'
             })
         else:
-            # Kirim error validasi form
             errors = form.errors.as_json()
             return JsonResponse({'status': 'error', 'errors': errors}, status=400)
     
-    # GET request: Tampilkan form modal
     form = ReportUserForm()
     context = {
         'form': form,

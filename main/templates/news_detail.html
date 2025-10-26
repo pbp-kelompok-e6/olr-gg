@@ -107,7 +107,7 @@
                     </button>
                 </div>
 
-                <!-- Add Rating Form -->
+                <!-- Rating Form -->
                 <form id="rating-form" class="mb-6 bg-gray-50 rounded-lg border-2 border-gray-200 p-5 hidden">
                     {% csrf_token %}
                     <div class="space-y-4">
@@ -142,10 +142,9 @@
 
                 <!-- Ratings List -->
                 <div id="ratings-list" class="space-y-4">
-                    <!-- Ratings will be inserted here -->
                 </div>
 
-                <!-- Empty State for Ratings -->
+                <!-- Empty State Ratings -->
                 <div id="ratings-empty" class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 hidden">
                     <div class="text-5xl mb-3">⭐</div>
                     <p class="text-gray-600 font-medium">No ratings yet</p>
@@ -153,7 +152,7 @@
                 </div>
             </div>
 
-            <!-- Comments Section -->
+            <!-- Comments -->
             <div class="border-t-2 border-gray-200 p-6 sm:p-8 bg-white">
                 <h3 class="text-2xl font-bold text-gray-900 mb-6">Comments</h3>
                 {% include 'comments.html' %}
@@ -165,14 +164,11 @@
 {% include 'readinglist/reading_list_modal.html' %}
 
 <script>
-    // Configuration
     const NEWS_ID = "{{ news.id }}";
     const NEWS_DETAIL_ENDPOINT = `{% url 'main:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', NEWS_ID);
     const READING_LIST_TOGGLE_ENDPOINT = `{% url 'readinglist:add_remove_news' news.id %}`;
     const NEWS_STATUS_ENDPOINT = `{% url 'readinglist:get_news_list_status' news.id %}`;
     const IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === 'true';
-
-    // DOM Elements
     const loadingState = document.getElementById('loading-state');
     const errorState = document.getElementById('error-state');
     const articleContent = document.getElementById('article-content');
@@ -189,14 +185,12 @@
     const listOptionsContainer = document.getElementById('list-options-container');
     const listLoadingStatus = document.getElementById('list-loading-status');
 
-    // Show/hide page sections
     function showState(state) {
         loadingState.classList.toggle('hidden', state !== 'loading');
         errorState.classList.toggle('hidden', state !== 'error');
         articleContent.classList.toggle('hidden', state !== 'ready');
     }
 
-    // Get readable category name
     function getCategoryLabel(categoryCode) {
         const categoryMapping = {
             basketball: 'Basketball',
@@ -221,7 +215,6 @@
         return categoryColors[categoryCode] || 'bg-gray-600';
     }
 
-    // Helper function to get CSRF token
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -240,18 +233,15 @@
     function updateMainButtonAppearance(isInAnyList) {
         if (!addToReadingListBtn) return;
 
-        // Remove all possible color classes first
         addToReadingListBtn.classList.remove(
             'border-blue-600', 'text-blue-600', 'hover:bg-blue-600',
             'border-red-600', 'text-red-600', 'hover:bg-red-600'
         );
 
         if (isInAnyList) {
-            // Already in list - show red (remove)
             readingListStatusText.textContent = "Remove from List";
             addToReadingListBtn.classList.add('border-red-600', 'text-red-600', 'hover:bg-red-600');
         } else {
-            // Not in list - show blue (add)
             readingListStatusText.textContent = "+ Reading List";
             addToReadingListBtn.classList.add('border-blue-600', 'text-blue-600', 'hover:bg-blue-600');
         }
@@ -286,7 +276,6 @@
                 const isNowInList = !wasInList;
                 const statusText = isNowInList ? 'Remove' : 'Add';
 
-                // Update button appearance
                 button.className = `w-full text-left p-4 rounded-lg transition-all duration-200 flex justify-between items-center border-2 font-medium ${isNowInList
                     ? 'bg-red-50 hover:bg-red-100 text-red-700 border-red-300 shadow-md'
                     : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300 shadow-md hover:shadow-lg'
@@ -337,7 +326,7 @@
 
         const toast = document.createElement('div');
         toast.id = 'toast-notification';
-        toast.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-5 py-3 rounded-lg shadow-xl z-50 transition-opacity font-semibold';
+        toast.className = 'fixed bottom-4 right-4 bg-blue-600 text-white px-5 py-3 rounded-lg shadow-xl z-50 transition-opacity font-semibold';
         toast.textContent = text;
         document.body.appendChild(toast);
 
@@ -429,7 +418,6 @@
         addToReadingListBtn.addEventListener('click', openReadingListModal);
     }
 
-    // Render article content
     function renderArticle(news) {
         articleTitle.textContent = news.title;
         document.title = `${news.title} - OLR.GG`;
@@ -472,7 +460,6 @@
         articleAuthor.innerHTML = `<a href="${linkAuthorProfile}" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors">${authorName}</a>`;
     }
 
-    // Fetch news detail
     async function loadNewsDetail() {
         try {
             showState('loading');
@@ -502,7 +489,6 @@
         }
     }
 
-    // Load ratings
     function loadRatings() {
         fetch(`/rating/get/${NEWS_ID}/`)
             .then(response => response.json())
@@ -556,7 +542,6 @@
             });
     }
 
-    // Handle rating form submission
     document.getElementById('rating-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -624,7 +609,6 @@
         editingRatingId = ratingId;
     }
 
-    // Toggle review form
     const toggleReviewBtn = document.getElementById('toggle-review-btn');
     const ratingForm = document.getElementById('rating-form');
     const cancelReviewBtn = document.getElementById('cancel-review-btn');
@@ -645,7 +629,6 @@
     let editMode = false;
     let editingRatingId = null;
 
-    // Initialize page
     loadNewsDetail();
     loadRatings();
 </script>

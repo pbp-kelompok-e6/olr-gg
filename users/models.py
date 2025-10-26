@@ -33,9 +33,6 @@ class CustomUser(AbstractUser):
         super().save(*args, **kwargs)
 
 class Report(models.Model):
-    """
-    Model untuk mencatat laporan user.
-    """
     # User yang membuat laporan
     reporter = models.ForeignKey(
         settings.AUTH_USER_MODEL, 

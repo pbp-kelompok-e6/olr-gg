@@ -29,7 +29,7 @@ def add_rating(request, news_id):
     if request.method == 'POST':
         news = get_object_or_404(News, id=news_id)
 
-        # Cek apakah user pernah mereview news ini sebelumnya
+        # Cek apakah user pernah mereview news atau belum
         existing_review = Rating.objects.filter(news=news, user=request.user).first()
         
         if existing_review:

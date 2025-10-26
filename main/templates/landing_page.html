@@ -8,11 +8,9 @@
 {% block content %}
 {% include 'navbar.html' %}
 
-<!-- Hero Section -->
 <div class="landing-content pt-16">
     <div class="bg-[linear-gradient(to_bottom_right,_#1e3a8a,_#1d4ed8,_#b91c1c,_#7f1d1d)] w-full min-h-screen flex items-center justify-center">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <!-- Hero Text -->
             <div class="text-center mb-12" data-aos="fade-up">
                 <h1 class="text-5xl sm:text-6xl font-bold mb-4">
                     <span class="text-white">Welcome to </span><span class="text-blue-400">OLR.</span><span class="text-red-500">GG</span>
@@ -25,16 +23,16 @@
                 </p>
             </div>
 
-            <!-- Sports Categories Grid -->
+            <!-- kategori olahraga -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-aos="fade-up" data-aos-delay="200">
                 <!-- Basketball -->
                 <a href="{% url 'main:show_main' %}?category=basketball" 
-                   class="group bg-[#1a1d29] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-red-500/50">
+                   class="group bg-[#1a1d29] rounded-lg transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-red-500/50">
                     <div class="relative h-48 overflow-hidden">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgz49310II770AGnAMO-7LIz0uBtT3wKp_Nw&s" 
+                        <img src="https://img.olympics.com/images/image/private/t_s_pog_staticContent_hero_xl_2x/f_auto/primary/ywjjv6pml5diu5cwid21" 
                         alt="Basketball"
-                        class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-300">
-                        <div class="absolute inset-0 bg-black/40"></div>
+                        class="w-full h-full object-cover group-hover:scale-110 transition-all duration-300">
+                        <div class="absolute inset-0"></div>
                     </div>
                     <div class="p-6 bg-[#1a1d29]">
                         <h3 class="text-2xl font-bold text-white mb-2">Basketball</h3>
@@ -44,12 +42,10 @@
 
                 <!-- Soccer -->
                 <a href="{% url 'main:show_main' %}?category=soccer" 
-                   class="group bg-[#1a1d29] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-blue-500/50">
+                   class="group bg-[#1a1d29] rounded-lg transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-blue-500/50">
                     <div class="relative h-48 overflow-hidden">
-                        <img src="https://i.pinimg.com/736x/03/66/43/03664370809f73fb1b773f810528acfd.jpg" 
-                        alt="Soccer" 
-                        class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-300">
-                        <div class="absolute inset-0 bg-black/40"></div>
+                        <img src="https://thumbs.dreamstime.com/b/cristiano-ronaldo-shooting-28136493.jpg"
+                        alt="Soccer" >
                     </div>
                     <div class="p-6 bg-[#1a1d29]">
                         <h3 class="text-2xl font-bold text-white mb-2">Soccer</h3>
@@ -59,12 +55,12 @@
 
                 <!-- Football -->
                 <a href="{% url 'main:show_main' %}?category=football" 
-                   class="group bg-[#1a1d29] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-red-500/50">
+                   class="group bg-[#1a1d29] rounded-lg transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-red-500/50">
                     <div class="relative h-48 overflow-hidden">
                         <img src="https://idsb.tmgrup.com.tr/ly/uploads/images/2022/03/14/190521.jpg" 
                         alt="Football" 
-                        class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-300">
-                        <div class="absolute inset-0 bg-black/40"></div>
+                        class="w-full h-full object-cover group-hover:scale-110 transition-all duration-300">
+                        <div class="absolute inset-0"></div>
                     </div>
                     <div class="p-6 bg-[#1a1d29]">
                         <h3 class="text-2xl font-bold text-white mb-2">Football</h3>
@@ -74,12 +70,12 @@
 
                 <!-- Hockey -->
                 <a href="{% url 'main:show_main' %}?category=hockey" 
-                   class="group bg-[#1a1d29] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-blue-500/50">
+                   class="group bg-[#1a1d29] rounded-lg transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-blue-500/50">
                     <div class="relative h-48 overflow-hidden">
                         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrMg3tMgiXXoLGcpD0mu2lNO4xnq3-0q8sZw&s" 
                         alt="Hockey" 
-                        class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-300">
-                        <div class="absolute inset-0 bg-black/40"></div>
+                        class="w-full h-full object-cover group-hover:scale-110 transition-all duration-300">
+                        <div class="absolute inset-0"></div>
                     </div>
                     <div class="p-6 bg-[#1a1d29]">
                         <h3 class="text-2xl font-bold text-white mb-2">Hockey</h3>
@@ -89,12 +85,10 @@
 
                 <!-- Volleyball -->
                 <a href="{% url 'main:show_main' %}?category=volleyball" 
-                   class="group bg-[#1a1d29] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-red-500/50">
+                   class="group bg-[#1a1d29] rounded-lg transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-red-500/50">
                     <div class="relative h-48 overflow-hidden">
                         <img src="https://images.volleyballworld.com/image/upload/t_q-best/fivb-prd/hfbm8zmgfx70kyid9qaw.jpg" 
-                        alt="Volleyball" 
-                        class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-300">
-                        <div class="absolute inset-0 bg-black/40"></div>
+                        alt="Volleyball" >
                     </div>
                     <div class="p-6 bg-[#1a1d29]">
                         <h3 class="text-2xl font-bold text-white mb-2">Volleyball</h3>
@@ -104,12 +98,12 @@
 
                 <!-- Baseball -->
                 <a href="{% url 'main:show_main' %}?category=baseball" 
-                   class="group bg-[#1a1d29] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-blue-500/50">
+                   class="group bg-[#1a1d29] rounded-lg transition-all duration-300 overflow-hidden transform hover:scale-[1.02] border border-gray-700 hover:border-blue-500/50">
                     <div class="relative h-48 overflow-hidden">
                         <img src="https://media.cnn.com/api/v1/images/stellar/prod/230707091515-01-baseball-shohei-ohtani.jpg?c=original" 
                         alt="Baseball" 
-                        class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-300">
-                        <div class="absolute inset-0 bg-black/40"></div>
+                        class="w-full h-full object-cover group-hover:scale-110 transition-all duration-300">
+                        <div class="absolute inset-0"></div>
                     </div>
                     <div class="p-6 bg-[#1a1d29]">
                         <h3 class="text-2xl font-bold text-white mb-2">Baseball</h3>
@@ -118,7 +112,7 @@
                 </a>
             </div>
 
-            <!-- View All Button -->
+            <!-- view all -->
             <div class="text-center mt-12" data-aos="fade-up" data-aos-delay="400">
                 <a href="{% url 'main:show_main' %}" 
                    class="inline-flex items-center px-8 py-4 border-2 border-gray-600 text-lg font-semibold rounded-lg text-white hover:bg-red-600 hover:border-red-600 transition-colors shadow-lg">
@@ -133,34 +127,34 @@
 </div>
 
 <!-- About Section -->
-<div class="bg-[#0f1117] py-16">
+<div class="bg-gradient-to-br from-gray-50 to-gray-100 py-16">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-3xl font-bold text-white mb-6" data-aos="fade-up">About OLR.GG</h2>
-        <p class="text-lg text-gray-400 mb-8" data-aos="fade-up" data-aos-delay="100">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6" data-aos="fade-up">About OLR.GG</h2>
+        <p class="text-lg text-gray-700 mb-8" data-aos="fade-up" data-aos-delay="100">
             OLR.GG is your one-stop destination for sports news across Basketball, Soccer, Football, 
             Hockey, Volleyball, and Baseball. Join our community to discuss, rate, and save your favorite articles.
         </p>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            <div data-aos="fade-up" data-aos-delay="200" class="bg-[#1a1d29] p-6 rounded-lg border border-gray-700">
+            <div data-aos="fade-up" data-aos-delay="200" class="bg-white p-6 rounded-lg border border-gray-200 shadow-md hover:shadow-lg transition-shadow">
                 <div class="text-4xl mb-4">📰</div>
-                <h3 class="font-bold text-white mb-2">Latest News</h3>
-                <p class="text-gray-400">Real-time sports updates</p>
+                <h3 class="font-bold text-gray-900 mb-2">Latest News</h3>
+                <p class="text-gray-600">Real-time sports updates</p>
             </div>
-            <div data-aos="fade-up" data-aos-delay="300" class="bg-[#1a1d29] p-6 rounded-lg border border-gray-700">
+            <div data-aos="fade-up" data-aos-delay="300" class="bg-white p-6 rounded-lg border border-gray-200 shadow-md hover:shadow-lg transition-shadow">
                 <div class="text-4xl mb-4">💬</div>
-                <h3 class="font-bold text-white mb-2">Community</h3>
-                <p class="text-gray-400">Join discussions with fans</p>
+                <h3 class="font-bold text-gray-900 mb-2">Community</h3>
+                <p class="text-gray-600">Join discussions with fans</p>
             </div>
-            <div data-aos="fade-up" data-aos-delay="400" class="bg-[#1a1d29] p-6 rounded-lg border border-gray-700">
+            <div data-aos="fade-up" data-aos-delay="400" class="bg-white p-6 rounded-lg border border-gray-200 shadow-md hover:shadow-lg transition-shadow">
                 <div class="text-4xl mb-4">📚</div>
-                <h3 class="font-bold text-white mb-2">Reading Lists</h3>
-                <p class="text-gray-400">Save your favorite articles</p>
+                <h3 class="font-bold text-gray-900 mb-2">Reading Lists</h3>
+                <p class="text-gray-600">Save your favorite articles</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Footer -->
+<!-- footer -->
 <footer class="bg-[#0f1117] text-white py-8 border-t border-gray-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -187,17 +181,19 @@
                     <li><a href="{% url 'main:show_main' %}?category=soccer" class="text-gray-400 hover:text-red-400 transition-colors">Soccer</a></li>
                     <li><a href="{% url 'main:show_main' %}?category=football" class="text-gray-400 hover:text-red-400 transition-colors">Football</a></li>
                     <li><a href="{% url 'main:show_main' %}?category=hockey" class="text-gray-400 hover:text-red-400 transition-colors">Hockey</a></li>
+                    <li><a href="{% url 'main:show_main' %}?category=baseball" class="text-gray-400 hover:text-red-400 transition-colors">Baseball</a></li>
+                    <li><a href="{% url 'main:show_main' %}?category=volleyball" class="text-gray-400 hover:text-red-400 transition-colors">Volleyball</a></li>
                 </ul>
             </div>
         </div>
         
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 OLR.GG. All rights reserved.</p>
+            <p>&copy; 2025 OLR.GG. All rights reserved.</p>
         </div>
     </div>
 </footer>
 
-<!-- AOS Animation Library -->
+<!-- library untuk animasi biar keren-->
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>

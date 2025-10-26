@@ -9,7 +9,7 @@ from users.models import CustomUser
 class NewsResource(resources.ModelResource):
 
     user = fields.Field(
-        column_name='user_id',
+        column_name='user',
         attribute='user',
         widget=ForeignKeyWidget(CustomUser, field='id')
     )

@@ -16,7 +16,6 @@ from django.utils.html import strip_tags
 
 
 def get_comment_data(comment):
-    """Helper function to format comment data for JSON response"""
     return {
         "id": str(comment.id),
         "content": comment.content,
@@ -121,7 +120,6 @@ def edit_comment(request, id, news_id):
         }, status=500)
 
 @login_required()
-
 @require_POST
 def delete_comment(request, id, news_id):
     try:

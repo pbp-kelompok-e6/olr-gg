@@ -1,8 +1,7 @@
-# readinglist/models.py
 import uuid
 from django.db import models
 from django.conf import settings
-from berita.models import News # Mengimport model News dari app 'main'
+from berita.models import News 
 from users.models import CustomUser
 
 # Model untuk List Bacaan (Folder)

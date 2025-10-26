@@ -16,7 +16,6 @@ def forum_view(request):
     }
     return render(request, 'forum.html', context)
 
-
 @login_required
 def create_post_ajax(request):
     if request.method == 'POST':

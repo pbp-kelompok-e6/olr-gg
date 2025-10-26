@@ -24,7 +24,7 @@ def show_news(request, id):
 @require_POST
 @login_required
 def edit_news(request, id):
-    news = get_object_or_404(News, pk=id, user=request.user)  # pastikan hanya user sendiri
+    news = get_object_or_404(News, pk=id, user=request.user)
 
     news.title = strip_tags(request.POST.get("title"))
     news.content = strip_tags(request.POST.get("content"))
@@ -51,11 +51,11 @@ def delete_news(request, id):
 @require_POST
 @login_required
 def create_news(request):
-    title = strip_tags(request.POST.get("title")) # strip HTML tags!
-    content = strip_tags(request.POST.get("content")) # strip HTML tags!
+    title = strip_tags(request.POST.get("title"))
+    content = strip_tags(request.POST.get("content"))
     category = request.POST.get("category")
     thumbnail = request.POST.get("thumbnail")
-    is_featured = request.POST.get("is_featured") == 'on'  # checkbox handling
+    is_featured = request.POST.get("is_featured") == 'on'
     user = request.user
 
     news_baru = News(
@@ -74,7 +74,6 @@ def show_json(request):
     news = News.objects.all().select_related('user')
     data = []
     for item in news:
-        # Get average rating for this news
         avg_rating = Rating.objects.filter(news=item).aggregate(Avg('rating'))['rating__avg']
         rating_count = Rating.objects.filter(news=item).count()
         
@@ -86,7 +85,7 @@ def show_json(request):
             'thumbnail': item.thumbnail if item.thumbnail else None,
             'is_featured': item.is_featured,
             'created_at': item.created_at.isoformat(),
-            'news_views': getattr(item, 'news_views', 0),  # Safe access dengan default 0
+            'news_views': getattr(item, 'news_views', 0),
             'user_id': str(item.user.id),
             'user_username': item.user.username,
             'average_rating': round(avg_rating, 1) if avg_rating else None,

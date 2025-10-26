@@ -15,16 +15,14 @@ from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
 import json
 
-# Create your views here.
-
 User = get_user_model()
 
 def landing_page(request):
     return render(request, 'landing_page.html')
 
 def show_main(request):
-    filter_type = request.GET.get("filter", "all")  # default 'all'
-    selected_category = request.GET.get("category", "")  # pass category from landing page
+    filter_type = request.GET.get("filter", "all")
+    selected_category = request.GET.get("category", "")
 
     if filter_type == "all":
         news_list = News.objects.all()
@@ -87,7 +85,7 @@ def login_user(request):
                   ban_message = 'Akun anda telah diblokir karena telah mencapai 3 strike. Silakan hubungi admin untuk informasi lebih lanjut.'
                   
                   if is_ajax:
-                      return JsonResponse({"status": "ERROR", "message": ban_message}, status=403) # 403 = Forbidden
+                      return JsonResponse({"status": "ERROR", "message": ban_message}, status=403)
                   else:
                       messages.error(request, ban_message)
                       form = AuthenticationForm() 
@@ -118,8 +116,6 @@ def login_user(request):
          form = AuthenticationForm()
          return render(request, 'login.html', {'form': form})
 
-
-   # GET request (tidak berubah)
    form = AuthenticationForm(request)
    context = {'form': form}
    return render(request, 'login.html', context)
