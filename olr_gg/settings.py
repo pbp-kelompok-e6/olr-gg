@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'users',
     'main',
     'berita',
+    'import_export',
     'comments',
     'readinglist',
     'forum',
