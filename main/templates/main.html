@@ -143,19 +143,15 @@
   }
 
   function updateFilterButtonsAppearance() {
-    if (!showAllNewsButton) return;
-    if (!showMyNewsButton) {
-      showAllNewsButton.className = 'px-4 py-2 rounded-md font-medium transition-all duration-300 text-white bg-red-600';
-      return;
-    }
-    if (activeFilter === 'all') {
-      showAllNewsButton.className = 'px-4 py-2 rounded-md font-medium transition-all duration-300 text-white bg-red-600';
-      showMyNewsButton.className = 'px-4 py-2 rounded-md font-medium transition-all duration-300 text-gray-700 hover:text-gray-900';
+    if (!showMyNewsButton) return;
+    if (activeFilter === 'my') {
+      showMyNewsButton.className =
+        'px-4 py-2 rounded-md font-medium transition-all duration-300 text-white bg-red-600';
     } else {
-      showMyNewsButton.className = 'px-4 py-2 rounded-md font-medium transition-all duration-300 text-white bg-red-600';
-      showAllNewsButton.className = 'px-4 py-2 rounded-md font-medium transition-all duration-300 text-gray-700 hover:text-gray-900';
+      showMyNewsButton.className =
+        'px-4 py-2 rounded-md font-medium transition-all duration-300 text-gray-700 hover:text-gray-900';
     }
-  }
+}
 
   function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
     if (loadingSpinner) loadingSpinner.classList.toggle('hidden', !showLoading);
@@ -406,23 +402,12 @@
   }
 
   function initializeNewsPage() {
-    if (showAllNewsButton) {
-      showAllNewsButton.addEventListener('click', handleShowAllNewsClick);
-    }
-    if (showMyNewsButton) {
-      showMyNewsButton.addEventListener('click', handleShowMyNewsClick);
-    }
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlFilter = urlParams.get('filter');
-    const isAuthenticated = "{{ user.is_authenticated|yesno:'true,false' }}" === 'true';
-    if (urlFilter === 'my' && isAuthenticated) {
-      activeFilter = 'my';
-    } else {
-      activeFilter = 'all';
-    }
-    fetchNewsFromServer();
+  if (showMyNewsButton) {
+    showMyNewsButton.addEventListener('click', handleShowMyNewsClick);
   }
+
+  fetchNewsFromServer(); // awalnya tampil semua
+  } 
 
   document.addEventListener('DOMContentLoaded', initializeNewsPage);
   document.addEventListener('newsAdded', function () {
