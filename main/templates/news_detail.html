@@ -165,11 +165,18 @@
 </div>
 
 {% include 'readinglist/reading_list_modal.html' %}
+{% include 'readinglist/reading_list_scripts.html' %}
 
 <script>
 const NEWS_ID = "{{ news.id }}";
 const NEWS_DETAIL_ENDPOINT = `{% url 'main:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', NEWS_ID);
 const IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === 'true';
+window.READING_LIST_TOGGLE_ENDPOINT_BASE = "{% url 'readinglist:add_remove_news' '00000000-0000-0000-0000-000000000000' %}";
+window.NEWS_STATUS_ENDPOINT_BASE = "{% url 'readinglist:get_news_list_status' '00000000-0000-0000-0000-000000000000' %}";
+window.IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === 'true';
+window.CURRENT_NEWS_ID = NEWS_ID;
+window.NEWS_STATUS_ENDPOINT = window.NEWS_STATUS_ENDPOINT_BASE.replace('00000000-0000-0000-0000-000000000000', NEWS_ID);
+window.READING_LIST_TOGGLE_ENDPOINT = window.READING_LIST_TOGGLE_ENDPOINT_BASE.replace('00000000-0000-0000-0000-000000000000', NEWS_ID);
 
 const loadingState = document.getElementById('loading-state');
 const errorState = document.getElementById('error-state');
