@@ -69,13 +69,11 @@
         padding: 0 2.5rem 3rem;
     }
 
-    .error-messages {
-        list-style: none;
-        padding: 0;
-        margin: 0 0 1.5rem 0;
+    .message-container {
+        margin-bottom: 1.5rem;
     }
 
-    .error-messages li {
+    .error-message {
         background: #fee2e2;
         color: #dc2626;
         border-radius: 12px;
@@ -87,8 +85,25 @@
         gap: 0.5rem;
     }
 
-    .error-messages li::before {
+    .error-message::before {
         content: '⚠';
+        font-size: 1.2rem;
+    }
+
+    .success-message {
+        background: #dbeafe;
+        color: #1d4ed8;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .success-message::before {
+        content: '✓';
         font-size: 1.2rem;
     }
 
@@ -168,26 +183,6 @@
         transform: translateY(0);
     }
 
-    .divider {
-        display: flex;
-        align-items: center;
-        margin: 2rem 0;
-        color: #9ca3af;
-        font-size: 0.875rem;
-    }
-
-    .divider::before,
-    .divider::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: #e5e7eb;
-    }
-
-    .divider span {
-        padding: 0 1rem;
-    }
-
     .register-link {
         text-align: center;
         margin-top: 2rem;
@@ -226,11 +221,15 @@
 
         <div class="login-body">
             {% if messages %}
-            <ul class="error-messages">
+            <div class="message-container">
                 {% for message in messages %}
-                <li>{{ message }}</li>
+                    {% if message.tags == 'success' %}
+                    <div class="success-message">{{ message }}</div>
+                    {% else %}
+                    <div class="error-message">{{ message }}</div>
+                    {% endif %}
                 {% endfor %}
-            </ul>
+            </div>
             {% endif %}
 
             <form method="POST" action="">
