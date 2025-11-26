@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'users',
     'main',
     'berita',
+    'import_export',
     'comments',
     'readinglist',
     'forum',
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'olr_gg.urls'

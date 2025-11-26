@@ -8,7 +8,6 @@ from .models import Rating
 from .forms import ReviewForm
 from django.http import HttpResponseForbidden, JsonResponse
 
-@login_required
 def get_ratings_json(request, news_id):
     ratings = Rating.objects.filter(news_id=news_id)
     data = [
