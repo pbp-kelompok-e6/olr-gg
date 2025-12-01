@@ -5,7 +5,7 @@ from django.core import serializers
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from users.forms import CustomUserCreationForm as UserCreationForm
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 import datetime
 from django.http import HttpResponseRedirect, JsonResponse
@@ -14,17 +14,23 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
 import json
-# Create your views here.
 
-@login_required(login_url='/login')
+User = get_user_model()
+
+def landing_page(request):
+    return render(request, 'landing_page.html')
+
 def show_main(request):
-    filter_type = request.GET.get("filter", "all")  # default 'all'
+    filter_type = request.GET.get("filter", "all")
+    selected_category = request.GET.get("category", "")
+
     if filter_type == "all":
         news_list = News.objects.all()
     else:
         news_list = News.objects.filter(user=request.user)
     context = {
         'news_list': news_list,
+        'selected_category': selected_category,
     }
     return render(request, "main.html", context)
 
@@ -66,8 +72,27 @@ def login_user(request):
             data = json.loads(request.body)
          except json.JSONDecodeError:
             return JsonResponse({"status": "ERROR", "message": "Invalid JSON format."}, status=400)
+         username_to_check = data.get('username') 
       else:
          data = request.POST
+         username_to_check = data.get('username') 
+
+      if username_to_check:
+          try:
+              user_to_check = User.objects.get(username=username_to_check)
+              
+              if not user_to_check.is_active:
+                  ban_message = 'Akun anda telah diblokir karena telah mencapai 3 strike. Silakan hubungi admin untuk informasi lebih lanjut.'
+                  
+                  if is_ajax:
+                      return JsonResponse({"status": "ERROR", "message": ban_message}, status=403)
+                  else:
+                      messages.error(request, ban_message)
+                      form = AuthenticationForm() 
+                      return render(request, 'login.html', {'form': form})
+                      
+          except User.DoesNotExist:
+              pass
 
       form = AuthenticationForm(request, data=data)
 
@@ -80,23 +105,24 @@ def login_user(request):
             response.set_cookie('last_login', str(datetime.datetime.now()))
             return response
 
-         response = HttpResponseRedirect(reverse("main:show_main"))
+         response = HttpResponseRedirect(reverse("main:landing_page"))
          response.set_cookie('last_login', str(datetime.datetime.now()))
          return response
 
-      # form invalid
       if is_ajax:
-         errors = dict(form.errors.items())
-         return JsonResponse({"status": "ERROR", "message": "Invalid credentials or missing input.", "errors": errors}, status=400)
+         return JsonResponse({"status": "ERROR", "message": "Username atau password salah.", "errors": dict(form.errors.items())}, status=400)
+      else:
+         messages.error(request, 'Username atau password salah.')
+         form = AuthenticationForm()
+         return render(request, 'login.html', {'form': form})
 
-   # GET or fallback
    form = AuthenticationForm(request)
    context = {'form': form}
    return render(request, 'login.html', context)
 
 def logout_user(request):
     logout(request)
-    response = HttpResponseRedirect(reverse('main:login'))
+    response = HttpResponseRedirect(reverse('main:landing_page'))
     response.delete_cookie('last_login')
     return response
 

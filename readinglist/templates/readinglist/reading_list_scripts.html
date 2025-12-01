@@ -1,0 +1,283 @@
+<script>
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Toast notification
+    function showTemporaryMessage(text, type = 'success') {
+        const existing = document.getElementById('toast-notification');
+        if (existing) existing.remove();
+
+        const bgColor = type === 'success' ? 'bg-blue-600' : 'bg-red-600';
+        const icon = type === 'success'
+            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'
+            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+
+        const toast = document.createElement('div');
+        toast.id = 'toast-notification';
+        toast.className = `fixed bottom-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300`;
+        toast.innerHTML = `
+            <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    ${icon}
+                </svg>
+                <span class="font-medium">${text}</span>
+            </div>
+        `;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Open modal
+    function openReadingListModal() {
+        const IS_AUTHENTICATED = typeof window.IS_AUTHENTICATED !== 'undefined' ? window.IS_AUTHENTICATED : false;
+        if (!IS_AUTHENTICATED) {
+            alert("Anda harus login untuk mengakses fitur ini.");
+            return;
+        }
+        const modal = document.getElementById('readingListModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            fetchReadingListStatus();
+        }
+    }
+
+    // Close modal
+    function closeReadingListModal() {
+        const modal = document.getElementById('readingListModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+
+    // Update main button appearance (for news_detail.html)
+    function updateReadButtonAppearance(isInAnyList) {
+        const btn = document.getElementById('add-to-reading-list-btn');
+        const statusText = document.getElementById('reading-list-status-text');
+
+        if (!btn || !statusText) return;
+
+        btn.classList.remove(
+            'border-blue-600', 'text-blue-600', 'hover:bg-blue-600',
+            'border-red-600', 'text-red-600', 'hover:bg-red-600'
+        );
+
+        if (isInAnyList) {
+            statusText.textContent = "Remove from List";
+            btn.classList.add('border-red-600', 'text-red-600', 'hover:bg-red-600', 'hover:text-white');
+        } else {
+            statusText.textContent = "+ Reading List";
+            btn.classList.add('border-blue-600', 'text-blue-600', 'hover:bg-blue-600', 'hover:text-white');
+        }
+    }
+
+    // Render list options in modal
+    function renderListOptions(lists) {
+        const container = document.getElementById('list-options-container');
+        const loadingStatus = document.getElementById('list-loading-status');
+
+        if (!container) return;
+
+        container.innerHTML = '';
+        if (loadingStatus) loadingStatus.classList.add('hidden');
+
+        if (lists.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 italic text-center py-4">You don\'t have any reading lists yet.</p>';
+            return;
+        }
+
+        lists.forEach(list => {
+            const button = document.createElement('button');
+            const isInList = list.is_in_list;
+            const statusText = isInList ? 'REMOVE' : 'ADD';
+
+            // Updated colors: Blue for ADD, Red for REMOVE
+            button.className = `w-full text-left p-4 rounded-lg transition-all duration-200 flex justify-between items-center border-2 font-medium ${isInList
+                ? 'bg-red-50 hover:bg-red-100 text-red-700 border-red-300 shadow-md'
+                : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300 shadow-md hover:shadow-lg'
+            }`;
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'font-semibold text-base';
+            nameSpan.textContent = list.name;
+
+            const statusSpan = document.createElement('span');
+            statusSpan.className = `text-xs font-bold uppercase px-3 py-1.5 rounded-full ${isInList 
+                ? 'bg-red-200 text-red-800 border border-red-300' 
+                : 'bg-blue-200 text-blue-800 border border-blue-300'
+            }`;
+            statusSpan.textContent = statusText;
+
+            button.appendChild(nameSpan);
+            button.appendChild(statusSpan);
+            button.onclick = () => handleListToggleFromModal(list.id, list.name, isInList, button);
+
+            container.appendChild(button);
+        });
+    }
+
+    // Fetch reading list status
+    async function fetchReadingListStatus() {
+        const IS_AUTHENTICATED = typeof window.IS_AUTHENTICATED !== 'undefined' ? window.IS_AUTHENTICATED : false;
+        if (!IS_AUTHENTICATED) return;
+
+        const modal = document.getElementById('readingListModal');
+        const container = document.getElementById('list-options-container');
+        const loadingStatus = document.getElementById('list-loading-status');
+
+        const isModalVisible = modal && !modal.classList.contains('hidden');
+
+        if (isModalVisible && container && loadingStatus) {
+            container.innerHTML = '';
+            loadingStatus.classList.remove('hidden');
+            loadingStatus.textContent = 'Loading lists...';
+        }
+
+        try {
+            const statusUrl = typeof window.NEWS_STATUS_ENDPOINT !== 'undefined'
+                ? window.NEWS_STATUS_ENDPOINT
+                : null;
+
+            if (!statusUrl) {
+                console.error('NEWS_STATUS_ENDPOINT not defined');
+                return;
+            }
+
+            const response = await fetch(statusUrl, {
+                headers: { 'Accept': 'application/json' },
+            });
+
+            const lists = await response.json();
+
+            if (!response.ok) {
+                if (isModalVisible && loadingStatus) {
+                    loadingStatus.textContent = `Failed to load lists: ${lists.message || 'Error'}`;
+                }
+                return;
+            }
+
+            if (isModalVisible) {
+                renderListOptions(lists);
+            }
+
+            // Update main button status (for news_detail.html)
+            const isInAnyList = lists.some(list => list.is_in_list);
+            updateReadButtonAppearance(isInAnyList);
+
+        } catch (error) {
+            if (isModalVisible && loadingStatus) {
+                loadingStatus.textContent = 'Failed to connect to server.';
+            }
+            console.error('Error fetching list status:', error);
+        }
+    }
+
+    // Handle toggle list item
+    async function handleListToggleFromModal(listId, listName, wasInList, button) {
+        button.disabled = true;
+
+        try {
+            const toggleUrl = typeof window.READING_LIST_TOGGLE_ENDPOINT !== 'undefined'
+                ? window.READING_LIST_TOGGLE_ENDPOINT
+                : null;
+
+            const newsId = typeof window.CURRENT_NEWS_ID !== 'undefined'
+                ? window.CURRENT_NEWS_ID
+                : null;
+
+            if (!toggleUrl || !newsId) {
+                console.error('Required endpoints or news ID not defined');
+                showTemporaryMessage('Configuration error', 'error');
+                return;
+            }
+
+            const response = await fetch(toggleUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ list_id: listId, news_id: newsId })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                const isNowInList = !wasInList;
+                const statusText = isNowInList ? 'REMOVE' : 'ADD';
+
+                // Update button UI with new colors
+                button.className = `w-full text-left p-4 rounded-lg transition-all duration-200 flex justify-between items-center border-2 font-medium ${isNowInList
+                    ? 'bg-red-50 hover:bg-red-100 text-red-700 border-red-300 shadow-md'
+                    : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300 shadow-md hover:shadow-lg'
+                }`;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'font-semibold text-base';
+                nameSpan.textContent = listName;
+
+                const statusSpan = document.createElement('span');
+                statusSpan.className = `text-xs font-bold uppercase px-3 py-1.5 rounded-full ${isNowInList 
+                    ? 'bg-red-200 text-red-800 border border-red-300' 
+                    : 'bg-blue-200 text-blue-800 border border-blue-300'
+                }`;
+                statusSpan.textContent = statusText;
+
+                button.innerHTML = '';
+                button.appendChild(nameSpan);
+                button.appendChild(statusSpan);
+                button.onclick = () => handleListToggleFromModal(listId, listName, isNowInList, button);
+
+                // Update main button status
+                const container = document.getElementById('list-options-container');
+                if (container) {
+                    const allButtons = container.querySelectorAll('button');
+                    let isInAnyList = false;
+
+                    allButtons.forEach(btn => {
+                        if (btn.classList.contains('bg-red-50')) {
+                            isInAnyList = true;
+                        }
+                    });
+
+                    updateReadButtonAppearance(isInAnyList);
+                }
+
+                // Show success message
+                const msg = isNowInList ? `Added to "${listName}"` : `Removed from "${listName}"`;
+                showTemporaryMessage(msg);
+
+            } else {
+                showTemporaryMessage(result.message || 'An error occurred', 'error');
+            }
+        } catch (error) {
+            console.error('Error toggling list item:', error);
+            showTemporaryMessage('Network error occurred', 'error');
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    window.openReadingListModal = openReadingListModal;
+    window.closeReadingListModal = closeReadingListModal;
+    window.fetchReadingListStatus = fetchReadingListStatus;
+    window.handleListToggleFromModal = handleListToggleFromModal;
+    window.updateReadButtonAppearance = updateReadButtonAppearance;
+    window.showTemporaryMessage = showTemporaryMessage;
+</script>

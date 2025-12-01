@@ -1,0 +1,261 @@
+<nav class="bg-[#0f1117] shadow-lg fixed w-full top-0 z-50 border-b border-gray-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center">
+        <a href="{% url 'main:landing_page' %}"
+          class="flex-shrink-0 text-2xl font-bold tracking-wider transition-all">
+          <span class="text-blue-400 hover:text-blue-300">OLR.</span><span class="text-red-500 hover:text-red-400">GG</span>
+        </a>
+
+        <div class="hidden md:flex md:ml-8 md:space-x-1">
+          <div class="relative group">
+            <button class="flex items-center space-x-1 text-gray-400 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-[#1a1d29]">
+              <span>Sports</span>
+              <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            
+            <div class="absolute left-0 mt-2 w-56 bg-[#1a1d29] rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-2 border border-gray-700">
+              <div class="py-2">
+                <a href="{% url 'main:show_main' %}?category=basketball" 
+                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#252833] hover:text-red-400 transition-colors">
+                  <span class="font-medium">Basketball</span>
+                </a>
+                <a href="{% url 'main:show_main' %}?category=soccer" 
+                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#252833] hover:text-blue-400 transition-colors">
+                  <span class="font-medium">Soccer</span>
+                </a>
+                <a href="{% url 'main:show_main' %}?category=football" 
+                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#252833] hover:text-red-400 transition-colors">
+                  <span class="font-medium">Football</span>
+                </a>
+                <a href="{% url 'main:show_main' %}?category=hockey" 
+                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#252833] hover:text-blue-400 transition-colors">
+                  <span class="font-medium">Hockey</span>
+                </a>
+                <a href="{% url 'main:show_main' %}?category=volleyball" 
+                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#252833] hover:text-red-400 transition-colors">
+                  <span class="font-medium">Volleyball</span>
+                </a>
+                <a href="{% url 'main:show_main' %}?category=baseball" 
+                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#252833] hover:text-blue-400 transition-colors">
+                  <span class="font-medium">Baseball</span>
+                </a>
+                <div class="border-t border-gray-700 my-2"></div>
+                <a href="{% url 'main:show_main' %}" 
+                   class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#252833] hover:text-white transition-colors font-semibold">
+                  <span>All Sports News</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <a href="{% url 'forum:forum_view' %}" class="inline-flex items-center px-3 py-2 text-sm font-medium transition-colors rounded-md
+               {% if request.resolver_match.app_name == 'forum' %}
+                 text-white bg-red-600/20 border border-red-500/50
+               {% else %}
+                 text-gray-400 hover:text-white hover:bg-[#1a1d29]
+               {% endif %}">
+            Forum
+          </a>
+
+          {% if user.is_authenticated %}
+          <a href="{% url 'readinglist:show_lists' %}" class="inline-flex items-center px-3 py-2 text-sm font-medium transition-colors rounded-md
+               {% if request.resolver_match.app_name == 'readinglist' %}
+                 text-white bg-red-600/20 border border-red-500/50
+               {% else %}
+                 text-gray-400 hover:text-white hover:bg-[#1a1d29]
+               {% endif %}">
+            Reading List
+          </a>
+          {% endif %}
+
+          {% if user.is_authenticated and user.role == 'reader' %}
+          <a href="{% url 'users:request_writer_role' %}" class="inline-flex items-center px-3 py-2 text-sm font-medium transition-colors rounded-md
+               {% if request.resolver_match.url_name == 'request_writer_role' %}
+                 text-white bg-blue-600/20 border border-blue-500/50
+               {% else %}
+                 text-gray-400 hover:text-white hover:bg-[#1a1d29]
+               {% endif %}">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z"></path>
+            </svg>
+            Become a Writer
+          </a>
+          {% endif %}
+
+          {% if user.is_authenticated and user.role == 'admin' %}
+          <a href="{% url 'users:admin_dashboard' %}" class="inline-flex items-center px-3 py-2 text-sm font-medium transition-colors rounded-md
+               {% if request.resolver_match.url_name == 'admin_dashboard' %}
+                 text-white bg-purple-600/20 border border-purple-500/50
+               {% else %}
+                 text-gray-400 hover:text-white hover:bg-[#1a1d29]
+               {% endif %}">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Admin
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="hidden md:flex items-center space-x-4">
+        {% if user.is_authenticated %}
+          <a href="{% url 'users:show_profile' user.id %}"
+            class="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors group">
+            {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}"
+              class="w-8 h-8 rounded-full border-2 border-gray-700 object-cover group-hover:border-red-500 transition-colors">
+            {% else %}
+            <div
+              class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-semibold border-2 border-gray-700 group-hover:border-red-500 transition-colors">
+              {{ user.username|slice:":1"|upper }}
+            </div>
+            {% endif %}
+            <span class="text-sm font-medium">{{ user.username }}</span>
+          </a>
+          <a href="{% url 'main:logout' %}"
+            class="px-4 py-2 text-sm font-medium rounded-md text-white bg-red-600/80 hover:bg-red-600 transition-colors shadow-sm">
+            Logout
+          </a>
+        {% else %}
+          <a href="{% url 'main:login' %}"
+            class="px-4 py-2 text-sm font-medium rounded-md text-gray-300 bg-[#1a1d29] hover:bg-[#252833] hover:text-white transition-colors shadow-sm border border-gray-700">
+            Login
+          </a>
+          <a href="{% url 'main:register' %}"
+            class="px-4 py-2 text-sm font-medium rounded-md text-white bg-red-600/80 hover:bg-red-600 transition-colors shadow-sm">
+            Register
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="md:hidden">
+        <button id="mobile-menu-button" type="button" class="text-gray-400 hover:text-white focus:outline-none focus:text-white">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden bg-[#1a1d29] border-t border-gray-800">
+    <div class="px-2 pt-2 pb-3 space-y-1">
+      <button id="mobile-sports-dropdown" type="button" class="w-full flex items-center justify-between px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md font-medium">
+        <span>Sports</span>
+        <svg id="mobile-dropdown-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+      
+      <div id="mobile-sports-menu" class="hidden pl-4 space-y-1">
+        <a href="{% url 'main:show_main' %}?category=basketball" class="flex items-center px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md">
+          <span>Basketball</span>
+        </a>
+        <a href="{% url 'main:show_main' %}?category=soccer" class="flex items-center px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md">
+          <span>Soccer</span>
+        </a>
+        <a href="{% url 'main:show_main' %}?category=football" class="flex items-center px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md">
+          <span>Football</span>
+        </a>
+        <a href="{% url 'main:show_main' %}?category=hockey" class="flex items-center px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md">
+          <span>Hockey</span>
+        </a>
+        <a href="{% url 'main:show_main' %}?category=volleyball" class="flex items-center px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md">
+          <span>Volleyball</span>
+        </a>
+        <a href="{% url 'main:show_main' %}?category=baseball" class="flex items-center px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md">
+          <span>Baseball</span>
+        </a>
+        <div class="border-t border-gray-700 my-2"></div>
+        <a href="{% url 'main:show_main' %}" class="flex items-center px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md font-semibold">
+          <span class="text-xl mr-2">📰</span>
+          <span>All Sports News</span>
+        </a>
+      </div>
+
+      <a href="{% url 'forum:forum_view' %}" class="block px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md font-medium">
+        Forum
+      </a>
+
+      {% if user.is_authenticated %}
+      <a href="{% url 'readinglist:show_lists' %}" class="block px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md font-medium">
+        Reading List
+      </a>
+      {% endif %}
+
+      {% if user.is_authenticated and user.role == 'reader' %}
+      <a href="{% url 'users:request_writer_role' %}" class="flex items-center px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md font-medium">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z"></path>
+        </svg>
+        Become a Writer
+      </a>
+      {% endif %}
+
+      {% if user.is_authenticated and user.role == 'admin' %}
+      <a href="{% url 'users:admin_dashboard' %}" class="flex items-center px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md font-medium">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        Admin Dashboard
+      </a>
+      {% endif %}
+      
+      <div class="border-t border-gray-700 my-2"></div>
+      
+      {% if user.is_authenticated %}
+        <a href="{% url 'users:show_profile' user.id %}" class="flex items-center px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md">
+          {% if user.profile_picture %}
+          <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}"
+            class="w-8 h-8 rounded-full border-2 border-gray-700 object-cover mr-2">
+          {% else %}
+          <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-semibold mr-2">
+            {{ user.username|slice:":1"|upper }}
+          </div>
+          {% endif %}
+          <span>{{ user.username }}</span>
+        </a>
+        <a href="{% url 'main:logout' %}" class="block px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md">
+          Logout
+        </a>
+      {% else %}
+        <a href="{% url 'main:login' %}" class="block px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md">
+          Login
+        </a>
+        <a href="{% url 'main:register' %}" class="block px-3 py-2 text-gray-400 hover:text-white hover:bg-[#252833] rounded-md">
+          Register
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<script>
+  (function() {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+
+    const mobileSportsDropdown = document.getElementById('mobile-sports-dropdown');
+    const mobileSportsMenu = document.getElementById('mobile-sports-menu');
+    const mobileDropdownIcon = document.getElementById('mobile-dropdown-icon');
+    
+    if (mobileSportsDropdown && mobileSportsMenu && mobileDropdownIcon) {
+      mobileSportsDropdown.addEventListener('click', function() {
+        mobileSportsMenu.classList.toggle('hidden');
+        mobileDropdownIcon.classList.toggle('rotate-180');
+      });
+    }
+  })();
+</script>

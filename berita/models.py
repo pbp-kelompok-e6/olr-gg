@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.db.models import Avg
 from users.models import CustomUser
 
 class News(models.Model):
@@ -9,7 +10,7 @@ class News(models.Model):
         ('soccer', 'Soccer'),
         ('football', 'Football'),
         ('hockey', 'Hockey'),
-        ('voleyball', 'Voleyball'),
+        ('volleyball', 'Volleyball'),
         ('baseball', 'Baseball'),
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -22,3 +23,10 @@ class News(models.Model):
 
     def __str__(self):
         return self.title
+    
+    @property
+    def average_rating(self):
+        from rating.models import Rating  
+        result = Rating.objects.filter(news=self).aggregate(avg=Avg('rating'))
+        avg_value = result['avg']
+        return round(avg_value, 1) if avg_value else None

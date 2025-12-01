@@ -26,6 +26,7 @@ OLR adalah pusat komunitas dan berita olahraga umum yang dirancang untuk penyuka
 - Register
 - Login
 - Logout
+- Reading List
 
 <h2>Sumber Initial Dataset</h2>
 Data initial berita olahraga diambil dari dataset kaggle berjudul “BBC Articles Dataset with Extra Features” pada link (https://www.kaggle.com/datasets/jacopoferretti/bbc-articles-dataset?resource=download)

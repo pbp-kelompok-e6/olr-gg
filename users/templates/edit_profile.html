@@ -1,0 +1,98 @@
+{% load static %}
+<div id="modalBackdrop" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 relative border-2 border-gray-200 transition-all duration-200 transform scale-100 hover:scale-[1.01] form-style">
+
+    <!-- Tombol Tutup -->
+    <button id="closeEditModal"
+      class="absolute top-4 right-4 text-gray-500 hover:text-red-600 text-2xl transition-all duration-150">&times;</button>
+
+    <!-- Judul Modal -->
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-6 border-b-4 border-red-600 inline-block pb-1">
+      Edit Profile
+    </h2>
+
+    <div id="form-messages" class="mb-4"></div>
+
+    <form id="editProfileForm" method="POST" action="{% url 'users:edit_profile' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- First Name -->
+      <div class="mb-5">
+        <label for="id_first_name" class="block text-sm font-semibold text-gray-700 mb-1">
+          First Name
+        </label>
+        {{ form.first_name }}
+        <div id="error-first_name" class="text-red-500 text-sm mt-1"></div>
+      </div>
+
+      <!-- Last Name -->
+      <div class="mb-5">
+        <label for="id_last_name" class="block text-sm font-semibold text-gray-700 mb-1">
+          Last Name
+        </label>
+        {{ form.last_name }}
+        <div id="error-last_name" class="text-red-500 text-sm mt-1"></div>
+      </div>
+
+      <!-- Bio -->
+      <div class="mb-5">
+        <label for="id_bio" class="block text-sm font-semibold text-gray-700 mb-1">
+          Bio
+        </label>
+        {{ form.bio }}
+        <div id="error-bio" class="text-red-500 text-sm mt-1"></div>
+      </div>
+
+      <!-- Tombol Aksi -->
+      <div class="flex justify-end gap-x-3 mt-6">
+        <button type="button" id="cancelEdit"
+          class="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200 shadow-sm hover:shadow-md">
+          Cancel
+        </button>
+        <button type="submit" id="saveProfileButton"
+          class="px-5 py-2.5 bg-red-600 text-white font-bold rounded-lg shadow-md hover:bg-red-700 transition-all duration-200">
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 🖤 Styling Input Langsung Tanpa global.css -->
+<style>
+  .form-style form input,
+  .form-style form textarea,
+  .form-style form select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 2px solid black; /* 🖤 border hitam */
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    background-color: white;
+    color: #111;
+  }
+
+  .form-style form input:focus,
+  .form-style form textarea:focus,
+  .form-style form select:focus {
+    outline: none;
+    border-color: #000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3); /* 🖤 bayangan fokus hitam */
+  }
+
+  .form-style form input:hover,
+  .form-style form textarea:hover,
+  .form-style form select:hover {
+    border-color: #222;
+  }
+</style>
+
+<script>
+  // Tutup modal
+  document.getElementById('closeEditModal').addEventListener('click', () => {
+    document.getElementById('modalBackdrop').classList.add('hidden');
+  });
+  document.getElementById('cancelEdit').addEventListener('click', () => {
+    document.getElementById('modalBackdrop').classList.add('hidden');
+  });
+</script>
