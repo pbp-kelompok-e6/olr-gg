@@ -26,6 +26,7 @@ urlpatterns = [
     path('forum/', include('forum.urls')),
     path('users/', include('users.urls')),
     path('rating/', include('rating.urls', namespace='rating')),
+    path('auth/', include('authentication.urls')),
 ]
 
 if settings.DEBUG:
