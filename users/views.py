@@ -48,6 +48,26 @@ def edit_profile(request):
 
 def show_profile(request, id):
     target_user = get_object_or_404(User, id=id)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        if target_user.profile_picture:
+            pic_url = target_user.profile_picture.url
+        else:
+            pic_url = static('image/default_profile_picture.jpg')
+
+        return JsonResponse({
+            'status': 'success',
+            'data': {
+                'id': target_user.id,
+                'username': target_user.username,
+                'full_name': f"{target_user.first_name or ''} {target_user.last_name or ''}".strip(),
+                'bio': target_user.bio,
+                'role': target_user.role,     
+                'strikes': target_user.strikes,
+                'date_joined': target_user.date_joined.strftime('%Y-%m-%d'),
+                'profile_picture_url': pic_url,
+                'is_owner': request.user.is_authenticated and target_user == request.user
+            }
+        })
 
     if request.user.is_authenticated and target_user == request.user:
         is_owner = True
@@ -64,6 +84,27 @@ def show_profile(request, id):
 def load_news(request, id):
     target_user = get_object_or_404(User, id=id)
     news_list = News.objects.filter(user=target_user).order_by('-created_at')
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        data = []
+        for news in news_list:
+            item = {
+                'id': str(news.id),  
+                'title': news.title,
+                'content': news.content, 
+                'category': news.category, 
+                'category_display': news.get_category_display(), 
+                'thumbnail': news.thumbnail, 
+                'created_at': news.created_at.strftime("%d %b %Y, %H:%M"),
+                'is_featured': news.is_featured,
+                'average_rating': news.average_rating 
+            }
+            data.append(item)
+            
+        return JsonResponse({
+            'status': 'success',
+            'news_list': data
+        })
 
     context = {
         'news_list': news_list,
@@ -160,14 +201,13 @@ def admin_edit_user(request, id):
     user_to_edit = get_object_or_404(User, id=id)
     
     if request.method == 'POST':
-        # request.FILES sudah ada di sini, ini penting untuk gambar
+
         form = AdminUserUpdateForm(request.POST, request.FILES, instance=user_to_edit)
         
         if form.is_valid():
             user = form.save(commit=False)
             
             if request.POST.get('reset_picture') == 'true':
-                # Hapus file gambar yang ada
                 user.profile_picture = None
                 
             user.save()
@@ -176,7 +216,6 @@ def admin_edit_user(request, id):
                 pic_url = user.profile_picture.url
             else:
                 pic_url = static('image/default_profile_picture.jpg') 
-            # -----------------------------------------------
 
             return JsonResponse({
                 'status': 'success', 
@@ -184,7 +223,6 @@ def admin_edit_user(request, id):
                 'new_profile_picture_url': pic_url
             })
         else:
-            # Kirim error form sebagai JSON
             errors = form.errors.as_json()
             return JsonResponse({'status': 'error', 'errors': errors}, status=400)
     
@@ -264,16 +302,18 @@ def admin_accept_report(request, id):
 
 @login_required(login_url='/login')
 def request_writer_role(request):
-
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
     if request.user.role != 'reader':
-        messages.error(request, 'Only readers can request to become writers.')
-        return redirect('users:show_profile', id=request.user.id)
-
+        msg = 'Only readers can request to become writers.'
+        if is_ajax:
+            return JsonResponse({'status': 'error', 'message': msg}, status=403)
+        else:
+            messages.error(request, msg)
+            return redirect('users:show_profile', id=request.user.id)
     existing_request = WriterRequest.objects.filter(user=request.user, status='pending').first()
 
     if request.method == 'POST':
-        # Pastikan ini AJAX
-        if not request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        if not is_ajax:
             return JsonResponse({'status': 'error', 'message': 'Invalid request.'}, status=400)
         
         if existing_request:
@@ -283,6 +323,7 @@ def request_writer_role(request):
         if form.is_valid():
             req = form.save(commit=False)
             req.user = request.user
+
             req.save()
             return JsonResponse({
                 'status': 'success',
@@ -291,8 +332,6 @@ def request_writer_role(request):
         else:
             errors = form.errors.as_json()
             return JsonResponse({'status': 'error', 'errors': errors}, status=400)
-
-    # GET Request
     form = WriterRequestForm()
     context = {
         'form': form,
@@ -310,15 +349,12 @@ def admin_approve_writer(request, id):
         writer_req = get_object_or_404(WriterRequest, id=id)
         user_to_promote = writer_req.user
         
-        # 1. Ubah role user
         user_to_promote.role = 'writer'
         user_to_promote.save()
         
-        # 2. Update status request
         writer_req.status = 'approved'
         writer_req.save()
         
-        # Hapus request lain yang mungkin pending dari user yang sama
         WriterRequest.objects.filter(user=user_to_promote, status='pending').delete()
         
         return JsonResponse({
@@ -339,8 +375,7 @@ def admin_reject_writer(request, id):
         
     try:
         writer_req = get_object_or_404(WriterRequest, id=id)
-        
-        # Cukup update status, jangan dihapus agar ada history
+
         writer_req.status = 'rejected'
         writer_req.save()
         

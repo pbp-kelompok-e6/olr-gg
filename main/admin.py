@@ -6,7 +6,6 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 class CustomUserResource(resources.ModelResource):
-    
     class Meta:
         model = CustomUser
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password', 
