@@ -81,23 +81,33 @@ def show_profile(request, id):
 
     return render(request, 'show_profile.html', context)
 
-def load_news(request, id):
-    target_user = get_object_or_404(User, id=id)
+def load_news(request):
+    user_id = request.GET.get('id')
+    target_user = get_object_or_404(User, id=user_id)
+    
     news_list = News.objects.filter(user=target_user).order_by('-created_at')
 
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+    # Cek apakah request minta JSON (via AJAX atau flag khusus 'type=json' dari Flutter)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('type') == 'json':
         data = []
         for news in news_list:
+            # Handle thumbnail
+            thumb_url = ""
+            if news.thumbnail:
+                thumb_url = news.thumbnail.url
+            else:
+                thumb_url = static('image/default_news.jpg')
+
             item = {
-                'id': str(news.id),  
+                'id': news.id,
                 'title': news.title,
-                'content': news.content, 
-                'category': news.category, 
-                'category_display': news.get_category_display(), 
-                'thumbnail': news.thumbnail, 
-                'created_at': news.created_at.strftime("%d %b %Y, %H:%M"),
+                'content': news.content,
+                'category': news.category,
+                'category_display': news.get_category_display(),
+                'thumbnail': thumb_url,
+                'created_at': news.created_at.strftime("%d %b %Y"),
                 'is_featured': news.is_featured,
-                'average_rating': news.average_rating 
+                'average_rating': news.average_rating
             }
             data.append(item)
             
@@ -109,7 +119,6 @@ def load_news(request, id):
     context = {
         'news_list': news_list,
     }
-
     return render(request, 'user_news_list.html', context)
 
 @login_required(login_url='/login')

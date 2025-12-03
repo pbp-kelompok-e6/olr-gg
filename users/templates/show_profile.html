@@ -74,7 +74,7 @@
                 Posts by @{{ usertarget.username }}
             </h3>
 
-            <div id="posts_content_target" data-url="{% url 'users:load_news' usertarget.id %}">
+            <div id="posts_content_target" data-url="{% url 'users:load_news' %}?id={{ usertarget.id }}">
                 <p id="posts_loading_spinner" class="text-gray-500">Loading posts...</p>
             </div>
         </div>
@@ -102,12 +102,10 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const modalContainer = document.getElementById('profileModalContainer');
-        // const modalButton = document.getElementById('openEditModal');
-
+        
         const profileEditContainer = document.getElementById('button_edit');
         const profileMenu = document.getElementById('profileOptionsMenu');
 
-        // Fungsi untuk membuka modal (kita buat jadi fungsi agar bisa dipakai ulang)
         function openProfileModal(url) {
             fetch(url)
                 .then(response => response.text())
@@ -138,23 +136,6 @@
             });
         }
 
-        // buka modalnya 
-        // if (modalButton) {
-        //     modalButton.addEventListener('click', function() {
-        //         const url = this.dataset.url;
-
-        //         fetch(url)
-        //             .then(response => response.text())
-        //             .then(html => {
-        //                 // Masukkan HTML form ke dalam container
-        //                 modalContainer.innerHTML = html;
-        //                 // Tampilkan modal (div #modalBackdrop sekarang ada di DOM)
-        //                 document.getElementById('modalBackdrop').classList.remove('hidden');
-        //             })
-        //             .catch(error => console.error('Error fetching modal:', error));
-        //     });
-        // }
-
         document.addEventListener('click', function (e) {
             if (profileMenu && !profileEditContainer.contains(e.target)) {
                 profileMenu.classList.add('hidden');
@@ -171,11 +152,9 @@
         }
 
         modalContainer.addEventListener('click', function (e) {
-
             if (e.target.id === 'closeEditModal' || e.target.id === 'cancelEdit' || e.target.id === 'modalBackdrop') {
                 modalContainer.innerHTML = '';
             }
-
         });
 
         modalContainer.addEventListener('submit', function (e) {
@@ -226,7 +205,7 @@
                         const msgDiv = document.getElementById('form-messages');
                         msgDiv.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">Terjadi kesalahan. Coba lagi.</div>`;
                         saveButton.disabled = false;
-                        saveButton.textContent = 'redanges';
+                        saveButton.textContent = 'Save Changes';
                     });
             }
         });
@@ -249,6 +228,7 @@
             document.getElementById('form-messages').innerHTML = '';
         }
 
+        // Logic Fetch Posts (AJAX) tetap sama, hanya URL-nya saja yang berubah di HTML
         const postsContentTarget = document.getElementById('posts_content_target');
 
         if (postsContentTarget) {
@@ -278,9 +258,7 @@
                 fetch(url)
                     .then(response => response.text())
                     .then(html => {
-                        // Masukkan HTML form ke dalam container
                         modalContainer.innerHTML = html;
-                        // Tampilkan modal
                         document.getElementById('modalBackdrop').classList.remove('hidden');
                     })
                     .catch(error => console.error('Error fetching pic modal:', error));
