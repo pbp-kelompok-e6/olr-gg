@@ -386,3 +386,27 @@ def admin_reject_writer(request, id):
         })
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@login_required
+def show_current_user_profile(request):
+    user = request.user
+    
+    if user.profile_picture:
+        pic_url = user.profile_picture.url
+    else:
+        pic_url = static('image/default_profile_picture.jpg')
+
+    return JsonResponse({
+        'status': 'success',
+        'data': {
+            'id': user.id,
+            'username': user.username,
+            'full_name': f"{user.first_name or ''} {user.last_name or ''}".strip(),
+            'bio': user.bio or "-",
+            'role': user.role,
+            'strikes': user.strikes,
+            'date_joined': user.date_joined.strftime('%Y-%m-%d'),
+            'profile_picture_url': pic_url,
+        }
+    })

@@ -1,7 +1,7 @@
 from django.urls import path
 from comments import views
 from .views import edit_profile, report_user, show_profile, load_news, change_profile_pic, admin_dashboard, admin_edit_user, admin_reset_strikes, admin_delete_report
-from .views import admin_accept_report, request_writer_role, admin_approve_writer, admin_reject_writer
+from .views import admin_accept_report, request_writer_role, admin_approve_writer, admin_reject_writer, show_current_user_profile
 app_name = 'users'
 
 urlpatterns = [
@@ -18,4 +18,5 @@ urlpatterns = [
     path('request-writer-role/', request_writer_role, name='request_writer_role'),
     path('admin-dashboard/approve-writer/<int:id>/', admin_approve_writer, name='admin_approve_writer'),
     path('admin-dashboard/reject-writer/<int:id>/', admin_reject_writer, name='admin_reject_writer'),
+    path('api/profile/', show_current_user_profile, name='api_profile'),
 ]
