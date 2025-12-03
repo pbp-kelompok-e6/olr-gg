@@ -87,7 +87,6 @@ def load_news(request):
     
     news_list = News.objects.filter(user=target_user).order_by('-created_at')
 
-    # Cek apakah request minta JSON (via AJAX atau flag khusus 'type=json' dari Flutter)
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('type') == 'json':
         data = []
         for news in news_list:
