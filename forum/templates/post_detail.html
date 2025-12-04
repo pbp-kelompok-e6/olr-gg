@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       const contentInput = document.getElementById('comment-content-input');
       fetch("{% url 'forum:create_comment_ajax' post.id %}", {
-          method: 'POST', // Create comment tetap POST
+          method: 'POST',
           headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
           body: JSON.stringify({ content: contentInput.value })
       })
@@ -199,7 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
               addCommentToDOM(data.comment);
               contentInput.value = '';
               updateCommentCount(1);
-              Swal.fire({title: 'Reply posted successfully', showConfirmButton: false, timer: 1500, animation: false});
           } else {
               Swal.fire({title: 'Error', text: data.message || "Failed to post reply.", animation: false});
           }
@@ -224,11 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (button.classList.contains('save-edit-btn')) {
           const newContent = document.getElementById(`edit-content-${commentId}`).value;
           const url = `{% url 'forum:edit_comment_ajax' 0 %}`.replace('0', commentId);
-          fetch(url, { 
-              method: 'PATCH', // UBAH KE PATCH
-              headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken}, 
-              body: JSON.stringify({ content: newContent }) 
-          })
+          fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken}, body: JSON.stringify({ content: newContent }) })
           .then(res => res.json())
           .then(data => {
               if (data.status === 'success') {
@@ -239,7 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
                   if (editedTag) { editedTag.style.display = 'inline'; }
                   contentP.parentElement.classList.remove('hidden');
                   editFormDiv.classList.add('hidden');
-                  Swal.fire({title: 'Reply updated successfully', showConfirmButton: false, timer: 1500, animation: false});
               } else {
                   Swal.fire({title: 'Error', text: data.message || "Failed to save changes.", animation: false});
               }
@@ -274,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const category = document.getElementById('edit-post-category').value;
       
       fetch(`{% url 'forum:edit_post_ajax' post.id %}`, {
-        method: 'PATCH', // UBAH KE PATCH
+        method: 'POST',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
         body: JSON.stringify({title: title, content: content, category: category})
       })
@@ -328,10 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       try {
-        const response = await fetch(url, { 
-            method: 'DELETE', // UBAH KE DELETE
-            headers: { 'X-CSRFToken': csrftoken } 
-        });
+        const response = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': csrftoken } });
         const data = await response.json();
         
         if (data.status === 'success') {

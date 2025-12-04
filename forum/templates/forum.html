@@ -97,6 +97,7 @@
     <div class="space-y-4" id="post-list-container">
       {% for post in posts %}
         <div id="post-{{ post.id }}" class="post-card bg-white p-5 rounded-xl border-2 border-gray-200 transition-all duration-200 hover:shadow-lg hover:border-red-600" data-category="{{ post.category }}">
+          
           <div class="flex justify-between items-start gap-4">
               <a href="{% url 'forum:post_detail_view' post.id %}" class="flex-grow">
                   <div class="flex items-center gap-3 mb-1">
@@ -109,17 +110,24 @@
                   <p class="text-xs text-gray-500 mb-1">{{ post.created_at|date:"M d, Y" }}</p>
               </div>
           </div>
+
           <div class="flex justify-between items-end mt-3">
               <a href="{% url 'forum:post_detail_view' post.id %}" class="text-sm font-medium text-red-600 hover:underline">View More →</a>
-              {% if post.author == user %}
+              
               <div class="post-card-actions flex items-center gap-3">
-                  <button class="edit-post-btn text-sm font-semibold text-blue-600 hover:text-blue-800" data-post-id="{{ post.id }}">Edit</button>
-                  <button class="delete-post-btn text-sm font-semibold text-red-600 hover:text-red-800" data-post-id="{{ post.id }}">Delete</button>
+                {# Tombol Edit: Hanya muncul buat Pemilik Post #}
+                {% if post.author == user %}
+                    <button class="edit-post-btn text-sm font-semibold text-blue-600 hover:text-blue-800" data-post-id="{{ post.id }}">Edit</button>
+                {% endif %}
+
+                {# Tombol Delete: Muncul buat Pemilik Post ATAU Admin #}
+                {% if post.author == user or user.is_superuser or user.role == 'Admin' %}
+                    <button class="delete-post-btn text-sm font-semibold text-red-600 hover:text-red-800" data-post-id="{{ post.id }}">Delete</button>
+                {% endif %}
               </div>
-              {% endif %}
-          </div>
-        </div>
-      {% endfor %}
+          </div> 
+          
+        </div> {% endfor %}
     </div>
 
     {% if not posts %}
@@ -201,6 +209,9 @@ document.addEventListener('DOMContentLoaded', function() {
               </a>
               <div class="text-right flex-shrink-0">
                   <p class="text-xs text-gray-500 mb-1">${post.created_at_formatted}</p>
+                  <div class="flex items-center justify-end gap-1 text-gray-600">
+                      <span class="text-sm font-medium">${post.comment_count}</span>
+                  </div>
               </div>
           </div>
           <div class="flex justify-between items-end mt-3">
@@ -223,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       try {
         const response = await fetch("{% url 'forum:create_post_ajax' %}", {
-          method: 'POST', // Create tetap POST
+          method: 'POST',
           headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
           body: JSON.stringify({ title, category, content })
         });
@@ -315,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (formValues) {
             const editUrl = `{% url 'forum:edit_post_ajax' 0 %}`.replace('0', postId);
             const updateResponse = await fetch(editUrl, {
-                method: 'PATCH', // SUDAH DIPERBAIKI (POST -> PATCH)
+                method: 'POST',
                 headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
                 body: JSON.stringify(formValues)
             });
@@ -348,10 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!postToDeleteId) return;
       const url = `{% url 'forum:delete_post_ajax' 0 %}`.replace('0', postToDeleteId);
       try {
-        const response = await fetch(url, { 
-            method: 'DELETE', // SUDAH DIPERBAIKI (POST -> DELETE)
-            headers: { 'X-CSRFToken': csrfToken } 
-        });
+        const response = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': csrfToken } });
         const data = await response.json();
         if (data.status === 'success') {
           document.getElementById(`post-${postToDeleteId}`).remove();
