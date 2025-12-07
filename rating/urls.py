@@ -8,4 +8,5 @@ urlpatterns = [
     path('add/<uuid:news_id>/', views.add_rating, name='add_rating'),
     path('edit/<int:rating_id>/', views.edit_rating, name='edit_rating'),
     path('delete/<int:rating_id>/', views.delete_rating, name='delete_rating'),
+    path('get_all/', views.get_all_ratings_json, name='get_all_ratings'),
 ]

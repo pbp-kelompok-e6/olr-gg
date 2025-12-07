@@ -67,9 +67,9 @@
                         <div class="flex items-center gap-2 mb-1">
                             <span class="font-semibold text-gray-900">{{ comment.user.username }}</span>
                             
-                            {% if comment.user.role == "Admin" %}
+                            {% if comment.user.role == "admin" %}
                             <span class="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Admin</span>
-                            {% elif comment.user.role == "Writer" %}
+                            {% elif comment.user.role == "writer" %}
                             <span class="bg-blue-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Writer</span>
                             {% endif %}
                         </div>
@@ -228,6 +228,8 @@ document.getElementById('commentForm')?.addEventListener('submit', async functio
         });
         
         const data = await response.json();
+        console.log('Comment data received:', data.comment);
+
         
         if (data.status === 'SUCCESS') {
             document.getElementById('commentContent').value = '';
@@ -252,40 +254,46 @@ document.getElementById('commentForm')?.addEventListener('submit', async functio
 
 function addCommentToDOM(comment) {
     const commentsList = document.getElementById('commentsList');
-    
+    console.log('addCommentToDOM called with:', comment);
     // html prof pic
     let profilePicHTML = '';
     if (comment.profile_picture) {
-        profilePicHTML = `<img src="${comment.profile_picture}" alt="${comment.user}" class="w-10 h-10 rounded-full object-cover">`;
+        profilePicHTML = `<img src="${comment.profile_picture}" alt="${comment.user}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-300">`;
     } else {
-        profilePicHTML = `<div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold">
+        profilePicHTML = `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-red-600 flex items-center justify-center text-white font-bold text-lg border-2 border-gray-300">
             ${comment.user.charAt(0).toUpperCase()}
         </div>`;
     }
     
     // badge untuk writer/admin
     let roleBadgeHTML = '';
-    if (comment.role === 'Admin') {
-        roleBadgeHTML = '<span class="bg-red-500 text-white text-xs px-2 py-1 rounded">Admin</span>';
-    } else if (comment.role === 'Writer') {
-        roleBadgeHTML = '<span class="bg-blue-500 text-white text-xs px-2 py-1 rounded">Writer</span>';
+    if (comment.role === 'admin') {
+        roleBadgeHTML = '<span class="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Admin</span>';
+    } else if (comment.role === 'writer') {
+        roleBadgeHTML = '<span class="bg-blue-600 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">Writer</span>';
     }
     
     // edit/delete button kalo user adalah pemilik comment atau staff
     let actionButtonsHTML = '';
     if (comment.user === currentUsername || isStaff) {
         actionButtonsHTML = `
-            <div class="flex gap-2">
+            <div class="flex gap-3">
                 <button 
                     onclick="editComment('${comment.id}', '${comment.content.replace(/'/g, "\\'").replace(/"/g, "&quot;")}')"
-                    class="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                    class="text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors inline-flex items-center gap-1"
                 >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
                     Edit
                 </button>
                 <button 
                     onclick="confirmDeleteComment('${comment.id}')"
-                    class="text-red-500 hover:text-red-700 text-sm font-medium"
+                    class="text-red-600 hover:text-red-800 text-sm font-semibold transition-colors inline-flex items-center gap-1"
                 >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
                     Delete
                 </button>
             </div>
@@ -299,14 +307,14 @@ function addCommentToDOM(comment) {
         minute: '2-digit' 
     });
     const commentHTML = `
-        <div class="comment-item border-b border-gray-200 pb-4 last:border-b-0" data-comment-id="${comment.id}">
-            <div class="flex items-start justify-between mb-2">
-                <div class="flex items-center gap-3">
+        <div class="comment-item border-2 border-gray-200 rounded-lg p-5 bg-white hover:border-blue-300 transition-colors" data-comment-id="${comment.id}">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-start gap-3">
                     ${profilePicHTML}
                     
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-semibold text-gray-800">${comment.user}</span>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-semibold text-gray-900">${comment.user}</span>
                             ${roleBadgeHTML}
                         </div>
                         
@@ -319,26 +327,26 @@ function addCommentToDOM(comment) {
                 ${actionButtonsHTML}
             </div>
 
-            <div class="comment-content text-gray-700 ml-13">
+            <div class="comment-content text-gray-700 ml-13 leading-relaxed">
                 <p id="content-${comment.id}">${comment.content}</p>
             </div>
 
             <div id="edit-form-${comment.id}" class="hidden mt-3 ml-13">
                 <textarea 
                     id="edit-content-${comment.id}"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-4 py-3 bg-white border-2 border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                     rows="3"
                 >${comment.content}</textarea>
-                <div class="flex gap-2 mt-2">
+                <div class="flex gap-2 mt-3">
                     <button 
                         onclick="saveEdit('${comment.id}')"
-                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm"
+                        class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md text-sm"
                     >
                         Save
                     </button>
                     <button 
                         onclick="cancelEdit('${comment.id}')"
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-1 rounded text-sm"
+                        class="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-sm"
                     >
                         Cancel
                     </button>
@@ -374,11 +382,12 @@ async function saveEdit(commentId) {
     
     try {
         const response = await fetch(`/news/${newsId}/comments/${commentId}/edit/`, {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
             },
-            body: formData
+            body: JSON.stringify({ content })
         });
         
         const data = await response.json();
@@ -438,9 +447,10 @@ async function deleteComment() {
     
     try {
         const response = await fetch(`/news/${newsId}/comments/${commentId}/delete/`, {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
                 'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
             }
         });
         

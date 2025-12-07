@@ -27,6 +27,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('rating/', include('rating.urls', namespace='rating')),
     path('auth/', include('authentication.urls')),
+    path('comments/', include('comments.urls')),
 ]
 
 if settings.DEBUG:

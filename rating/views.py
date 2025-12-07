@@ -23,6 +23,21 @@ def get_ratings_json(request, news_id):
     ]
     return JsonResponse(data, safe=False)
 
+def get_all_ratings_json(request):
+    ratings = Rating.objects.all()
+    data = [
+        {
+            'id': rating.id,
+            'rating': rating.rating,
+            'review': rating.review,
+            'created_at': rating.created_at.isoformat(),
+            'user_username': rating.user.username,
+            'can_edit': request.user == rating.user,
+        }
+        for rating in ratings
+    ]
+    return JsonResponse(data, safe=False)
+
 @login_required
 def add_rating(request, news_id):
     if request.method == 'POST':
