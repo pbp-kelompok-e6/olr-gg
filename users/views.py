@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-
+from django.views.decorators.csrf import csrf_exempt
 from rating.models import Rating
 from .forms import CustomUserChangeForm, ProfilePictureForm, ReportUserForm
 from django.shortcuts import get_object_or_404
@@ -17,6 +17,40 @@ User = get_user_model()
 
 @login_required(login_url='/login')
 def edit_profile(request):
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
+        
+        if form.is_valid():
+            user_instance = form.save() 
+            
+            if user_instance.profile_picture:
+                pic_url = user_instance.profile_picture.url
+            else:
+                pic_url = static('image/default_profile_picture.jpg') 
+
+            return JsonResponse({
+                'status': 'success', 
+                'message': 'Profile berhasil di update.',
+                'new_data': {
+                    'full_name': f"{user_instance.first_name or ''} {user_instance.last_name or ''}".strip(),
+                    'bio': user_instance.bio or "This user has not added a bio yet.",
+                    'profile_picture_url': pic_url
+                }
+            })
+    
+        else:
+            errors = form.errors.as_json()
+            return JsonResponse({'status': 'error', 'errors': errors}, status=400)
+    form = CustomUserChangeForm(instance=request.user)
+    context = {
+        'form': form
+    }
+
+    return render(request, 'edit_profile.html', context) 
+
+@csrf_exempt
+@login_required(login_url='/login')
+def edit_profile_flutter(request):
     if request.method == 'POST':
         form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
         
