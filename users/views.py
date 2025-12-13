@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+
+from rating.models import Rating
 from .forms import CustomUserChangeForm, ProfilePictureForm, ReportUserForm
 from django.shortcuts import get_object_or_404
 from .models import CustomUser as User, Report, WriterRequest
@@ -9,7 +11,7 @@ from django.contrib.auth import get_user_model
 from django.templatetags.static import static 
 from berita.models import News
 from .forms import AdminUserUpdateForm, WriterRequestForm
-from django.db.models import Q
+from django.db.models import Q,  Avg
 
 User = get_user_model()
 
@@ -90,6 +92,8 @@ def load_news(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('type') == 'json':
         data = []
         for news in news_list:
+            avg_rating = Rating.objects.filter(news=news).aggregate(Avg('rating'))['rating__avg']
+            rating_count = Rating.objects.filter(news=news).count()
             # Handle thumbnail
             thumb_url = ""
             if news.thumbnail:
@@ -106,7 +110,10 @@ def load_news(request):
                 'thumbnail': thumb_url,
                 'created_at': news.created_at.isoformat(),
                 'is_featured': news.is_featured,
-                'average_rating': news.average_rating
+                'user_id': str(news.user.id),
+                'user_username': news.user.username,
+                'average_rating': round(avg_rating, 1) if avg_rating else None,
+                'rating_count': rating_count,
             }
             data.append(item)
             
