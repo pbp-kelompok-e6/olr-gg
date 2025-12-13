@@ -104,7 +104,7 @@ def load_news(request):
                 'category': news.category,
                 'category_display': news.get_category_display(),
                 'thumbnail': thumb_url,
-                'created_at': news.created_at.strftime("%d %b %Y"),
+                'created_at': news.created_at.isoformat(),
                 'is_featured': news.is_featured,
                 'average_rating': news.average_rating
             }
