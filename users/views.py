@@ -84,7 +84,7 @@ def edit_profile_flutter(request):
 
 def show_profile(request, id):
     target_user = get_object_or_404(User, id=id)
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('type') == 'json':
         if target_user.profile_picture:
             pic_url = target_user.profile_picture.url
         else:
@@ -161,6 +161,7 @@ def load_news(request):
     }
     return render(request, 'user_news_list.html', context)
 
+@csrf_exempt
 @login_required(login_url='/login')
 def change_profile_pic(request):
     if request.method == 'POST':
@@ -195,7 +196,7 @@ def change_profile_pic(request):
     }
     return render(request, 'change_pic.html', context)
 
-
+@csrf_exempt
 @login_required(login_url='/login')
 def report_user(request, id):
     try:
@@ -232,6 +233,7 @@ def report_user(request, id):
 def is_admin(user):
     return user.is_authenticated and (user.is_staff or user.is_superuser)
 
+@csrf_exempt
 @user_passes_test(is_admin, login_url='/login')
 def admin_dashboard(request):
     users = User.objects.all().order_by('username')
@@ -288,6 +290,7 @@ def admin_dashboard(request):
     }
     return render(request, 'admin_dashboard.html', context)
 
+@csrf_exempt
 @user_passes_test(is_admin, login_url='/login')
 def admin_edit_user(request, id):
 
@@ -328,6 +331,7 @@ def admin_edit_user(request, id):
     }
     return render(request, 'admin_edit_user.html', context)
 
+@csrf_exempt
 @user_passes_test(is_admin, login_url='/login')
 def admin_reset_strikes(request, id):
     if request.method != 'POST':
@@ -352,6 +356,7 @@ def admin_reset_strikes(request, id):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+@csrf_exempt
 @user_passes_test(is_admin, login_url='/login')
 def admin_delete_report(request, id):
     if request.method != 'POST':
@@ -366,6 +371,7 @@ def admin_delete_report(request, id):
         'action': 'rejected'
     })
 
+@csrf_exempt
 @user_passes_test(is_admin, login_url='/login')
 def admin_accept_report(request, id):
     if request.method != 'POST':
@@ -393,6 +399,7 @@ def admin_accept_report(request, id):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+@csrf_exempt
 @login_required(login_url='/login')
 def request_writer_role(request):
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
@@ -432,7 +439,7 @@ def request_writer_role(request):
     }
     return render(request, 'request_writer_role.html', context)
 
-
+@csrf_exempt
 @user_passes_test(is_admin, login_url='/login')
 def admin_approve_writer(request, id):
     if request.method != 'POST':
@@ -460,7 +467,7 @@ def admin_approve_writer(request, id):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
-
+@csrf_exempt
 @user_passes_test(is_admin, login_url='/login')
 def admin_reject_writer(request, id):
     if request.method != 'POST':
