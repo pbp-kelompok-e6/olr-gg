@@ -237,6 +237,50 @@ def admin_dashboard(request):
     users = User.objects.all().order_by('username')
     reports = Report.objects.all().select_related('reporter', 'reported_user').order_by('-created_at')
     writer_requests = WriterRequest.objects.filter(status='pending').select_related('user').order_by('created_at')
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('type') == 'json':
+        users_data = []
+        for user in users:
+            pic_url = user.profile_picture.url if user.profile_picture else static('image/default_profile_picture.jpg')
+            users_data.append({
+                'id': user.id,
+                'username': user.username,
+                'full_name': f"{user.first_name or ''} {user.last_name or ''}".strip(),
+                'role': user.role,
+                'is_active': user.is_active,
+                'strikes': user.strikes,
+                'is_superuser': user.is_superuser,
+                'profile_picture_url': pic_url,
+            })
+        
+        reports_data = []
+        for report in reports:
+             reports_data.append({
+                'id': report.id,
+                'created_at': report.created_at.strftime('%d %b %Y, %H:%M'),
+                'reporter_username': report.reporter.username,
+                'reported_username': report.reported_user.username,
+                'reported_user_id': report.reported_user.id,
+                'reason': report.reason,
+             })
+
+        requests_data = []
+        for req in writer_requests:
+            requests_data.append({
+                'id': req.id,
+                'created_at': req.created_at.strftime('%d %b %Y, %H:%M'),
+                'username': req.user.username,
+                'user_id': req.user.id,
+                'reason': req.reason,
+            })
+
+        return JsonResponse({
+            'status': 'success',
+            'users': users_data,
+            'reports': reports_data,
+            'writer_requests': requests_data
+        })
+
     context = {
         'users': users,
         'reports': reports,
