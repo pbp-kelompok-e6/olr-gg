@@ -12,6 +12,10 @@ from django.templatetags.static import static
 from berita.models import News
 from .forms import AdminUserUpdateForm, WriterRequestForm
 from django.db.models import Q,  Avg
+import json, base64
+from django.core.files.base import ContentFile
+
+
 
 User = get_user_model()
 
@@ -249,6 +253,7 @@ def admin_dashboard(request):
                 'username': user.username,
                 'full_name': f"{user.first_name or ''} {user.last_name or ''}".strip(),
                 'role': user.role,
+                'bio': user.bio,
                 'is_active': user.is_active,
                 'strikes': user.strikes,
                 'is_superuser': user.is_superuser,
@@ -293,9 +298,7 @@ def admin_dashboard(request):
 @csrf_exempt
 @user_passes_test(is_admin, login_url='/login')
 def admin_edit_user(request, id):
-
     user_to_edit = get_object_or_404(User, id=id)
-    
     if request.method == 'POST':
 
         form = AdminUserUpdateForm(request.POST, request.FILES, instance=user_to_edit)
@@ -330,6 +333,7 @@ def admin_edit_user(request, id):
         'user_to_edit': user_to_edit
     }
     return render(request, 'admin_edit_user.html', context)
+
 
 @csrf_exempt
 @user_passes_test(is_admin, login_url='/login')
@@ -509,4 +513,33 @@ def show_current_user_profile(request):
             'date_joined': user.date_joined.strftime('%Y-%m-%d'),
             'profile_picture_url': pic_url,
         }
+    })
+
+
+@csrf_exempt
+@login_required
+def request_writer_role_flutter(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
+
+    if request.user.role != 'reader':
+        return JsonResponse({'status': 'error', 'message': 'Only readers can request to become writers.'}, status=403)
+
+    if WriterRequest.objects.filter(user=request.user, status='pending').exists():
+        return JsonResponse({'status': 'error', 'message': 'You already have a pending request.'}, status=409)
+
+    reason = request.POST.get('reason')
+
+    if not reason:
+        return JsonResponse({'status': 'error', 'message': 'Reason cannot be empty.'}, status=400)
+
+    WriterRequest.objects.create(
+        user=request.user,
+        reason=reason,
+        status='pending'
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Your request has been submitted successfully.'
     })
