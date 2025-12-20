@@ -178,3 +178,17 @@ def show_forum_json(request):
         })
         
     return JsonResponse(data, safe=False)
+
+def show_comments_json(request, post_id):
+    post = get_object_or_404(ForumPost, id=post_id)
+    comments = ForumComment.objects.filter(post=post).order_by('-created_at')
+    
+    data = []
+    for comment in comments:
+        data.append({
+            "id": comment.id,
+            "user": comment.author.username,
+            "content": comment.content,
+            "created_at": comment.created_at.isoformat(),
+        })
+    return JsonResponse(data, safe=False)
