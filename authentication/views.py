@@ -55,6 +55,8 @@ def register(request):
         username = data['username']
         password1 = data['password1']
         password2 = data['password2']
+        firstname = data['first_name']
+        lastname = data['last_name']
 
         # Check if the passwords match
         if password1 != password2:
@@ -71,7 +73,7 @@ def register(request):
             }, status=400)
         
         # Create the new user
-        user = User.objects.create_user(username=username, password=password1, role = "reader")
+        user = User.objects.create_user(username=username, password=password1, role = "reader", first_name = firstname, last_name = lastname)
         user.save()
         
         return JsonResponse({

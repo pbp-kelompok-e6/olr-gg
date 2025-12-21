@@ -78,7 +78,7 @@
 </div>
 
 {% if user.is_authenticated %}
-  {% include 'readinglist/reading_list_modal.html' %}
+{% include 'readinglist/reading_list_modal.html' %}
 {% endif %}
 
 {% include 'readinglist/reading_list_scripts.html' %}
@@ -113,7 +113,7 @@
 
   async function refreshNews() {
     showLoadingState();
-    
+
     try {
       const response = await fetch(NEWS_API_ENDPOINT, {
         headers: { 'Accept': 'application/json' }
@@ -151,7 +151,7 @@
       showMyNewsButton.className =
         'px-4 py-2 rounded-md font-medium transition-all duration-300 text-gray-700 hover:text-gray-900';
     }
-}
+  }
 
   function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
     if (loadingSpinner) loadingSpinner.classList.toggle('hidden', !showLoading);
@@ -206,43 +206,43 @@
     const article = document.createElement('article');
     const gridSpan = isFeatured ? 'lg:col-span-3 md:col-span-2' : '';
     article.className = `bg-white rounded-lg border border-gray-200 hover:border-red-500 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full group ${gridSpan}`;
-    
+
     const linkDetail = "{% url 'main:show_news' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', item.id);
     const title = DOMPurify.sanitize(item.title);
     const content = DOMPurify.sanitize(item.content);
     const category = DOMPurify.sanitize(item.category);
     const thumbnail = DOMPurify.sanitize(item.thumbnail);
-    const createdAt = DOMPurify.sanitize(new Date(item.created_at).toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+    const createdAt = DOMPurify.sanitize(new Date(item.created_at).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     }));
 
     const hasRating = item.average_rating !== null && item.average_rating !== undefined;
-    const ratingDisplay = hasRating 
-        ? `<div class="flex items-center">
+    const ratingDisplay = hasRating
+      ? `<div class="flex items-center">
              <span class="text-yellow-500 mr-1">★</span>
              <span class="text-sm font-medium text-gray-900">${item.average_rating}</span>
              <span class="text-xs text-gray-500 ml-1">(${item.rating_count})</span>
            </div>`
-        : `<div class="flex items-center">
+      : `<div class="flex items-center">
              <span class="text-gray-300 mr-1">★</span>
              <span class="text-sm text-gray-500">No ratings</span>
            </div>`;
 
-  const aspectRatio = isFeatured? 'aspect-[16/9] lg:aspect-[21/9]' : 'aspect-[16/9]';
-    const thumbnailHtml = item.thumbnail 
-        ? `<img src='${thumbnail}' alt='${title}' class='w-full h-full object-cover group-hover:scale-110 transition-transform duration-300'>` 
-        : `<div class='w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center'>
+    const aspectRatio = isFeatured ? 'aspect-[16/9] lg:aspect-[21/9]' : 'aspect-[16/9]';
+    const thumbnailHtml = item.thumbnail
+      ? `<img src='${thumbnail}' alt='${title}' class='w-full h-full object-cover group-hover:scale-110 transition-transform duration-300'>`
+      : `<div class='w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center'>
              <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
              </svg>
            </div>`;
-    
+
     const categoryLabel = DOMPurify.sanitize(getReadableCategoryName(category));
     const categoryColor = getCategoryColor(category);
     const featuredLabel = isFeatured ? `<span class='inline-flex items-center px-3 py-1 rounded-md text-sm font-bold bg-yellow-500 text-white shadow-lg'>★ FEATURED</span>` : '';
-    
+
     const canEdit = IS_AUTHENTICATED && String(CURRENT_USER_ID) === String(item.user_id);
     const editDeleteHtml = canEdit
       ? `<div class="flex space-x-3">
@@ -260,7 +260,7 @@
            </a>
          </div>`
       : '';
-    
+
     const readingListToggleHtml = IS_AUTHENTICATED
       ? `<button class="text-sm text-red-600 hover:text-red-700 font-medium transition-colors" onclick="event.stopPropagation(); event.preventDefault(); openReadingListModalForNews('${item.id}')">
            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,7 +277,7 @@
 
     const titleSize = isFeatured ? 'text-3xl' : 'text-xl';
     const contentLines = isFeatured ? 'line-clamp-4' : 'line-clamp-3';
-    
+
     article.innerHTML = `
       <div class="${aspectRatio} relative overflow-hidden">
         ${thumbnailHtml}
@@ -323,23 +323,23 @@
 
   function renderAllNewsCards(newsItems) {
     newsGridContainer.innerHTML = '';
-    
+
     // pisahin featured sm regular news
     const featuredNews = newsItems.filter(item => item.is_featured);
     const regularNews = newsItems.filter(item => !item.is_featured);
-    
+
     // sort featured paling baru dibuat
     featuredNews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    
+
     // Sort regular paling baru dibuat 
     regularNews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    
+
     // show featured news duluan
     featuredNews.forEach(newsItem => {
       const cardElement = buildNewsCardElement(newsItem, true);
       newsGridContainer.appendChild(cardElement);
     });
-    
+
     regularNews.forEach(newsItem => {
       const cardElement = buildNewsCardElement(newsItem, false);
       newsGridContainer.appendChild(cardElement);
@@ -348,16 +348,16 @@
 
   function filterAndDisplayNews() {
     updateFilterButtonsAppearance();
-    
+
     let filteredNews = filterNewsByCategory(allNewsData);
-    
+
     if (activeFilter === 'my' && IS_AUTHENTICATED) {
       filteredNews = filteredNews.filter(news => String(news.user_id) === String(CURRENT_USER_ID));
     } else if (activeFilter === 'my' && !IS_AUTHENTICATED) {
       activeFilter = 'all';
       updateFilterButtonsAppearance();
     }
-    
+
     if (filteredNews.length === 0) {
       displayPageSection({ showEmpty: true });
     } else {
@@ -402,12 +402,12 @@
   }
 
   function initializeNewsPage() {
-  if (showMyNewsButton) {
-    showMyNewsButton.addEventListener('click', handleShowMyNewsClick);
-  }
+    if (showMyNewsButton) {
+      showMyNewsButton.addEventListener('click', handleShowMyNewsClick);
+    }
 
-  fetchNewsFromServer(); // awalnya tampil semua
-  } 
+    fetchNewsFromServer(); // awalnya tampil semua
+  }
 
   document.addEventListener('DOMContentLoaded', initializeNewsPage);
   document.addEventListener('newsAdded', function () {
