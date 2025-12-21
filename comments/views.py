@@ -11,8 +11,9 @@ from main.views import login_required
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.utils.html import strip_tags
+import json
 
 
 def get_comment_data(comment):
@@ -40,7 +41,6 @@ def show_comments(request, id):
 
 
 @login_required()
-
 @require_POST
 def add_comment(request, news_id):
     try:
@@ -79,8 +79,8 @@ def add_comment(request, news_id):
         }, status=500)
 
 
-@require_POST
 @login_required()
+@require_http_methods(["PUT"])
 def edit_comment(request, id, news_id):
     try:
         comment = get_object_or_404(Comments, pk=id)
@@ -92,7 +92,14 @@ def edit_comment(request, id, news_id):
                 "message": "Access denied."
             }, status=403)
         
-        content = strip_tags(request.POST.get("content"))
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            content = strip_tags(data.get("content", ""))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return JsonResponse({
+                "status": "ERROR",
+                "message": "Invalid JSON data."
+            }, status=400)
         
         if not content:
             return JsonResponse({
@@ -121,7 +128,7 @@ def edit_comment(request, id, news_id):
         }, status=500)
 
 @login_required()
-@require_POST
+@require_http_methods(["DELETE"])
 def delete_comment(request, id, news_id):
     try:
         comment = Comments.objects.get(pk=id)
@@ -159,8 +166,99 @@ def show_comments_json(request):
             'content': comment.content,
             'created_at': comment.created_at.isoformat() if comment.created_at else None,
             'updated_at': comment.updated_at.isoformat() if comment.updated_at else None,
+            'user_username': comment.user.username if comment.user_id else None,
+            'user_role': comment.user.role if comment.user_id and hasattr(comment.user, 'role') else None,
         }
         for comment in comment_list
     ]
 
     return JsonResponse(data, safe=False)
+
+def get_comments_json(request, news_id):
+    comment_list = Comments.objects.filter(news__id=news_id)
+    data = [
+        {
+            'id': comment.id,
+            'news_id': comment.news.id,
+            'user_id': comment.user_id,
+            'content': comment.content,
+            'created_at': comment.created_at.isoformat() if comment.created_at else None,
+            'updated_at': comment.updated_at.isoformat() if comment.updated_at else None,
+            'user_username': comment.user.username if comment.user_id else None,
+            'user_role': comment.user.role if comment.user_id and hasattr(comment.user, 'role') else None,
+        }
+        for comment in comment_list
+    ]
+
+    return JsonResponse(data, safe=False)
+
+@csrf_exempt
+def api_create_comments(request):
+    if request.method == 'POST':
+        try:
+
+            if not request.user.is_authenticated:
+                return JsonResponse({"status": "error", "message": "Authentication required"}, status=401)
+            
+
+            news_id = request.POST.get('news_id')
+            content = request.POST.get('content')
+            
+            content = strip_tags(content) if content else ''
+            
+            if not content or not content.strip():
+                return JsonResponse({"status": "error", "message": "Content is required"}, status=400)
+            
+            if not news_id:
+                return JsonResponse({"status": "error", "message": "News ID is required"}, status=400)
+            
+            news = get_object_or_404(News, pk=news_id)
+            comment = Comments.objects.create(
+                news=news,
+                user=request.user,
+                content=content
+            )
+            
+            return JsonResponse({
+                "status": "success",
+                "message": "Comment created successfully",
+                "comment": get_comment_data(comment)
+            }, status=201)
+        except Exception as e:
+            import traceback
+            print(f"ERROR: {str(e)}")
+            print(traceback.format_exc())
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+    
+    return JsonResponse({"error": "Invalid request"}, status=400)
+    
+
+    
+@csrf_exempt
+@login_required
+def api_edit_comments(request, comment_id):
+    if request.method == 'POST':
+        try:
+            comment = Comments.objects.get(pk=comment_id)
+            data = json.loads(request.body)
+            user = comment.user;
+            comment.content = strip_tags(data.get("content", comment.content))
+            comment.updated_at = timezone.now()
+            comment.save()
+            return JsonResponse({"status": "success"}, status=200)
+        except Comments.DoesNotExist:
+            return JsonResponse({"error": "Comment not found"}, status=404)
+    return JsonResponse({"error": "Invalid request"}, status=400)
+    
+@csrf_exempt
+@login_required
+def api_delete_comments(request, comment_id):
+    if request.method == 'POST':
+        try:
+            comment = Comments.objects.get(pk=comment_id)
+            comment.delete()
+            return JsonResponse({"status": "success"}, status=200)
+        except Comments.DoesNotExist:
+            return JsonResponse({"error": "Comment not found"}, status=404)
+    return JsonResponse({"error": "Invalid request"}, status=400)
+    
