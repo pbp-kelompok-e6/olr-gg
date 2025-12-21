@@ -123,8 +123,18 @@ def proxy_image(request):
         return HttpResponse('No URL provided', status=400)
     
     try:
-        # Fetch image from external source
-        response = requests.get(image_url, timeout=10)
+        # --- PERBAIKAN DI SINI ---
+        # Kita menyamar sebagai Google Chrome di Windows agar tidak diblokir
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+            "Referer": "https://www.google.com/" # Kadang website mengecek referer juga
+        }
+
+        # Masukkan headers ke dalam request
+        response = requests.get(image_url, headers=headers, timeout=10)
+        
+        # Cek jika status code bukan 200 (misal 403 atau 404)
         response.raise_for_status()
         
         # Return the image with proper content type
@@ -133,6 +143,8 @@ def proxy_image(request):
             content_type=response.headers.get('Content-Type', 'image/jpeg')
         )
     except requests.RequestException as e:
+        # Print error ke terminal supaya kamu bisa lihat detailnya (misal: 403 Forbidden)
+        print(f"Proxy Error: {e}") 
         return HttpResponse(f'Error fetching image: {str(e)}', status=500)
 
 @csrf_exempt
