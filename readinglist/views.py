@@ -94,10 +94,19 @@ def add_to_list_ajax(request, news_id):
                 news=news
             )
             if created:
+                # Check if this news was already read in any other list
+                already_read = ReadingListItem.objects.filter(
+                    list__user=request.user,
+                    news=news,
+                    is_read=True
+                ).exists()
+                if already_read:
+                    item.is_read = True
+                    item.save(update_fields=["is_read"])
+                    
                 message = f"News berhasil ditambahkan ke list '{reading_list.name}'."
                 status = "ADDED"
             else:
-          
                 item.delete()
                 message = f"News berhasil dihapus dari list '{reading_list.name}'."
                 status = "REMOVED"
