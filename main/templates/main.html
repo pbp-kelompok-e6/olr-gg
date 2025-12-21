@@ -92,6 +92,7 @@
   const NEWS_API_ENDPOINT = "{% url 'main:show_json' %}";
   const CURRENT_USER_ID = "{{ user.id|default_if_none:'null' }}";
   const IS_AUTHENTICATED = window.IS_AUTHENTICATED;
+  const IS_ADMIN = "{{ user.is_staff|yesno:'true,false' }}" === 'true';
   const SELECTED_CATEGORY = "{{ selected_category|default:'' }}";
 
   const loadingSpinner = document.getElementById('loading');
@@ -243,23 +244,39 @@
     const categoryColor = getCategoryColor(category);
     const featuredLabel = isFeatured ? `<span class='inline-flex items-center px-3 py-1 rounded-md text-sm font-bold bg-yellow-500 text-white shadow-lg'>★ FEATURED</span>` : '';
 
-    const canEdit = IS_AUTHENTICATED && String(CURRENT_USER_ID) === String(item.user_id);
-    const editDeleteHtml = canEdit
-      ? `<div class="flex space-x-3">
-           <a href="#" class="text-blue-600 hover:text-blue-700 text-sm transition-colors font-medium" onclick="event.preventDefault(); showEditModal('${item.id}')">
-             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-             </svg>
-             Edit
-           </a>
-           <a href="#" class="text-red-600 hover:text-red-700 text-sm transition-colors font-medium" onclick='event.preventDefault(); showDeleteModal("${item.id}")'>
-             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-             </svg>
-             Delete
-           </a>
-         </div>`
-      : '';
+    const isOwner = IS_AUTHENTICATED && String(CURRENT_USER_ID) === String(item.user_id);
+    const canEdit = isOwner;
+    const canDelete = isOwner || IS_ADMIN;
+    let editDeleteHtml = '';
+    if (canEdit || canDelete) {
+      editDeleteHtml = `<div class="flex space-x-3">`;
+      if (canEdit) {
+        editDeleteHtml += `
+          <a href="#" class="text-blue-600 hover:text-blue-700 text-sm transition-colors font-medium"
+            onclick="event.preventDefault(); showEditModal('${item.id}')">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+              </path>
+            </svg>
+            Edit
+          </a>`;
+      }
+      if (canDelete) {
+        editDeleteHtml += `
+          <a href="#" class="text-red-600 hover:text-red-700 text-sm transition-colors font-medium"
+            onclick="event.preventDefault(); showDeleteModal('${item.id}')">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7
+                  m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+              </path>
+            </svg>
+            Delete
+          </a>`;
+      }
+      editDeleteHtml += `</div>`;
+    }
 
     const readingListToggleHtml = IS_AUTHENTICATED
       ? `<button class="text-sm text-red-600 hover:text-red-700 font-medium transition-colors" onclick="event.stopPropagation(); event.preventDefault(); openReadingListModalForNews('${item.id}')">
