@@ -135,7 +135,7 @@ def load_news(request):
             # Handle thumbnail
             thumb_url = ""
             if news.thumbnail:
-                thumb_url = news.thumbnail.url
+                thumb_url = news.thumbnail
             else:
                 thumb_url = static('image/default_news.jpg')
 
