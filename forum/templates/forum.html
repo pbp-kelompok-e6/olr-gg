@@ -137,13 +137,11 @@
             class="text-sm font-medium text-red-600 hover:underline">View More →</a>
 
           <div class="post-card-actions flex items-center gap-3">
-            {# Tombol Edit: Hanya muncul buat Pemilik Post #}
             {% if post.author == user %}
             <button class="edit-post-btn text-sm font-semibold text-blue-600 hover:text-blue-800"
               data-post-id="{{ post.id }}">Edit</button>
             {% endif %}
 
-            {# Tombol Delete: Muncul buat Pemilik Post ATAU Admin #}
             {% if post.author == user or user.is_superuser or user.role == 'Admin' %}
             <button class="delete-post-btn text-sm font-semibold text-red-600 hover:text-red-800"
               data-post-id="{{ post.id }}">Delete</button>
