@@ -6,7 +6,7 @@ OLR adalah pusat komunitas dan berita olahraga umum yang dirancang untuk penyuka
 
 - Raffi Dewangga Susanto (2406496076)
 - Gionado Gunawan (2406496196)
-- Rafa Pradita Ali Wisnutomo (2406496290)
+- Rafa Pradipta Ali Wisnutomo (2406496290)
 - Davin Fauzan Akmalianto (2406409504)
 - Matthew Nathanael Sendiko (2406496265)
 - Emilio Junino Rizanvidri Pao (2406496100)
@@ -44,3 +44,11 @@ Data initial berita olahraga diambil dari dataset kaggle berjudul “BBC Article
 
 - <a href="https://davin-fauzan-olr-gg.pbp.cs.ui.ac.id/">Link Deployment PWS</a>
 - <a href="https://www.figma.com/design/BBLkMs5eVU2K0ENdtY9ldC/OLR.GG?node-id=0-1&t=YQ5mlwgVePM0KDqT-1">Link Figma</a>
+
+# OLR.GG App
+[![Build Status](https://app.bitrise.io/app/f04a3f66-1420-4de8-b8c3-9c3f2e8c5067/status.svg?token=NRuOcPMOjai-aWnf8KvD7g&branch=main)](https://app.bitrise.io/app/f04a3f66-1420-4de8-b8c3-9c3f2e8c5067)
+
+## Download
+Download aplikasi versi terbaru: [Download APK](https://app.bitrise.io/app/f04a3f66-1420-4de8-b8c3-9c3f2e8c5067/installable-artifacts/5b5c204d7f522354/public-install-page/d3465341f0a86e74630a9556ac0a4d89)
+
+
