@@ -7,31 +7,46 @@ User = get_user_model()
 
 @csrf_exempt
 def login(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            password = data.get('password')
+        except json.JSONDecodeError:
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+
+        if username:
+            try:
+                user_check = User.objects.get(username=username)
+                
+                if not user_check.is_active:
+                    return JsonResponse({
+                        "status": False,
+                        "message": "Akun anda telah diblokir karena telah mencapai 3 strike. Silakan hubungi admin."
+                    }, status=403) 
+            
+            except User.DoesNotExist:
+                pass
+
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
             auth_login(request, user)
-            # Login status successful.
+            
             return JsonResponse({
                 "username": user.username,
                 "status": True,
                 "message": "Login successful!",
-                "role": user.role
-                # Add other data if you want to send data to Flutter.
+                "role": getattr(user, 'role', 'user') 
             }, status=200)
         else:
             return JsonResponse({
                 "status": False,
-                "message": "Login failed, account is disabled."
+                "message": "Login failed, please check your username or password."
             }, status=401)
 
-    else:
-        return JsonResponse({
-            "status": False,
-            "message": "Login failed, please check your username or password."
-        }, status=401)
+    return JsonResponse({"status": False, "message": "Invalid method"}, status=405)
     
 @csrf_exempt
 def register(request):
