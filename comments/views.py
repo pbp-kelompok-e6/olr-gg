@@ -92,7 +92,6 @@ def edit_comment(request, id, news_id):
                 "message": "Access denied."
             }, status=403)
         
-        # Parse JSON body for PUT request
         try:
             data = json.loads(request.body.decode('utf-8'))
             content = strip_tags(data.get("content", ""))
@@ -237,7 +236,7 @@ def api_create_comments(request):
     
 @csrf_exempt
 @login_required
-def api_edit_news(request, comment_id):
+def api_edit_comments(request, comment_id):
     if request.method == 'POST':
         try:
             comment = Comments.objects.get(pk=comment_id)
@@ -253,7 +252,7 @@ def api_edit_news(request, comment_id):
     
 @csrf_exempt
 @login_required
-def api_delete_news(request, comment_id):
+def api_delete_comments(request, comment_id):
     if request.method == 'POST':
         try:
             comment = Comments.objects.get(pk=comment_id)

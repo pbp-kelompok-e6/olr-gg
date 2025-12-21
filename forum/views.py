@@ -8,6 +8,7 @@ import json
 from django.utils.html import strip_tags
 from .forms import ForumPostForm
 from django.template.defaultfilters import date as _date
+from django.views.decorators.csrf import csrf_exempt
 
 def forum_view(request):
     all_posts = ForumPost.objects.all().order_by('-created_at')
@@ -16,7 +17,7 @@ def forum_view(request):
     }
     return render(request, 'forum.html', context)
 
-
+@csrf_exempt
 @login_required
 def create_post_ajax(request):
     if request.method == 'POST':
@@ -46,7 +47,7 @@ def create_post_ajax(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
-
+@csrf_exempt
 @login_required
 def edit_post_ajax(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id, author=request.user)
@@ -67,14 +68,17 @@ def edit_post_ajax(request, post_id):
         })
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
-
+@csrf_exempt
 @login_required
 def delete_post_ajax(request, post_id):
-    post = get_object_or_404(ForumPost, id=post_id, author=request.user)
-    if request.method == 'POST':
-        post.delete()
-        return JsonResponse({'status': 'success', 'redirect_url': reverse('forum:forum_view')})
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+    post = get_object_or_404(ForumPost, id=post_id)
+    user_role = getattr(request.user, 'role', '')
+    
+    if request.user == post.author or user_role == 'Admin' or request.user.is_superuser:
+        if request.method == 'POST':
+            post.delete()
+            return JsonResponse({'status': 'success', 'redirect_url': reverse('forum:forum_view')})
+    return JsonResponse({'status': 'error', 'message': 'You do not have permission to delete this post.'}, status=403)
 
 def post_detail_view(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id)
@@ -85,7 +89,7 @@ def post_detail_view(request, post_id):
     }
     return render(request, 'post_detail.html', context)
 
-
+@csrf_exempt
 @login_required
 def create_comment_ajax(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id)
@@ -110,6 +114,7 @@ def create_comment_ajax(request, post_id):
         })
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
+@csrf_exempt
 @login_required
 def delete_comment_ajax(request, comment_id):
     comment = get_object_or_404(ForumComment, id=comment_id, author=request.user)
@@ -118,7 +123,7 @@ def delete_comment_ajax(request, comment_id):
         return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
-
+@csrf_exempt
 @login_required
 def edit_comment_ajax(request, comment_id):
     comment = get_object_or_404(ForumComment, id=comment_id, author=request.user)
@@ -156,3 +161,34 @@ def get_post_data_ajax(request, post_id):
             }
         })
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+def show_forum_json(request):
+    all_posts = ForumPost.objects.all().order_by('-created_at')
+    data = []
+    
+    for post in all_posts:
+        data.append({
+            "id": post.id,
+            "title": post.title,
+            "content": post.content,
+            "user_username": post.author.username, # Ini penting buat Flutter
+            "category": post.category,
+            "created_at": post.created_at.isoformat(), # Format tanggal standar
+            # Tambahkan field lain jika perlu, misal jumlah komen
+        })
+        
+    return JsonResponse(data, safe=False)
+
+def show_comments_json(request, post_id):
+    post = get_object_or_404(ForumPost, id=post_id)
+    comments = ForumComment.objects.filter(post=post).order_by('-created_at')
+    
+    data = []
+    for comment in comments:
+        data.append({
+            "id": comment.id,
+            "user": comment.author.username,
+            "content": comment.content,
+            "created_at": comment.created_at.isoformat(),
+        })
+    return JsonResponse(data, safe=False)

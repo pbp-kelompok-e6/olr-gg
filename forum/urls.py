@@ -13,4 +13,6 @@ urlpatterns = [
     path('ajax/edit-comment/<int:comment_id>/', views.edit_comment_ajax, name='edit_comment_ajax'),
     path('ajax/delete-comment/<int:comment_id>/', views.delete_comment_ajax, name='delete_comment_ajax'),
     path('post/<int:post_id>/get-data/', views.get_post_data_ajax, name='get_post_data_ajax'),
+    path('json/', views.show_forum_json, name='show_forum_json'),
+    path('json/comments/<int:post_id>/', views.show_comments_json, name='show_comments_json'),
 ]
