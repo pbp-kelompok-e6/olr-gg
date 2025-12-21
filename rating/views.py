@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
 from berita.models import News
 from .models import Rating
 from .forms import ReviewForm
@@ -23,8 +24,14 @@ def get_ratings_json(request, news_id):
     ]
     return JsonResponse(data, safe=False)
 
-@login_required
+@csrf_exempt
 def add_rating(request, news_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Authentication required'
+        }, status=401)
+    
     if request.method == 'POST':
         news = get_object_or_404(News, id=news_id)
 
@@ -57,9 +64,15 @@ def add_rating(request, news_id):
             })
         return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
-@login_required
+@csrf_exempt
 def delete_rating(request, rating_id):
-    if request.method == 'DELETE':
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Authentication required'
+        }, status=401)
+    
+    if request.method in ['DELETE', 'POST']:  # Support both DELETE and POST
         rating = get_object_or_404(Rating, id=rating_id)
         # Cek apakah user pemilik dari rating ini
         if rating.user != request.user:
@@ -74,8 +87,14 @@ def delete_rating(request, rating_id):
             'message': "Rating berhasil dihapus"
         })
 
-@login_required
+@csrf_exempt
 def edit_rating(request, rating_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Authentication required'
+        }, status=401)
+    
     rating = get_object_or_404(Rating, id=rating_id)
     
     if rating.user != request.user:
@@ -84,8 +103,17 @@ def edit_rating(request, rating_id):
             'message': "Kamu tidak memiliki izin untuk mengedit rating ini."
         }, status=403)
 
-    if request.method == 'POST':
-        form = ReviewForm(request.POST, instance=rating)
+    if request.method in ['PUT', 'POST']:  # Support both PUT and POST
+        import json
+        from django.http import QueryDict
+        
+        # Parse data from request body
+        if request.method == 'PUT':
+            put_data = QueryDict(request.body)
+            form = ReviewForm(put_data, instance=rating)
+        else:  # POST
+            form = ReviewForm(request.POST, instance=rating)
+            
         if form.is_valid():
             rating = form.save()
             return JsonResponse({
