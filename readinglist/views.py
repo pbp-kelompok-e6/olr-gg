@@ -202,10 +202,16 @@ def delete_list(request, list_id):
 def toggle_read(request, item_id):
     if request.method == 'POST':
         item = get_object_or_404(ReadingListItem, id=item_id, list__user=request.user)
-        item.is_read = not item.is_read
-        item.save(update_fields=["is_read"])
-        return JsonResponse({"success": True, "is_read": item.is_read})
-    return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)    
+        new_status = not item.is_read
+        
+        # Sync read status across ALL lists for this news
+        ReadingListItem.objects.filter(
+            list__user=request.user,
+            news=item.news
+        ).update(is_read=new_status)
+        
+        return JsonResponse({"success": True, "is_read": new_status})
+    return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)
 
 @login_required
 def show_json_readinglist(request):

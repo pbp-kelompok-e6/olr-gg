@@ -38,7 +38,7 @@ def create_post_ajax(request):
                     'url': reverse('forum:post_detail_view', kwargs={'post_id': post.id}),
                     'category_code': post.category,
                     'category_display': post.get_category_display(),
-                    'created_at_formatted': _date(post.created_at, "M d, Y"), # Format tanggal
+                    'created_at_formatted': _date(post.created_at, "M d, Y"), 
                     'comment_count': 0 
                 }
             })
@@ -171,10 +171,9 @@ def show_forum_json(request):
             "id": post.id,
             "title": post.title,
             "content": post.content,
-            "user_username": post.author.username, # Ini penting buat Flutter
+            "user_username": post.author.username, 
             "category": post.category,
-            "created_at": post.created_at.isoformat(), # Format tanggal standar
-            # Tambahkan field lain jika perlu, misal jumlah komen
+            "created_at": post.created_at.isoformat(), 
         })
         
     return JsonResponse(data, safe=False)
